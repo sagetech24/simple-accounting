@@ -95,7 +95,7 @@ export default function Home({ products, categories, filters }) {
 
                 <SiteHeader />
 
-                <main className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 lg:px-12">
+                <main className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 sm:px-8 lg:px-12">
                     <section className="flex min-h-[calc(100vh-5.5rem)] flex-col justify-center py-10 sm:py-14">
                         <p
                             className="mb-4 font-sans text-xs font-medium tracking-[0.22em] text-accent uppercase opacity-0 motion-safe:animate-[fade-up_0.7s_ease_forwards]"
