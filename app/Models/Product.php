@@ -69,6 +69,21 @@ class Product extends Model
     }
 
     /**
+     * Admin catalog fields — includes purchase_price and soft-delete state.
+     *
+     * @return array<string, mixed>
+     */
+    public function toAdminArray(): array
+    {
+        return [
+            ...$this->toPublicArray(),
+            'purchase_price' => $this->purchase_price,
+            'category_ids' => $this->categories->pluck('id')->values()->all(),
+            'deleted_at' => $this->deleted_at?->toIso8601String(),
+        ];
+    }
+
+    /**
      * @param  Builder<Product>  $query
      * @return Builder<Product>
      */

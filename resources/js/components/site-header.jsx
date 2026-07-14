@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { destroy } from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
 import { home, login } from '@/routes';
+import { index as adminProducts } from '@/routes/admin/products';
 
 export default function SiteHeader() {
     const { auth, name } = usePage().props;
@@ -18,6 +19,12 @@ export default function SiteHeader() {
             <nav className="flex items-center gap-3 text-sm">
                 {auth?.user ? (
                     <>
+                        <Link
+                            href={adminProducts.url()}
+                            className="text-ink-soft transition hover:text-ink"
+                        >
+                            Products
+                        </Link>
                         <span className="hidden text-muted sm:inline">
                             {auth.user.name}
                         </span>
