@@ -6,7 +6,12 @@
 .phpactor.json
 .phpunit.result.cache
 /.codex
-/.cursor/
+# Keep Cursor agent skills/rules in git; ignore the rest of .cursor (plans, cache)
+/.cursor/*
+!/.cursor/skills/
+!/.cursor/skills/**
+!/.cursor/rules/
+!/.cursor/rules/**
 /.idea
 /.nova
 /.phpunit.cache

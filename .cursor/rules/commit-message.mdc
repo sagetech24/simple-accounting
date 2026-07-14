@@ -1,0 +1,14 @@
+---
+description: Append a copy-paste commit message after work that changes the repository
+alwaysApply: true
+---
+
+# Commit message summary
+
+At the end of work that changed the repository, follow `.cursor/skills/commit-message/SKILL.md`:
+
+- Run `git status`, `git diff`, and `git diff --staged` (in parallel when practical)
+- Summarize changes in 2–5 bullets (what / why), then append the recommended commit footer
+- Use conventional type prefixes (`feat`, `fix`, `style`, `refactor`, `test`, `docs`, `chore`)
+- Skip the commit block on question-only / review-only turns with **no** file changes, or when the user asks not to include one
+- Do **not** run `git commit`, `git push`, or open a PR unless the user explicitly asks

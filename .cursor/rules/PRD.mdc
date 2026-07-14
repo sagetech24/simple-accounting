@@ -1,0 +1,54 @@
+---
+description: Product Price Monitoring v1 PRD — public search and admin product CRUD
+alwaysApply: true
+---
+
+# Product Price Monitoring — PRD v1
+
+Ignore the workspace folder name. This product is **Product Price Monitoring**: a catalog of products with public search and admin-managed pricing/inventory.
+
+## Actors
+
+- **Guest:** Search and browse products; view public details only. No write access.
+- **Admin:** Single seeded account (via `DatabaseSeeder`). Must log in to create, update, soft-delete, and restore products. Sees `purchase_price`.
+
+## Domain — Product
+
+| Field | Rules |
+|-------|--------|
+| `name` | Required |
+| `description` | Nullable text |
+| `quantity` | Integer ≥ 0 |
+| `categories` | Many-to-many (`categories` + `category_product`) |
+| `purchase_price` | Decimal; **admin-only** — never expose on public pages |
+| `selling_price` | Decimal; public |
+| `status` | Enum: `available` \| `unavailable` \| `discontinued` |
+| Soft delete | `deleted_at`; soft-deleted products hidden from guests |
+
+## Public landing (`/`)
+
+- Search-first discovery: query by name/description; optional category filter
+- Result list + detail: name, description, quantity/availability, categories, selling price, status
+- Availability should be clear from `quantity` + `status`
+- Guests cannot mutate data
+
+## Admin (auth-gated)
+
+- Login / logout (minimal session auth; no public registration)
+- Product CRUD + soft delete / restore
+- Category management enough to assign categories on products
+- Full field access including `purchase_price`
+
+## Out of scope (v1)
+
+Multi-user roles, public registration, price history charts, inventory transactions, payments, multi-tenant, mobile API.
+
+## Recommended next (v1.x)
+
+- Price history / change log when purchase or selling price updates
+- Admin margin display (`selling_price - purchase_price`)
+- Low-stock threshold / badge when quantity is below N
+- Indexed or full-text search as the catalog grows
+- Policies/gates even with one admin (ready for more admins)
+- SEO-friendly public detail URLs (`/products/{slug}`)
+- Pagination and empty states on search results

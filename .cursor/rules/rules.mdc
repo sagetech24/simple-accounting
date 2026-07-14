@@ -1,0 +1,49 @@
+---
+description: Tech stack and coding conventions for this Laravel + React JSX (Inertia) app
+alwaysApply: true
+---
+
+# Tech Stack Rules
+
+This app is based on the Laravel React JSX boilerplate (not TypeScript starter kits). Follow these conventions.
+
+## Stack
+
+- **Backend:** Laravel 13, PHP 8.3+, Eloquent, Form Requests; soft deletes when the domain requires them
+- **SPA bridge:** Inertia.js v3 — no separate REST API for page loads
+- **Frontend:** React 19 + **JSX only** (no `.tsx` app code); pages in `resources/js/pages/*.jsx`
+- **Styling:** Tailwind CSS v4 via Vite; Instrument Sans is the default font
+- **Build:** Vite 8, React Compiler, Wayfinder (`@/routes`, `@/actions`)
+- **Quality:** Pint (PHP), ESLint + Prettier (JS/JSX), PHPUnit
+- **Dev:** `composer run dev` / `composer setup`
+
+## Do
+
+- Prefer `Route::inertia` or thin controllers that return `Inertia::render`
+- Use Inertia `useForm` + Wayfinder form helpers for mutations
+- Soft-delete domain models with Laravel `SoftDeletes`
+- Keep app pages as `.jsx` / `.js` under `resources/js/`
+- Import routes/actions from `@/routes` and `@/actions` after regenerating Wayfinder
+
+```jsx
+// ✅ GOOD — Inertia page + Wayfinder
+import { useForm } from '@inertiajs/react';
+import { store } from '@/actions/App/Http/Controllers/ProductController';
+
+const form = useForm({ name: '' });
+form.post(store.url());
+```
+
+```php
+// ✅ GOOD — thin Inertia controller
+return Inertia::render('products/show', [
+    'product' => $product,
+]);
+```
+
+## Don't
+
+- Do not introduce TypeScript app pages (`.tsx`) or a parallel API SPA for UI
+- Do not hand-edit generated Wayfinder files under `resources/js/routes` or `resources/js/actions`
+- Do not build full-page Blade views for app screens — use Inertia React pages
+- Do not skip Form Requests for write endpoints that need validation
