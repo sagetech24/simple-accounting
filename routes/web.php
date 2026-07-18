@@ -11,7 +11,14 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::redirect('/', '/products')->name('home');
+
+    Route::get('products', [HomeController::class, 'index'])->name('products');
+    Route::inertia('suppliers', 'suppliers/index')->name('suppliers');
+    Route::inertia('customers', 'customers/index')->name('customers');
+    Route::inertia('request-quotations', 'request-quotations/index')->name('request-quotations');
+    Route::inertia('purchased-orders', 'purchased-orders/index')->name('purchased-orders');
+    Route::inertia('received-orders', 'received-orders/index')->name('received-orders');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 

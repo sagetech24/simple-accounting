@@ -11,7 +11,7 @@ use Inertia\Response;
 class HomeController extends Controller
 {
     /**
-     * Authenticated home dashboard after login.
+     * Authenticated products panel in the app shell.
      */
     public function index(Request $request): Response
     {
@@ -36,7 +36,7 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'slug']);
 
-        return Inertia::render('home', [
+        return Inertia::render('products/index', [
             'products' => $products,
             'categories' => $categories,
             'filters' => [

@@ -17,14 +17,41 @@ class ExampleTest extends TestCase
             ->assertRedirect(route('login'));
     }
 
-    public function test_authenticated_users_can_view_home(): void
+    public function test_authenticated_users_are_redirected_from_home_to_products(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get('/')
+            ->assertRedirect('/products');
+    }
+
+    public function test_authenticated_users_can_view_products(): void
     {
         $this->seed();
 
         $this->actingAs(User::factory()->create())
-            ->get('/')
+            ->get(route('products'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('home'));
+            ->assertInertia(fn (Assert $page) => $page->component('products/index'));
+    }
+
+    public function test_authenticated_users_can_view_stub_sections(): void
+    {
+        $admin = User::factory()->create();
+
+        $pages = [
+            'suppliers' => 'suppliers/index',
+            'customers' => 'customers/index',
+            'request-quotations' => 'request-quotations/index',
+            'purchased-orders' => 'purchased-orders/index',
+            'received-orders' => 'received-orders/index',
+        ];
+
+        foreach ($pages as $route => $component) {
+            $this->actingAs($admin)
+                ->get(route($route))
+                ->assertOk()
+                ->assertInertia(fn (Assert $page) => $page->component($component));
+        }
     }
 
     public function test_login_page_is_shown(): void
@@ -33,13 +60,13 @@ class ExampleTest extends TestCase
             ->assertOk();
     }
 
-    public function test_login_redirects_to_home(): void
+    public function test_login_redirects_to_products(): void
     {
         $this->seed();
 
         $this->post(route('login.store'), [
             'email' => 'admin@example.com',
             'password' => 'password',
-        ])->assertRedirect(route('home'));
+        ])->assertRedirect(route('products'));
     }
 }

@@ -132,10 +132,10 @@ class ProductTest extends TestCase
         $deleted->delete();
 
         $this->actingAs($admin)
-            ->get(route('home'))
+            ->get(route('products'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('home')
+                ->component('products/index')
                 ->has('products.data', 1)
                 ->where('products.data.0.name', 'Visible Item')
                 ->missing('products.data.0.purchase_price')
