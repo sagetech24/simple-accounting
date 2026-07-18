@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
@@ -15,7 +16,6 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/', '/products')->name('home');
 
     Route::get('products', [HomeController::class, 'index'])->name('products');
-    Route::inertia('customers', 'customers/index')->name('customers');
     Route::inertia('request-quotations', 'request-quotations/index')->name('request-quotations');
     Route::inertia('purchased-orders', 'purchased-orders/index')->name('purchased-orders');
     Route::inertia('received-orders', 'received-orders/index')->name('received-orders');
@@ -24,6 +24,11 @@ Route::middleware('auth')->group(function () {
         ->withTrashed()
         ->name('suppliers.restore');
     Route::resource('suppliers', SupplierController::class)->except(['show', 'create', 'edit']);
+
+    Route::post('customers/{customer}/restore', [CustomerController::class, 'restore'])
+        ->withTrashed()
+        ->name('customers.restore');
+    Route::resource('customers', CustomerController::class)->except(['show', 'create', 'edit']);
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 

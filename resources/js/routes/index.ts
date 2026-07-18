@@ -184,50 +184,6 @@ products.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/customers'
-*/
-export const customers = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: customers.url(options),
-    method: 'get',
-})
-
-customers.definition = {
-    methods: ["get","head"],
-    url: '/customers',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/customers'
-*/
-customers.url = (options?: RouteQueryOptions) => {
-    return customers.definition.url + queryParams(options)
-}
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/customers'
-*/
-customers.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: customers.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/customers'
-*/
-customers.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: customers.url(options),
-    method: 'head',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
 * @route '/request-quotations'
 */
 export const requestQuotations = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({

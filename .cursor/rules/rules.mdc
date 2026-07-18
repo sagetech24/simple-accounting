@@ -44,7 +44,7 @@ Prefer Tailwind responsive utilities (`md:`, `lg:`, `xl:`). Do not ship layouts 
 - Soft-delete domain models with Laravel `SoftDeletes` when records should be recoverable
 - Keep app pages as `.jsx` / `.js` under `resources/js/`
 - Import routes/actions from `@/routes` and `@/actions` after regenerating Wayfinder
-- For simple resources (e.g. Suppliers): **index-only** UI — create/edit in a modal on the list; omit `create` / `edit` / `show` routes unless a full page is needed
+- For simple resources (e.g. Suppliers, Customers): **index-only** UI — create/edit in a modal on the list; omit `create` / `edit` / `show` routes unless a full page is needed
 - Design and test UI so tablet and higher remain fully usable (see Responsive design)
 - Flash success/error toasts with:
 

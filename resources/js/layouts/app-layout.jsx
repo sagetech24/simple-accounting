@@ -1,12 +1,12 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import SiteHeader from '@/components/site-header';
 import {
-    customers,
     products,
     purchasedOrders,
     receivedOrders,
     requestQuotations,
 } from '@/routes';
+import { index as customers } from '@/routes/customers';
 import { index as suppliers } from '@/routes/suppliers';
 
 const navItems = [
