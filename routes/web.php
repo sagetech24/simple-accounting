@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::post('suppliers/{supplier}/restore', [SupplierController::class, 'restore'])
         ->withTrashed()
         ->name('suppliers.restore');
-    Route::resource('suppliers', SupplierController::class)->except(['show']);
+    Route::resource('suppliers', SupplierController::class)->except(['show', 'create', 'edit']);
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 

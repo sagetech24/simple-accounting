@@ -43,9 +43,9 @@ export default function AppLayout({ title, children }) {
 
                 <SiteHeader />
 
-                <main className="relative z-10 mx-auto w-full px-5 py-5 sm:px-8 lg:px-8">
-                    <div className="flex gap-4">
-                        <aside className="w-full sm:w-40">
+                <main className="relative z-10 mx-auto w-full py-5 px-4">
+                    <div className="flex gap-2 sm:gap-4 p-0">
+                        <aside className="xl:w-min-40 min-w-28">
                             <nav
                                 aria-label="Main"
                                 className="grid auto-rows-fr grid-cols-2 gap-2 sm:grid-cols-1 lg:grid-cols-1"
@@ -74,7 +74,7 @@ export default function AppLayout({ title, children }) {
                             </nav>
                         </aside>
 
-                        <div className="min-h-[800px] w-full flex-1 rounded-md border border-line bg-white/80 p-6">
+                        <div className="min-h-[800px] w-full flex-1 overflow-auto rounded-md border border-line bg-white/80 px-0">
                             {children}
                         </div>
                     </div>

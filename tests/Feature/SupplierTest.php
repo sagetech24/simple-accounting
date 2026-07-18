@@ -31,6 +31,7 @@ class SupplierTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('suppliers/index')
                 ->has('suppliers.data', 1)
+                ->has('statuses')
                 ->where('suppliers.data.0.name', 'Acme Supply Co.')
             );
     }

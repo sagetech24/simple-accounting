@@ -43,22 +43,13 @@ class SupplierController extends Controller
 
         return Inertia::render('suppliers/index', [
             'suppliers' => $suppliers,
+            'statuses' => $this->statusOptions(),
             'filters' => [
                 'q' => $query ?? '',
                 'trashed' => $trashed ?? '',
                 'sort' => $sort,
                 'direction' => $direction,
             ],
-        ]);
-    }
-
-    /**
-     * Show the create supplier form.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('suppliers/create', [
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -75,17 +66,6 @@ class SupplierController extends Controller
         ]);
 
         return redirect()->route('suppliers.index');
-    }
-
-    /**
-     * Show the edit supplier form.
-     */
-    public function edit(Supplier $supplier): Response
-    {
-        return Inertia::render('suppliers/edit', [
-            'supplier' => $supplier->toArrayPayload(),
-            'statuses' => $this->statusOptions(),
-        ]);
     }
 
     /**

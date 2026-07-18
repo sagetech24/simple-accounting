@@ -1,11 +1,12 @@
 import { Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import {
     destroy,
     restore,
 } from '@/actions/App/Http/Controllers/SupplierController';
+import SupplierModal from '@/components/supplier-modal';
 import AppLayout from '@/layouts/app-layout';
-import { create, edit, index } from '@/routes/suppliers';
+import { index } from '@/routes/suppliers';
 
 const sortableColumns = [
     { key: 'name', label: 'Supplier' },
@@ -16,14 +17,20 @@ const sortableColumns = [
 function SortIcon({ active, direction }) {
     if (!active) {
         return (
-            <span className="ml-1 inline-block text-muted/50 text-lg" aria-hidden="true">
+            <span
+                className="ml-1 inline-block text-lg text-muted/50"
+                aria-hidden="true"
+            >
                 ↕
             </span>
         );
     }
 
     return (
-        <span className="ml-1 inline-block text-teal-700 text-lg" aria-hidden="true">
+        <span
+            className="ml-1 inline-block text-lg text-teal-700"
+            aria-hidden="true"
+        >
             {direction === 'asc' ? '↑' : '↓'}
         </span>
     );
@@ -34,7 +41,7 @@ function SortableHeader({ column, label, sort, direction, onSort }) {
     const nextDirection = active && direction === 'asc' ? 'desc' : 'asc';
 
     return (
-        <th className="py-3 pr-4 font-medium">
+        <th className="py-3 pr-4 font-medium px-4">
             <button
                 type="button"
                 onClick={() => onSort(column, nextDirection)}
@@ -56,11 +63,139 @@ function SortableHeader({ column, label, sort, direction, onSort }) {
     );
 }
 
-export default function SuppliersIndex({ suppliers, filters }) {
+function RowActionsMenu({
+    supplier,
+    open,
+    onToggle,
+    onClose,
+    onEdit,
+    onDelete,
+    onRestore,
+}) {
+    const menuId = useId();
+    const rootRef = useRef(null);
+    const isDeleted = Boolean(supplier.deleted_at);
+
+    useEffect(() => {
+        if (!open) {
+            return undefined;
+        }
+
+        function handlePointerDown(event) {
+            if (!rootRef.current?.contains(event.target)) {
+                onClose();
+            }
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        }
+
+        document.addEventListener('pointerdown', handlePointerDown);
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('pointerdown', handlePointerDown);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [open, onClose]);
+
+    return (
+        <div ref={rootRef} className="relative flex justify-end">
+            <button
+                type="button"
+                onClick={onToggle}
+                className="inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-ink-soft transition duration-300 hover:scale-105 hover:bg-gray-100"
+                aria-label={`Actions for ${supplier.name}`}
+                aria-haspopup="menu"
+                aria-expanded={open}
+                aria-controls={open ? menuId : undefined}
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-5"
+                    aria-hidden="true"
+                >
+                    <path d="M12 6.75a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3ZM12 13.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3ZM12 20.25a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" />
+                </svg>
+            </button>
+
+            {open && (
+                <div
+                    id={menuId}
+                    role="menu"
+                    className="absolute top-0 right-6 z-20 min-w-28 rounded-md border border-line bg-white py-1 shadow-md"
+                >
+                    {!isDeleted && (
+                        <>
+                            <button
+                                type="button"
+                                role="menuitem"
+                                onClick={() => {
+                                    onClose();
+                                    onEdit(supplier);
+                                }}
+                                className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                type="button"
+                                role="menuitem"
+                                onClick={() => {
+                                    onClose();
+                                    onDelete(supplier);
+                                }}
+                                className="block w-full px-3 py-2 text-left text-sm text-warn transition hover:bg-mist"
+                            >
+                                Delete
+                            </button>
+                        </>
+                    )}
+                    {isDeleted && (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                                onClose();
+                                onRestore(supplier);
+                            }}
+                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                        >
+                            Restore
+                        </button>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default function SuppliersIndex({ suppliers, filters, statuses }) {
     const [q, setQ] = useState(filters.q ?? '');
     const [trashed, setTrashed] = useState(filters.trashed ?? '');
+    const [openMenuId, setOpenMenuId] = useState(null);
+    const [modal, setModal] = useState({ open: false, mode: 'create', supplier: null });
     const sort = filters.sort ?? 'name';
     const direction = filters.direction ?? 'asc';
+
+    function openCreateModal() {
+        setOpenMenuId(null);
+        setModal({ open: true, mode: 'create', supplier: null });
+    }
+
+    function openEditModal(supplier) {
+        setOpenMenuId(null);
+        setModal({ open: true, mode: 'edit', supplier });
+    }
+
+    function closeModal() {
+        setModal({ open: false, mode: 'create', supplier: null });
+    }
 
     function visitIndex(params) {
         router.get(index.url(), params, {
@@ -116,8 +251,8 @@ export default function SuppliersIndex({ suppliers, filters }) {
 
     return (
         <AppLayout title="Suppliers">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
+            <div className="flex items-start justify-between gap-4 p-4">
+                <div className="flex flex-col gap-2">
                     <h2 className="text-2xl font-semibold tracking-tight text-ink">
                         Suppliers
                     </h2>
@@ -130,9 +265,11 @@ export default function SuppliersIndex({ suppliers, filters }) {
                         {suppliers.total === 1 ? 'supplier' : 'suppliers'}
                     </p>
                 </div>
-                <Link
-                    href={create.url()}
-                    className="flex min-h-11 items-center gap-1 rounded-md bg-teal-700 px-4 text-sm leading-[2.75rem] font-medium tracking-wide text-paper transition hover:bg-teal-800"
+                <button
+                    type="button"
+                    onClick={openCreateModal}
+                    className="flex size-14 items-center justify-center gap-1 rounded-full bg-teal-700 text-paper shadow-lg transition hover:bg-teal-800"
+                    aria-label="New supplier"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +277,7 @@ export default function SuppliersIndex({ suppliers, filters }) {
                         viewBox="0 0 24 24"
                         strokeWidth="1.5"
                         stroke="currentColor"
-                        className="size-4"
+                        className="size-6"
                     >
                         <path
                             strokeLinecap="round"
@@ -148,13 +285,12 @@ export default function SuppliersIndex({ suppliers, filters }) {
                             d="M12 4.5v15m7.5-7.5h-15"
                         />
                     </svg>
-                    New supplier
-                </Link>
+                </button>
             </div>
 
             <form
                 onSubmit={submitSearch}
-                className="mt-12 flex flex-col gap-3 sm:flex-row sm:items-end"
+                className="sm:mt-4 mt-12 flex flex-col gap-3 sm:flex-row sm:items-end p-4"
             >
                 <div className="flex w-1/4">
                     <input
@@ -197,9 +333,9 @@ export default function SuppliersIndex({ suppliers, filters }) {
                 </div>
             </form>
 
-            <div className="mt-6 overflow-x-auto">
+            <div className="mt-6 overflow-x-auto table-auto px-4">
                 <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-                    <thead>
+                    <thead className="sticky top-0 bg-teal-500/10 px-2">
                         <tr className="border-b border-line text-xs tracking-wide uppercase">
                             {sortableColumns.map((column) => (
                                 <SortableHeader
@@ -211,8 +347,8 @@ export default function SuppliersIndex({ suppliers, filters }) {
                                     onSort={sortBy}
                                 />
                             ))}
-                            <th className="py-3 font-medium text-muted">
-                                Actions
+                            <th className="w-12 py-3 text-right">
+                                <span className="sr-only">Actions</span>
                             </th>
                         </tr>
                     </thead>
@@ -221,7 +357,7 @@ export default function SuppliersIndex({ suppliers, filters }) {
                             <tr>
                                 <td
                                     colSpan={4}
-                                    className="py-10 text-muted"
+                                    className="py-10 text-muted text-center"
                                 >
                                     No suppliers match these filters.
                                 </td>
@@ -235,7 +371,7 @@ export default function SuppliersIndex({ suppliers, filters }) {
                                     key={supplier.id}
                                     className="border-b border-line/80 align-top"
                                 >
-                                    <td className="py-4 pr-4">
+                                    <td className="py-4 pr-4 px-4">
                                         <p
                                             className={
                                                 isDeleted
@@ -251,7 +387,7 @@ export default function SuppliersIndex({ suppliers, filters }) {
                                             </p>
                                         )}
                                     </td>
-                                    <td className="py-4 pr-4 text-ink-soft">
+                                    <td className="py-4 pr-4 text-ink-soft px-4">
                                         <p>
                                             {supplier.contact_name || '—'}
                                         </p>
@@ -261,7 +397,7 @@ export default function SuppliersIndex({ suppliers, filters }) {
                                             </p>
                                         )}
                                     </td>
-                                    <td className="py-4 pr-4 text-ink-soft">
+                                    <td className="py-4 pr-4 text-ink-soft px-4">
                                         <span
                                             className={`rounded-full border px-3 py-1 text-xs ${
                                                 supplier.status === 'active'
@@ -272,45 +408,22 @@ export default function SuppliersIndex({ suppliers, filters }) {
                                             {supplier.status_label}
                                         </span>
                                     </td>
-                                    <td className="py-4">
-                                        <div className="flex flex-wrap gap-2">
-                                            {!isDeleted && (
-                                                <>
-                                                    <Link
-                                                        href={edit.url(
-                                                            supplier.id,
-                                                        )}
-                                                        className="text-sm text-accent underline decoration-line underline-offset-4 hover:text-ink"
-                                                    >
-                                                        Edit
-                                                    </Link>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            deleteSupplier(
-                                                                supplier,
-                                                            )
-                                                        }
-                                                        className="text-sm text-warn underline decoration-line underline-offset-4"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </>
-                                            )}
-                                            {isDeleted && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        restoreSupplier(
-                                                            supplier,
-                                                        )
-                                                    }
-                                                    className="text-sm text-accent underline decoration-line underline-offset-4 hover:text-ink"
-                                                >
-                                                    Restore
-                                                </button>
-                                            )}
-                                        </div>
+                                    <td className="py-3 pl-2">
+                                        <RowActionsMenu
+                                            supplier={supplier}
+                                            open={openMenuId === supplier.id}
+                                            onToggle={() =>
+                                                setOpenMenuId((current) =>
+                                                    current === supplier.id
+                                                        ? null
+                                                        : supplier.id,
+                                                )
+                                            }
+                                            onClose={() => setOpenMenuId(null)}
+                                            onEdit={openEditModal}
+                                            onDelete={deleteSupplier}
+                                            onRestore={restoreSupplier}
+                                        />
                                     </td>
                                 </tr>
                             );
@@ -352,6 +465,14 @@ export default function SuppliersIndex({ suppliers, filters }) {
                     })}
                 </div>
             )}
+
+            <SupplierModal
+                open={modal.open}
+                mode={modal.mode}
+                supplier={modal.supplier}
+                statuses={statuses}
+                onClose={closeModal}
+            />
         </AppLayout>
     );
 }

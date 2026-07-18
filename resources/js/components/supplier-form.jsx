@@ -5,6 +5,7 @@ export default function SupplierForm({
     initialValues,
     submitLabel,
     onSubmit,
+    onCancel,
 }) {
     const form = useForm({
         name: initialValues?.name ?? '',
@@ -193,13 +194,25 @@ export default function SupplierForm({
                 )}
             </div>
 
-            <button
-                type="submit"
-                disabled={form.processing}
-                className="min-h-11 bg-ink px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-ink-soft disabled:opacity-60"
-            >
-                {form.processing ? 'Saving…' : submitLabel}
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+                <button
+                    type="submit"
+                    disabled={form.processing}
+                    className="min-h-11 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800 disabled:opacity-60"
+                >
+                    {form.processing ? 'Saving…' : submitLabel}
+                </button>
+                {onCancel && (
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={form.processing}
+                        className="min-h-11 rounded-md border border-line bg-white px-5 text-sm font-medium text-ink-soft transition hover:border-ink/30 hover:text-ink disabled:opacity-60"
+                    >
+                        Cancel
+                    </button>
+                )}
+            </div>
         </form>
     );
 }
