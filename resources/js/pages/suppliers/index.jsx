@@ -7,29 +7,99 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { create, edit, index } from '@/routes/suppliers';
 
+const sortableColumns = [
+    { key: 'name', label: 'Supplier' },
+    { key: 'contact_name', label: 'Contact' },
+    { key: 'status', label: 'Status' },
+];
+
+function SortIcon({ active, direction }) {
+    if (!active) {
+        return (
+            <span className="ml-1 inline-block text-muted/50 text-lg" aria-hidden="true">
+                ↕
+            </span>
+        );
+    }
+
+    return (
+        <span className="ml-1 inline-block text-teal-700 text-lg" aria-hidden="true">
+            {direction === 'asc' ? '↑' : '↓'}
+        </span>
+    );
+}
+
+function SortableHeader({ column, label, sort, direction, onSort }) {
+    const active = sort === column;
+    const nextDirection = active && direction === 'asc' ? 'desc' : 'asc';
+
+    return (
+        <th className="py-3 pr-4 font-medium">
+            <button
+                type="button"
+                onClick={() => onSort(column, nextDirection)}
+                className={`inline-flex items-center uppercase transition hover:text-ink ${
+                    active ? 'text-ink' : 'text-muted'
+                }`}
+                aria-sort={
+                    active
+                        ? direction === 'asc'
+                            ? 'ascending'
+                            : 'descending'
+                        : 'none'
+                }
+            >
+                {label}
+                <SortIcon active={active} direction={direction} />
+            </button>
+        </th>
+    );
+}
+
 export default function SuppliersIndex({ suppliers, filters }) {
     const [q, setQ] = useState(filters.q ?? '');
     const [trashed, setTrashed] = useState(filters.trashed ?? '');
+    const sort = filters.sort ?? 'name';
+    const direction = filters.direction ?? 'asc';
+
+    function visitIndex(params) {
+        router.get(index.url(), params, {
+            preserveState: true,
+            replace: true,
+        });
+    }
+
+    function currentParams(overrides = {}) {
+        return {
+            q: q || undefined,
+            trashed: trashed || undefined,
+            sort: sort || undefined,
+            direction: direction || undefined,
+            ...overrides,
+        };
+    }
 
     function submitSearch(event) {
         event.preventDefault();
-        router.get(
-            index.url(),
-            {
-                q: q || undefined,
-                trashed: trashed || undefined,
-            },
-            {
-                preserveState: true,
-                replace: true,
-            },
-        );
+        visitIndex(currentParams());
     }
 
     function clearFilters() {
         setQ('');
         setTrashed('');
-        router.get(index.url(), {}, { preserveState: true, replace: true });
+        visitIndex({
+            sort,
+            direction,
+        });
+    }
+
+    function sortBy(column, nextDirection) {
+        visitIndex(
+            currentParams({
+                sort: column,
+                direction: nextDirection,
+            }),
+        );
     }
 
     function deleteSupplier(supplier) {
@@ -46,20 +116,38 @@ export default function SuppliersIndex({ suppliers, filters }) {
 
     return (
         <AppLayout title="Suppliers">
-            <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h2 className="text-2xl font-semibold tracking-tight text-ink">
                         Suppliers
                     </h2>
-                    <p className="mt-1 text-sm text-muted">
-                        {suppliers.total}{' '}
+                    <p className="text-sm text-muted">
+                        Suppliers are the companies that provide products or
+                        services to your business.
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-muted">
+                        Total: {suppliers.total}{' '}
                         {suppliers.total === 1 ? 'supplier' : 'suppliers'}
                     </p>
                 </div>
                 <Link
                     href={create.url()}
-                    className="min-h-11 bg-teal-700 rounded-md px-4 text-sm leading-[2.75rem] font-medium tracking-wide text-paper transition hover:bg-teal-800"
+                    className="flex min-h-11 items-center gap-1 rounded-md bg-teal-700 px-4 text-sm leading-[2.75rem] font-medium tracking-wide text-paper transition hover:bg-teal-800"
                 >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="size-4"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 4.5v15m7.5-7.5h-15"
+                        />
+                    </svg>
                     New supplier
                 </Link>
             </div>
@@ -68,13 +156,7 @@ export default function SuppliersIndex({ suppliers, filters }) {
                 onSubmit={submitSearch}
                 className="mt-12 flex flex-col gap-3 sm:flex-row sm:items-end"
             >
-                <div className="flex-1">
-                    {/* <label
-                        htmlFor="q"
-                        className="mb-1.5 block text-sm font-medium text-ink-soft"
-                    >
-                        Search
-                    </label> */}
+                <div className="flex w-1/4">
                     <input
                         id="q"
                         type="search"
@@ -85,12 +167,6 @@ export default function SuppliersIndex({ suppliers, filters }) {
                     />
                 </div>
                 <div className="sm:w-48">
-                    {/* <label
-                        htmlFor="trashed"
-                        className="mb-1.5 block text-sm font-medium text-ink-soft"
-                    >
-                        Trash
-                    </label> */}
                     <select
                         id="trashed"
                         value={trashed}
@@ -105,7 +181,7 @@ export default function SuppliersIndex({ suppliers, filters }) {
                 <div className="flex gap-2">
                     <button
                         type="submit"
-                        className="min-h-11 bg-ink px-4 text-sm font-medium tracking-wide text-paper transition hover:bg-ink-soft"
+                        className="min-h-11 rounded-md bg-teal-600 px-4 text-sm font-medium tracking-wider text-paper transition hover:bg-teal-800"
                     >
                         Filter
                     </button>
@@ -124,11 +200,20 @@ export default function SuppliersIndex({ suppliers, filters }) {
             <div className="mt-6 overflow-x-auto">
                 <table className="w-full min-w-[640px] border-collapse text-left text-sm">
                     <thead>
-                        <tr className="border-b border-line text-xs tracking-wide text-muted uppercase">
-                            <th className="py-3 pr-4 font-medium">Supplier</th>
-                            <th className="py-3 pr-4 font-medium">Contact</th>
-                            <th className="py-3 pr-4 font-medium">Status</th>
-                            <th className="py-3 font-medium">Actions</th>
+                        <tr className="border-b border-line text-xs tracking-wide uppercase">
+                            {sortableColumns.map((column) => (
+                                <SortableHeader
+                                    key={column.key}
+                                    column={column.key}
+                                    label={column.label}
+                                    sort={sort}
+                                    direction={direction}
+                                    onSort={sortBy}
+                                />
+                            ))}
+                            <th className="py-3 font-medium text-muted">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -177,7 +262,15 @@ export default function SuppliersIndex({ suppliers, filters }) {
                                         )}
                                     </td>
                                     <td className="py-4 pr-4 text-ink-soft">
-                                        {supplier.status_label}
+                                        <span
+                                            className={`rounded-full border px-3 py-1 text-xs ${
+                                                supplier.status === 'active'
+                                                    ? 'border-green-600/30 bg-green-400/5 text-green-700'
+                                                    : 'border-red-600/30 bg-red-400/5 text-red-700'
+                                            }`}
+                                        >
+                                            {supplier.status_label}
+                                        </span>
                                     </td>
                                     <td className="py-4">
                                         <div className="flex flex-wrap gap-2">

@@ -100,6 +100,27 @@ class SupplierTest extends TestCase
         $this->assertNotSoftDeleted($supplier);
     }
 
+    public function test_suppliers_can_be_sorted_by_name_descending(): void
+    {
+        $admin = User::factory()->create();
+        Supplier::factory()->create(['name' => 'Alpha Supply']);
+        Supplier::factory()->create(['name' => 'Zulu Supply']);
+
+        $this->actingAs($admin)
+            ->get(route('suppliers.index', [
+                'sort' => 'name',
+                'direction' => 'desc',
+            ]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('suppliers/index')
+                ->where('filters.sort', 'name')
+                ->where('filters.direction', 'desc')
+                ->where('suppliers.data.0.name', 'Zulu Supply')
+                ->where('suppliers.data.1.name', 'Alpha Supply')
+            );
+    }
+
     public function test_supplier_seeder_creates_at_least_fifteen_active_suppliers(): void
     {
         $this->seed(SupplierSeeder::class);

@@ -15,23 +15,28 @@ use Inertia\Response;
 class SupplierController extends Controller
 {
     /**
-     * Supplier list with optional search and trash filter.
+     * Supplier list with optional search, trash filter, and sorting.
      */
     public function index(Request $request): Response
     {
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:120'],
             'trashed' => ['nullable', 'string', Rule::in(['only', 'with'])],
+            'sort' => ['nullable', 'string', Rule::in(['name', 'contact_name', 'status'])],
+            'direction' => ['nullable', 'string', Rule::in(['asc', 'desc'])],
         ]);
 
         $query = $filters['q'] ?? null;
         $trashed = $filters['trashed'] ?? null;
+        $sort = $filters['sort'] ?? 'name';
+        $direction = $filters['direction'] ?? 'asc';
 
         $suppliers = Supplier::query()
             ->when($trashed === 'only', fn ($builder) => $builder->onlyTrashed())
             ->when($trashed === 'with', fn ($builder) => $builder->withTrashed())
             ->search($query)
-            ->orderBy('name')
+            ->orderBy($sort, $direction)
+            ->orderBy('id')
             ->paginate(15)
             ->withQueryString()
             ->through(fn (Supplier $supplier) => $supplier->toArrayPayload());
@@ -41,6 +46,8 @@ class SupplierController extends Controller
             'filters' => [
                 'q' => $query ?? '',
                 'trashed' => $trashed ?? '',
+                'sort' => $sort,
+                'direction' => $direction,
             ],
         ]);
     }

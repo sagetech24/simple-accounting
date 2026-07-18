@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\SupplierController::restore
-* @see app/Http/Controllers/SupplierController.php:117
+* @see app/Http/Controllers/SupplierController.php:124
 * @route '/suppliers/{supplier}/restore'
 */
 export const restore = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ restore.definition = {
 
 /**
 * @see \App\Http\Controllers\SupplierController::restore
-* @see app/Http/Controllers/SupplierController.php:117
+* @see app/Http/Controllers/SupplierController.php:124
 * @route '/suppliers/{supplier}/restore'
 */
 restore.url = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ restore.url = (args: { supplier: number | { id: number } } | [supplier: number |
 
 /**
 * @see \App\Http\Controllers\SupplierController::restore
-* @see app/Http/Controllers/SupplierController.php:117
+* @see app/Http/Controllers/SupplierController.php:124
 * @route '/suppliers/{supplier}/restore'
 */
 restore.post = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -59,7 +59,7 @@ restore.post = (args: { supplier: number | { id: number } } | [supplier: number 
 
 /**
 * @see \App\Http\Controllers\SupplierController::restore
-* @see app/Http/Controllers/SupplierController.php:117
+* @see app/Http/Controllers/SupplierController.php:124
 * @route '/suppliers/{supplier}/restore'
 */
 const restoreForm = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ const restoreForm = (args: { supplier: number | { id: number } } | [supplier: nu
 
 /**
 * @see \App\Http\Controllers\SupplierController::restore
-* @see app/Http/Controllers/SupplierController.php:117
+* @see app/Http/Controllers/SupplierController.php:124
 * @route '/suppliers/{supplier}/restore'
 */
 restoreForm.post = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -162,7 +162,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\SupplierController::create
-* @see app/Http/Controllers/SupplierController.php:51
+* @see app/Http/Controllers/SupplierController.php:58
 * @route '/suppliers/create'
 */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -177,7 +177,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\SupplierController::create
-* @see app/Http/Controllers/SupplierController.php:51
+* @see app/Http/Controllers/SupplierController.php:58
 * @route '/suppliers/create'
 */
 create.url = (options?: RouteQueryOptions) => {
@@ -186,7 +186,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\SupplierController::create
-* @see app/Http/Controllers/SupplierController.php:51
+* @see app/Http/Controllers/SupplierController.php:58
 * @route '/suppliers/create'
 */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -196,7 +196,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\SupplierController::create
-* @see app/Http/Controllers/SupplierController.php:51
+* @see app/Http/Controllers/SupplierController.php:58
 * @route '/suppliers/create'
 */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -206,7 +206,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\SupplierController::create
-* @see app/Http/Controllers/SupplierController.php:51
+* @see app/Http/Controllers/SupplierController.php:58
 * @route '/suppliers/create'
 */
 const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -216,7 +216,7 @@ const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 
 /**
 * @see \App\Http\Controllers\SupplierController::create
-* @see app/Http/Controllers/SupplierController.php:51
+* @see app/Http/Controllers/SupplierController.php:58
 * @route '/suppliers/create'
 */
 createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -226,7 +226,7 @@ createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\SupplierController::create
-* @see app/Http/Controllers/SupplierController.php:51
+* @see app/Http/Controllers/SupplierController.php:58
 * @route '/suppliers/create'
 */
 createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -243,7 +243,7 @@ create.form = createForm
 
 /**
 * @see \App\Http\Controllers\SupplierController::store
-* @see app/Http/Controllers/SupplierController.php:61
+* @see app/Http/Controllers/SupplierController.php:68
 * @route '/suppliers'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -258,7 +258,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\SupplierController::store
-* @see app/Http/Controllers/SupplierController.php:61
+* @see app/Http/Controllers/SupplierController.php:68
 * @route '/suppliers'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -267,7 +267,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\SupplierController::store
-* @see app/Http/Controllers/SupplierController.php:61
+* @see app/Http/Controllers/SupplierController.php:68
 * @route '/suppliers'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -277,7 +277,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\SupplierController::store
-* @see app/Http/Controllers/SupplierController.php:61
+* @see app/Http/Controllers/SupplierController.php:68
 * @route '/suppliers'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -287,7 +287,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\SupplierController::store
-* @see app/Http/Controllers/SupplierController.php:61
+* @see app/Http/Controllers/SupplierController.php:68
 * @route '/suppliers'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -299,7 +299,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\SupplierController::edit
-* @see app/Http/Controllers/SupplierController.php:76
+* @see app/Http/Controllers/SupplierController.php:83
 * @route '/suppliers/{supplier}/edit'
 */
 export const edit = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -314,7 +314,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\SupplierController::edit
-* @see app/Http/Controllers/SupplierController.php:76
+* @see app/Http/Controllers/SupplierController.php:83
 * @route '/suppliers/{supplier}/edit'
 */
 edit.url = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -347,7 +347,7 @@ edit.url = (args: { supplier: number | { id: number } } | [supplier: number | { 
 
 /**
 * @see \App\Http\Controllers\SupplierController::edit
-* @see app/Http/Controllers/SupplierController.php:76
+* @see app/Http/Controllers/SupplierController.php:83
 * @route '/suppliers/{supplier}/edit'
 */
 edit.get = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -357,7 +357,7 @@ edit.get = (args: { supplier: number | { id: number } } | [supplier: number | { 
 
 /**
 * @see \App\Http\Controllers\SupplierController::edit
-* @see app/Http/Controllers/SupplierController.php:76
+* @see app/Http/Controllers/SupplierController.php:83
 * @route '/suppliers/{supplier}/edit'
 */
 edit.head = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -367,7 +367,7 @@ edit.head = (args: { supplier: number | { id: number } } | [supplier: number | {
 
 /**
 * @see \App\Http\Controllers\SupplierController::edit
-* @see app/Http/Controllers/SupplierController.php:76
+* @see app/Http/Controllers/SupplierController.php:83
 * @route '/suppliers/{supplier}/edit'
 */
 const editForm = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -377,7 +377,7 @@ const editForm = (args: { supplier: number | { id: number } } | [supplier: numbe
 
 /**
 * @see \App\Http\Controllers\SupplierController::edit
-* @see app/Http/Controllers/SupplierController.php:76
+* @see app/Http/Controllers/SupplierController.php:83
 * @route '/suppliers/{supplier}/edit'
 */
 editForm.get = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -387,7 +387,7 @@ editForm.get = (args: { supplier: number | { id: number } } | [supplier: number 
 
 /**
 * @see \App\Http\Controllers\SupplierController::edit
-* @see app/Http/Controllers/SupplierController.php:76
+* @see app/Http/Controllers/SupplierController.php:83
 * @route '/suppliers/{supplier}/edit'
 */
 editForm.head = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -404,7 +404,7 @@ edit.form = editForm
 
 /**
 * @see \App\Http\Controllers\SupplierController::update
-* @see app/Http/Controllers/SupplierController.php:87
+* @see app/Http/Controllers/SupplierController.php:94
 * @route '/suppliers/{supplier}'
 */
 export const update = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -419,7 +419,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\SupplierController::update
-* @see app/Http/Controllers/SupplierController.php:87
+* @see app/Http/Controllers/SupplierController.php:94
 * @route '/suppliers/{supplier}'
 */
 update.url = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -452,7 +452,7 @@ update.url = (args: { supplier: number | { id: number } } | [supplier: number | 
 
 /**
 * @see \App\Http\Controllers\SupplierController::update
-* @see app/Http/Controllers/SupplierController.php:87
+* @see app/Http/Controllers/SupplierController.php:94
 * @route '/suppliers/{supplier}'
 */
 update.put = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -462,7 +462,7 @@ update.put = (args: { supplier: number | { id: number } } | [supplier: number | 
 
 /**
 * @see \App\Http\Controllers\SupplierController::update
-* @see app/Http/Controllers/SupplierController.php:87
+* @see app/Http/Controllers/SupplierController.php:94
 * @route '/suppliers/{supplier}'
 */
 update.patch = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -472,7 +472,7 @@ update.patch = (args: { supplier: number | { id: number } } | [supplier: number 
 
 /**
 * @see \App\Http\Controllers\SupplierController::update
-* @see app/Http/Controllers/SupplierController.php:87
+* @see app/Http/Controllers/SupplierController.php:94
 * @route '/suppliers/{supplier}'
 */
 const updateForm = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -487,7 +487,7 @@ const updateForm = (args: { supplier: number | { id: number } } | [supplier: num
 
 /**
 * @see \App\Http\Controllers\SupplierController::update
-* @see app/Http/Controllers/SupplierController.php:87
+* @see app/Http/Controllers/SupplierController.php:94
 * @route '/suppliers/{supplier}'
 */
 updateForm.put = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -502,7 +502,7 @@ updateForm.put = (args: { supplier: number | { id: number } } | [supplier: numbe
 
 /**
 * @see \App\Http\Controllers\SupplierController::update
-* @see app/Http/Controllers/SupplierController.php:87
+* @see app/Http/Controllers/SupplierController.php:94
 * @route '/suppliers/{supplier}'
 */
 updateForm.patch = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -519,7 +519,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\SupplierController::destroy
-* @see app/Http/Controllers/SupplierController.php:102
+* @see app/Http/Controllers/SupplierController.php:109
 * @route '/suppliers/{supplier}'
 */
 export const destroy = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -534,7 +534,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\SupplierController::destroy
-* @see app/Http/Controllers/SupplierController.php:102
+* @see app/Http/Controllers/SupplierController.php:109
 * @route '/suppliers/{supplier}'
 */
 destroy.url = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -567,7 +567,7 @@ destroy.url = (args: { supplier: number | { id: number } } | [supplier: number |
 
 /**
 * @see \App\Http\Controllers\SupplierController::destroy
-* @see app/Http/Controllers/SupplierController.php:102
+* @see app/Http/Controllers/SupplierController.php:109
 * @route '/suppliers/{supplier}'
 */
 destroy.delete = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -577,7 +577,7 @@ destroy.delete = (args: { supplier: number | { id: number } } | [supplier: numbe
 
 /**
 * @see \App\Http\Controllers\SupplierController::destroy
-* @see app/Http/Controllers/SupplierController.php:102
+* @see app/Http/Controllers/SupplierController.php:109
 * @route '/suppliers/{supplier}'
 */
 const destroyForm = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -592,7 +592,7 @@ const destroyForm = (args: { supplier: number | { id: number } } | [supplier: nu
 
 /**
 * @see \App\Http\Controllers\SupplierController::destroy
-* @see app/Http/Controllers/SupplierController.php:102
+* @see app/Http/Controllers/SupplierController.php:109
 * @route '/suppliers/{supplier}'
 */
 destroyForm.delete = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
