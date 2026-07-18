@@ -11,7 +11,7 @@ use Inertia\Response;
 class HomeController extends Controller
 {
     /**
-     * Public search-first product catalog.
+     * Authenticated home dashboard after login.
      */
     public function index(Request $request): Response
     {

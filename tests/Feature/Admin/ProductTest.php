@@ -124,13 +124,15 @@ class ProductTest extends TestCase
             ]);
     }
 
-    public function test_public_catalog_hides_soft_deleted_products(): void
+    public function test_home_hides_soft_deleted_products(): void
     {
+        $admin = User::factory()->create();
         Product::factory()->create(['name' => 'Visible Item']);
         $deleted = Product::factory()->create(['name' => 'Hidden Item']);
         $deleted->delete();
 
-        $this->get(route('home'))
+        $this->actingAs($admin)
+            ->get(route('home'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('home')

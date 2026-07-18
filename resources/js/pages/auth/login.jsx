@@ -1,7 +1,6 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { store } from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
 import SiteHeader from '@/components/site-header';
-import { home } from '@/routes';
 
 export default function Login() {
     const { name } = usePage().props;
@@ -122,18 +121,6 @@ export default function Login() {
                             {form.processing ? 'Signing in…' : 'Sign in'}
                         </button>
                     </form>
-
-                    <p
-                        className="mt-8 text-sm text-muted opacity-0 motion-safe:animate-[fade-up_0.8s_ease_forwards]"
-                        style={{ animationDelay: '220ms' }}
-                    >
-                        <Link
-                            href={home.url()}
-                            className="underline decoration-line underline-offset-4 hover:text-ink"
-                        >
-                            Back to catalog
-                        </Link>
-                    </p>
                 </main>
             </div>
 
