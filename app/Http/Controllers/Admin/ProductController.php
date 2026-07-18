@@ -67,9 +67,12 @@ class ProductController extends Controller
         $product = Product::query()->create($request->productAttributes());
         $product->categories()->sync($request->categoryIds());
 
-        return redirect()
-            ->route('admin.products.index')
-            ->with('success', 'Product created.');
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Product created.',
+        ]);
+
+        return redirect()->route('admin.products.index');
     }
 
     /**
@@ -94,9 +97,12 @@ class ProductController extends Controller
         $product->update($request->productAttributes());
         $product->categories()->sync($request->categoryIds());
 
-        return redirect()
-            ->route('admin.products.index')
-            ->with('success', 'Product updated.');
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Product updated.',
+        ]);
+
+        return redirect()->route('admin.products.index');
     }
 
     /**
@@ -106,9 +112,12 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return redirect()
-            ->route('admin.products.index')
-            ->with('success', 'Product deleted.');
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Product deleted.',
+        ]);
+
+        return redirect()->route('admin.products.index');
     }
 
     /**
@@ -118,9 +127,12 @@ class ProductController extends Controller
     {
         $product->restore();
 
-        return redirect()
-            ->route('admin.products.index')
-            ->with('success', 'Product restored.');
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Product restored.',
+        ]);
+
+        return redirect()->route('admin.products.index');
     }
 
     /**

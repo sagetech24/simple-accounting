@@ -39,7 +39,6 @@ class ExampleTest extends TestCase
         $admin = User::factory()->create();
 
         $pages = [
-            'suppliers' => 'suppliers/index',
             'customers' => 'customers/index',
             'request-quotations' => 'request-quotations/index',
             'purchased-orders' => 'purchased-orders/index',

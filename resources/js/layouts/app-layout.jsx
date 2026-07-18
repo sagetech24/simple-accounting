@@ -6,8 +6,8 @@ import {
     purchasedOrders,
     receivedOrders,
     requestQuotations,
-    suppliers,
 } from '@/routes';
+import { index as suppliers } from '@/routes/suppliers';
 
 const navItems = [
     { label: 'Products', route: products },

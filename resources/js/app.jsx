@@ -1,4 +1,5 @@
 import { createInertiaApp } from '@inertiajs/react';
+import FlashToaster from '@/components/flash-toaster';
 import { initializeTheme } from '@/hooks/use-appearance';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -10,6 +11,12 @@ createInertiaApp({
         delay: 0,
         color: '#4B5563',
     },
+    withApp: (app) => (
+        <>
+            {app}
+            <FlashToaster />
+        </>
+    ),
 });
 
 initializeTheme();

@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import {
     destroy,
@@ -15,7 +15,6 @@ function formatMoney(value) {
 }
 
 export default function AdminProductsIndex({ products, filters }) {
-    const { flash } = usePage().props;
     const [q, setQ] = useState(filters.q ?? '');
     const [trashed, setTrashed] = useState(filters.trashed ?? '');
 
@@ -88,15 +87,6 @@ export default function AdminProductsIndex({ products, filters }) {
                             New product
                         </Link>
                     </div>
-
-                    {flash?.success && (
-                        <p
-                            className="mt-6 border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-ink-soft opacity-0 motion-safe:animate-[fade-up_0.6s_ease_forwards]"
-                            role="status"
-                        >
-                            {flash.success}
-                        </p>
-                    )}
 
                     <form
                         onSubmit={submitSearch}
