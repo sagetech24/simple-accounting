@@ -1,16 +1,43 @@
 ---
-description: Product Price Monitoring v1 PRD — public search and admin product CRUD
+description: Simple Accounting PRD — auth-gated catalog and procurement shell
 alwaysApply: true
 ---
 
-# Product Price Monitoring — PRD v1
+# Simple Accounting — PRD v1
 
-Ignore the workspace folder name. This product is **Product Price Monitoring**: a catalog of products with public search and admin-managed pricing/inventory.
+Internal ops app for catalog pricing and early procurement workflow. Ignore the historical “public catalog” framing: **all app screens require login**.
 
 ## Actors
 
-- **Guest:** Search and browse products; view public details only. No write access.
-- **Admin:** Single seeded account (via `DatabaseSeeder`). Must log in to create, update, soft-delete, and restore products. Sees `purchase_price`.
+- **Guest:** Login page only. No catalog or write access.
+- **Admin:** Single seeded account (via `DatabaseSeeder`). Full access to implemented modules after session login. No public registration.
+
+## App shell
+
+- Layout: `AppLayout` — site header + sidebar nav + main panel
+- Auth: session login/logout; `/` redirects to `/products`
+- Flash feedback: server `Inertia::flash('toast', { type, message })` → Sonner via `FlashToaster`
+
+### Cross-device UX
+
+- **Supported:** tablet (~768px+) and desktop — primary design targets
+- Every screen, table, form, modal, and control must remain **visible and fully functional** on tablet and larger
+- Phone layouts are best-effort; do not regress tablet/desktop for phone-only tweaks
+
+### Nav modules
+
+| Module | Route | Status |
+|--------|-------|--------|
+| Products | `/products` | Shipped — search/browse panel (no `purchase_price`) |
+| Suppliers | `/suppliers` | Shipped — full CRUD |
+| Customers | `/customers` | Stub empty panel |
+| Request Quotations | `/request-quotations` | Stub empty panel |
+| Purchased Orders | `/purchased-orders` | Stub empty panel |
+| Received Orders | `/received-orders` | Stub empty panel |
+
+Admin product management lives under `/admin/products` (also auth-gated).
+
+---
 
 ## Domain — Product
 
@@ -20,35 +47,50 @@ Ignore the workspace folder name. This product is **Product Price Monitoring**: 
 | `description` | Nullable text |
 | `quantity` | Integer ≥ 0 |
 | `categories` | Many-to-many (`categories` + `category_product`) |
-| `purchase_price` | Decimal; **admin-only** — never expose on public pages |
-| `selling_price` | Decimal; public |
+| `purchase_price` | Decimal; **admin-only** — never on `/products` browse props |
+| `selling_price` | Decimal; visible on browse + admin |
 | `status` | Enum: `available` \| `unavailable` \| `discontinued` |
-| Soft delete | `deleted_at`; soft-deleted products hidden from guests |
+| Soft delete | `deleted_at`; trashed products hidden from browse panel |
 
-## Public landing (`/`)
+### Products UX
 
-- Search-first discovery: query by name/description; optional category filter
-- Result list + detail: name, description, quantity/availability, categories, selling price, status
-- Availability should be clear from `quantity` + `status`
-- Guests cannot mutate data
+- **Browse (`/products`):** Search by name/description; optional category filter; list shows public fields only (`toPublicArray`)
+- **Admin (`/admin/products`):** CRUD + soft delete / restore; category assign; full fields including `purchase_price`
+- Soft-deleted products stay out of the browse panel
 
-## Admin (auth-gated)
+---
 
-- Login / logout (minimal session auth; no public registration)
-- Product CRUD + soft delete / restore
-- Category management enough to assign categories on products
-- Full field access including `purchase_price`
+## Domain — Supplier
+
+| Field | Rules |
+|-------|--------|
+| `name` | Required |
+| `contact_name` | Nullable |
+| `email` | Nullable, valid email |
+| `phone` | Nullable |
+| `address` | Nullable text |
+| `notes` | Nullable text |
+| `status` | Enum: `active` \| `inactive` |
+| Soft delete | `deleted_at`; trash filters on index |
+
+### Suppliers UX
+
+- Single index page (`/suppliers`) — **no** dedicated create/edit routes or pages
+- Create / edit in a **slide-down modal** on the index
+- List: search (`q`), trash filter (`trashed=only|with`), sortable columns (`name`, `contact_name`, `status`)
+- Soft delete + restore; toast flash on mutations
+- Resource routes: `index`, `store`, `update`, `destroy` + `suppliers.restore` (withTrashed)
+
+---
 
 ## Out of scope (v1)
 
-Multi-user roles, public registration, price history charts, inventory transactions, payments, multi-tenant, mobile API.
+Multi-user roles, public registration, public/guest catalog, payments, multi-tenant, mobile API, full RFQ/PO/receiving transaction ledgers (stubs only until scoped).
 
 ## Recommended next (v1.x)
 
-- Price history / change log when purchase or selling price updates
-- Admin margin display (`selling_price - purchase_price`)
-- Low-stock threshold / badge when quantity is below N
-- Indexed or full-text search as the catalog grows
-- Policies/gates even with one admin (ready for more admins)
-- SEO-friendly public detail URLs (`/products/{slug}`)
-- Pagination and empty states on search results
+- Implement Customers, then RFQ → Purchased Orders → Received Orders as real domains
+- Link suppliers to products / purchase flow
+- Product polish: margin, low-stock, price history, admin filters
+- Policies/gates even with one admin
+- Pagination/empty-state polish across modules

@@ -2,18 +2,17 @@
 
 Detailed domain and backlog for the **product** skill. For day-to-day agent workflow, use [SKILL.md](SKILL.md).
 
-Complements the v1 PRD (`.cursor/rules/PRD.mdc`).
+Complements the app PRD (`.cursor/rules/PRD.mdc`).
 
 ---
 
 ## 1. Purpose
 
-Maintain a single catalog of sellable items so:
+Maintain a single catalog of sellable items inside the auth-gated Simple Accounting shell so:
 
-- **Guests** can search and understand what is available, at what selling price, and in what quantity/status.
-- **Admins** can create and maintain products (including cost/`purchase_price`), categorize them, and soft-delete or restore without losing history.
+- **Admins** can browse `/products` (selling price, stock, status — no cost) and manage `/admin/products` (including `purchase_price`), categorize items, and soft-delete or restore without losing history.
 
-This module is the core domain entity. Categories, auth, and the public landing page all orbit Product.
+This module is a core domain entity alongside Suppliers and upcoming procurement stubs. Categories and auth orbit Product.
 
 ---
 
@@ -21,10 +20,10 @@ This module is the core domain entity. Categories, auth, and the public landing 
 
 | Actor | Access |
 |-------|--------|
-| **Guest** | Read-only public catalog. Never sees `purchase_price`. Soft-deleted products are hidden. |
-| **Admin** | Authenticated (seeded account). Full CRUD, soft delete, restore, and all fields including `purchase_price`. |
+| **Guest** | Login only. No product browse or mutations. |
+| **Admin** | Authenticated (seeded account). Browse `/products` without `purchase_price`. Full CRUD on `/admin/products` including cost, soft delete, and restore. |
 
-No public registration. No guest mutations.
+No public registration. No guest catalog.
 
 ---
 
@@ -34,20 +33,20 @@ No public registration. No guest mutations.
 
 | Field | Type | Rules | Visibility |
 |-------|------|-------|------------|
-| `id` | bigint | PK | Public + admin |
-| `name` | string | Required, max 255 | Public + admin |
-| `description` | text | Nullable | Public + admin |
-| `quantity` | unsigned int | ≥ 0, default 0 | Public + admin |
+| `id` | bigint | PK | Browse + admin |
+| `name` | string | Required, max 255 | Browse + admin |
+| `description` | text | Nullable | Browse + admin |
+| `quantity` | unsigned int | ≥ 0, default 0 | Browse + admin |
 | `purchase_price` | decimal(12,2) | Required, ≥ 0 | **Admin only** |
-| `selling_price` | decimal(12,2) | Required, ≥ 0 | Public + admin |
-| `status` | enum string | `available` \| `unavailable` \| `discontinued` | Public + admin |
-| `categories` | M2M | Via `category_product`; 0..n | Public + admin (ids/names) |
+| `selling_price` | decimal(12,2) | Required, ≥ 0 | Browse + admin |
+| `status` | enum string | `available` \| `unavailable` \| `discontinued` | Browse + admin |
+| `categories` | M2M | Via `category_product`; 0..n | Browse + admin (ids/names) |
 | `created_at` / `updated_at` | timestamps | System | Admin-useful; optional UI |
-| `deleted_at` | soft delete | Null = live | Admin trash filters; never public |
+| `deleted_at` | soft delete | Null = live | Admin trash filters; never on browse |
 
 ### 3.2 Status semantics
 
-| Status | Meaning | Guest expectation |
+| Status | Meaning | Browse expectation |
 |--------|---------|-------------------|
 | `available` | Offered for sale when stock allows | Show as available if `quantity > 0`; if `quantity = 0`, show out of stock / not purchasable signal |
 | `unavailable` | Temporarily not offered | Clearly “unavailable” regardless of quantity |
@@ -55,19 +54,19 @@ No public registration. No guest mutations.
 
 **Availability rules (derived):**
 
-1. Soft-deleted → **not listed** for guests.
-2. Guest “in stock / buyable” cue = `status === available` **and** `quantity > 0`.
+1. Soft-deleted → **not listed** on `/products` browse.
+2. Browse “in stock / buyable” cue = `status === available` **and** `quantity > 0`.
 3. Admin may still edit quantity on unavailable/discontinued products (inventory bookkeeping).
 
 ### 3.3 Relationships
 
-- **Product ↔ Category** — many-to-many (`categories`, `category_product`). Assign on create/update; filter on public search by category slug.
+- **Product ↔ Category** — many-to-many (`categories`, `category_product`). Assign on create/update; filter on browse search by category slug.
 - Soft delete does not cascade-delete category rows; pivot rows may remain for restore.
 
 ### 3.4 Serialization
 
-- **Public payload** (`toPublicArray`): id, name, description, quantity, selling_price, status (+ label), categories `{id,name,slug}`. **Never** `purchase_price`.
-- **Admin payload** (`toAdminArray`): public fields + `purchase_price`, `category_ids`, `deleted_at`.
+- **Browse payload** (`toPublicArray`): id, name, description, quantity, selling_price, status (+ label), categories `{id,name,slug}`. **Never** `purchase_price`.
+- **Admin payload** (`toAdminArray`): browse fields + `purchase_price`, `category_ids`, `deleted_at`.
 
 ---
 
@@ -75,17 +74,18 @@ No public registration. No guest mutations.
 
 ### 4.1 Must-have (v1 core)
 
-#### Public catalog
+#### Authenticated browse (`/products`)
 
 | Feature | Description |
 |---------|-------------|
+| Auth gate | Requires login; guests redirected to login |
 | Search by text | Filter by `name` / `description` (escape LIKE wildcards) |
 | Filter by category | Optional category slug filter |
 | Paginated results | Stable page size; preserve query string on page change |
 | Result cards / list | Name, selling price, status, quantity or availability cue, categories |
 | Empty state | Clear message when no matches |
-| Field privacy | Assert no `purchase_price` in Inertia props / HTML for guests |
-| Soft-delete hide | Guests never see trashed products |
+| Field privacy | Assert no `purchase_price` in browse Inertia props |
+| Soft-delete hide | Browse never lists trashed products |
 
 #### Admin catalog
 
@@ -116,13 +116,13 @@ No public registration. No guest mutations.
 
 | Feature | Why it matters |
 |---------|----------------|
-| **Availability badge** | Combine `status` + `quantity` into one clear guest label (In stock / Out of stock / Unavailable / Discontinued) |
+| **Availability badge** | Combine `status` + `quantity` into one clear browse label (In stock / Out of stock / Unavailable / Discontinued) |
 | **Admin status + category filters** | Find products faster than search alone |
 | **Admin sort options** | By name, selling price, quantity, updated_at |
 | **Margin on admin list/detail** | `selling_price - purchase_price` (and optional %) — core for price monitoring |
 | **Low-stock badge** | Configurable threshold `N` (e.g. quantity &lt; 5) on admin list |
 | **Confirmation on delete** | Prevent accidental soft deletes |
-| **Public product detail page** | Dedicated show route (beyond list-only), still without `purchase_price` |
+| **Product detail page** | Dedicated show route (beyond list-only), still without `purchase_price` on browse |
 | **Duplicate name warning** | Soft uniqueness (warn or suggest), even if hard unique is deferred |
 | **Bulk category assign** | Optional multi-select + apply on admin list |
 | **Keyboard-friendly search** | Focus search on load; clear filters control |
@@ -135,7 +135,7 @@ No public registration. No guest mutations.
 |---------|-------------|
 | **Price change log** | On update of `purchase_price` or `selling_price`, record old/new/who/when |
 | **Price history UI** | Admin timeline or simple table per product |
-| **SEO slug** | `slug` + public `/products/{slug}` |
+| **SEO / shareable slug** | `slug` + `/products/{slug}` (still auth-gated unless product scope changes) |
 | **Full-text / indexed search** | Scale beyond `LIKE` as catalog grows |
 | **Policies / gates** | `ProductPolicy` even with one admin |
 | **Quantity adjustment note** | Optional “reason” when quantity changes (light inventory trail) |
@@ -155,21 +155,23 @@ Do **not** fold these into Product v1:
 - Images / media gallery (unless a later media epic lands)
 - Payments, carts, checkout
 - Multi-tenant catalogs
-- Public API / mobile API
+- Public / guest catalog or mobile API
 - Multi-role permissions beyond single admin
 
 ---
 
 ## 5. Routes & UX map
 
-### Public
+All routes below require `auth` (except login). `/` redirects to `/products`.
+
+### Browse
 
 | Method | Route | Behavior |
 |--------|-------|----------|
-| GET | `/` | Search-first catalog (`q`, `category`, pagination) |
-| GET | `/products/{id\|slug}` *(v1.x)* | Public detail |
+| GET | `/products` | Search-first panel (`q`, `category`, pagination); `toPublicArray` |
+| GET | `/products/{id\|slug}` *(v1.x)* | Detail without `purchase_price` |
 
-### Admin (`auth`)
+### Admin
 
 | Method | Route | Behavior |
 |--------|-------|----------|
@@ -181,7 +183,7 @@ Do **not** fold these into Product v1:
 | DELETE | `/admin/products/{product}` | Soft delete |
 | POST | `/admin/products/{product}/restore` | Restore (withTrashed) |
 
-No guest write routes. Prefer Inertia pages + Wayfinder; Form Requests on writes.
+Prefer Inertia pages + Wayfinder + `AppLayout`; Form Requests on writes. Toast flash for mutations where other modules do (e.g. Suppliers).
 
 ---
 
@@ -203,12 +205,13 @@ Optional later: `selling_price >= purchase_price` as a soft warning (not hard fa
 
 ## 7. Acceptance criteria
 
-### Guest
+### Browse
 
-- [ ] Can search products by name/description and filter by category.
+- [ ] Authenticated user can search products by name/description and filter by category.
 - [ ] Sees selling price, status, quantity/availability, categories — never purchase price.
 - [ ] Soft-deleted products never appear.
 - [ ] Empty results are understandable; pagination works with filters.
+- [ ] Guests are redirected to login.
 
 ### Admin
 
@@ -220,8 +223,8 @@ Optional later: `selling_price >= purchase_price` as a soft warning (not hard fa
 
 ### Security / privacy
 
-- [ ] Unauthenticated users cannot hit admin product routes.
-- [ ] Public Inertia props omit `purchase_price` for every product payload.
+- [ ] Unauthenticated users cannot hit browse or admin product routes.
+- [ ] Browse Inertia props omit `purchase_price` for every product payload.
 
 ---
 
@@ -229,9 +232,10 @@ Optional later: `selling_price >= purchase_price` as a soft warning (not hard fa
 
 | Dependency | Role |
 |------------|------|
-| **Auth (session)** | Gates admin Product CRUD |
+| **Auth (session)** | Gates browse + admin Product CRUD |
 | **Category module** | Filter + assign tags; admin needs enough category CRUD or seed data to assign |
-| **Inertia + React JSX pages** | `home`, `admin/products/*` |
+| **App shell** | `AppLayout` sidebar; Products is a primary nav item |
+| **Inertia + React JSX pages** | `products/index`, `admin/products/*` |
 | **ProductStatus enum** | Single source of status values/labels |
 
 ---
@@ -244,17 +248,17 @@ Already in codebase (keep aligned with this doc):
 - Migration: products table + indexes + soft deletes
 - Admin `ProductController`: index/create/store/edit/update/destroy/restore
 - Form Requests: Store / Update
-- Public `HomeController` catalog search
+- `HomeController` authenticated `/products` browse search
 - Factory, seeder, feature tests for admin products
 
-Gaps to treat as polish / v1.x (see §4.2–4.3): margin display, low-stock, public detail/slug, price history, richer admin filters.
+Gaps to treat as polish / v1.x (see §4.2–4.3): margin display, low-stock, detail/slug, price history, richer admin filters.
 
 ---
 
 ## 10. Non-functional notes
 
 - Prefer thin Inertia controllers; keep query scopes on the model.
-- Do not expose admin arrays on public pages.
+- Do not expose admin arrays on the `/products` browse panel.
 - Escape user search terms for `LIKE` (already expected in `scopeSearch`).
 - Use soft delete as the default “remove from catalog”; reserve force-delete for a later admin tool.
 - Keep app pages as `.jsx` under `resources/js/pages/`.
@@ -263,4 +267,4 @@ Gaps to treat as polish / v1.x (see §4.2–4.3): margin display, low-stock, pub
 
 ## 11. Success definition
 
-The Product module is **complete enough for v1** when an admin can fully manage catalog pricing and stock, and a guest can discover live products with clear availability and selling price — without ever learning cost. It becomes a true **price monitoring** product once price change history and admin margin/low-stock cues land (v1.x).
+The Product module is **complete enough for v1** when an admin can fully manage catalog pricing and stock, and browse `/products` with clear availability and selling price — without cost leaking onto the browse panel. It becomes true **price monitoring** once price change history and admin margin/low-stock cues land (v1.x).

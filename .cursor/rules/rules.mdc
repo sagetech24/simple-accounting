@@ -14,21 +14,51 @@ This app is based on the Laravel React JSX boilerplate (not TypeScript starter k
 - **Frontend:** React 19 + **JSX only** (no `.tsx` app code); pages in `resources/js/pages/*.jsx`
 - **Styling:** Tailwind CSS v4 via Vite; Instrument Sans is the default font
 - **Build:** Vite 8, React Compiler, Wayfinder (`@/routes`, `@/actions`)
+- **Toasts:** Sonner via `FlashToaster` + `useFlashToast` (Inertia flash `toast`)
 - **Quality:** Pint (PHP), ESLint + Prettier (JS/JSX), PHPUnit
 - **Dev:** `composer run dev` / `composer setup`
 
+## App structure
+
+- **Auth-gated shell:** App routes live under `auth` middleware; guests only see login
+- **Layout:** Feature pages use `AppLayout` (sidebar nav + main panel)
+- **Nav stubs:** Empty modules use `EmptyPanel` until the domain is implemented
+- Prefer thin controllers that return `Inertia::render` (or `Route::inertia` for stubs)
+
+## Responsive design (tablet+)
+
+**Target:** tablet (~768px / Tailwind `md:`) and larger. Phone-only polish is optional; **tablet and desktop must always work**.
+
+For every UI change, verify:
+
+1. **Visible** — no clipped labels, truncated-only actions, or off-screen controls; overflow scrolls intentionally
+2. **Functional** — create/edit/delete, search, filters, sort, menus, and modals usable with touch and pointer
+3. **Layout** — shell (nav + main), tables, forms, and dialogs reflow without horizontal page scroll or stacked overlap
+4. **Touch targets** — buttons/menus large enough to tap (~44px); row action menus must open and remain usable
+
+Prefer Tailwind responsive utilities (`md:`, `lg:`, `xl:`). Do not ship layouts that only fit wide desktop.
+
 ## Do
 
-- Prefer `Route::inertia` or thin controllers that return `Inertia::render`
 - Use Inertia `useForm` + Wayfinder form helpers for mutations
-- Soft-delete domain models with Laravel `SoftDeletes`
+- Soft-delete domain models with Laravel `SoftDeletes` when records should be recoverable
 - Keep app pages as `.jsx` / `.js` under `resources/js/`
 - Import routes/actions from `@/routes` and `@/actions` after regenerating Wayfinder
+- For simple resources (e.g. Suppliers): **index-only** UI — create/edit in a modal on the list; omit `create` / `edit` / `show` routes unless a full page is needed
+- Design and test UI so tablet and higher remain fully usable (see Responsive design)
+- Flash success/error toasts with:
+
+```php
+Inertia::flash('toast', [
+    'type' => 'success', // success | error | info | warning
+    'message' => '…',
+]);
+```
 
 ```jsx
 // ✅ GOOD — Inertia page + Wayfinder
 import { useForm } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/ProductController';
+import { store } from '@/actions/App/Http/Controllers/SupplierController';
 
 const form = useForm({ name: '' });
 form.post(store.url());
@@ -36,8 +66,8 @@ form.post(store.url());
 
 ```php
 // ✅ GOOD — thin Inertia controller
-return Inertia::render('products/show', [
-    'product' => $product,
+return Inertia::render('suppliers/index', [
+    'suppliers' => $suppliers,
 ]);
 ```
 
@@ -47,3 +77,5 @@ return Inertia::render('products/show', [
 - Do not hand-edit generated Wayfinder files under `resources/js/routes` or `resources/js/actions`
 - Do not build full-page Blade views for app screens — use Inertia React pages
 - Do not skip Form Requests for write endpoints that need validation
+- Do not assume a public guest catalog — browse panels are authenticated and must still omit admin-only fields (e.g. `purchase_price` on `/products`)
+- Do not ship UI that is broken, hidden, or unusable on tablet widths (e.g. fixed wide tables with no scroll, unreachable modal actions, collapsed nav that cannot open)
