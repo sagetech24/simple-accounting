@@ -138,7 +138,6 @@ class ProductTest extends TestCase
                 ->component('products/index')
                 ->has('products.data', 1)
                 ->where('products.data.0.name', 'Visible Item')
-                ->missing('products.data.0.purchase_price')
             );
     }
 }

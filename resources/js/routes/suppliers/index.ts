@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\SupplierController::restore
 * @see app/Http/Controllers/SupplierController.php:104
@@ -58,6 +58,28 @@ restore.post = (args: { supplier: number | { id: number } } | [supplier: number 
 })
 
 /**
+* @see \App\Http\Controllers\SupplierController::restore
+* @see app/Http/Controllers/SupplierController.php:104
+* @route '/suppliers/{supplier}/restore'
+*/
+const restoreForm = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: restore.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\SupplierController::restore
+* @see app/Http/Controllers/SupplierController.php:104
+* @route '/suppliers/{supplier}/restore'
+*/
+restoreForm.post = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: restore.url(args, options),
+    method: 'post',
+})
+
+restore.form = restoreForm
+
+/**
 * @see \App\Http\Controllers\SupplierController::index
 * @see app/Http/Controllers/SupplierController.php:20
 * @route '/suppliers'
@@ -102,6 +124,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\SupplierController::index
+* @see app/Http/Controllers/SupplierController.php:20
+* @route '/suppliers'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\SupplierController::index
+* @see app/Http/Controllers/SupplierController.php:20
+* @route '/suppliers'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\SupplierController::index
+* @see app/Http/Controllers/SupplierController.php:20
+* @route '/suppliers'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
 * @see \App\Http\Controllers\SupplierController::store
 * @see app/Http/Controllers/SupplierController.php:59
 * @route '/suppliers'
@@ -134,6 +193,28 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\SupplierController::store
+* @see app/Http/Controllers/SupplierController.php:59
+* @route '/suppliers'
+*/
+const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\SupplierController::store
+* @see app/Http/Controllers/SupplierController.php:59
+* @route '/suppliers'
+*/
+storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\SupplierController::update
@@ -204,6 +285,53 @@ update.patch = (args: { supplier: number | { id: number } } | [supplier: number 
 })
 
 /**
+* @see \App\Http\Controllers\SupplierController::update
+* @see app/Http/Controllers/SupplierController.php:74
+* @route '/suppliers/{supplier}'
+*/
+const updateForm = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\SupplierController::update
+* @see app/Http/Controllers/SupplierController.php:74
+* @route '/suppliers/{supplier}'
+*/
+updateForm.put = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\SupplierController::update
+* @see app/Http/Controllers/SupplierController.php:74
+* @route '/suppliers/{supplier}'
+*/
+updateForm.patch = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+update.form = updateForm
+
+/**
 * @see \App\Http\Controllers\SupplierController::destroy
 * @see app/Http/Controllers/SupplierController.php:89
 * @route '/suppliers/{supplier}'
@@ -260,6 +388,38 @@ destroy.delete = (args: { supplier: number | { id: number } } | [supplier: numbe
     url: destroy.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\SupplierController::destroy
+* @see app/Http/Controllers/SupplierController.php:89
+* @route '/suppliers/{supplier}'
+*/
+const destroyForm = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\SupplierController::destroy
+* @see app/Http/Controllers/SupplierController.php:89
+* @route '/suppliers/{supplier}'
+*/
+destroyForm.delete = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
 
 const suppliers = {
     restore: Object.assign(restore, restore),

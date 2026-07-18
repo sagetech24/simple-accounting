@@ -72,7 +72,7 @@ class ProductController extends Controller
             'message' => 'Product created.',
         ]);
 
-        return redirect()->route('admin.products.index');
+        return $this->redirectAfterMutation($request);
     }
 
     /**
@@ -102,13 +102,13 @@ class ProductController extends Controller
             'message' => 'Product updated.',
         ]);
 
-        return redirect()->route('admin.products.index');
+        return $this->redirectAfterMutation($request);
     }
 
     /**
      * Soft-delete a product.
      */
-    public function destroy(Product $product): RedirectResponse
+    public function destroy(Request $request, Product $product): RedirectResponse
     {
         $product->delete();
 
@@ -117,7 +117,7 @@ class ProductController extends Controller
             'message' => 'Product deleted.',
         ]);
 
-        return redirect()->route('admin.products.index');
+        return $this->redirectAfterMutation($request);
     }
 
     /**
@@ -131,6 +131,15 @@ class ProductController extends Controller
             'type' => 'success',
             'message' => 'Product restored.',
         ]);
+
+        return redirect()->route('admin.products.index');
+    }
+
+    private function redirectAfterMutation(Request $request): RedirectResponse
+    {
+        if ($request->input('return_to') === 'products') {
+            return redirect()->route('products');
+        }
 
         return redirect()->route('admin.products.index');
     }

@@ -42,3 +42,15 @@
     }
 }
 
+@keyframes product-modal-slide-down {
+    from {
+        opacity: 0;
+        transform: translateY(-1.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+

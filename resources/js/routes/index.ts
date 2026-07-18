@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../wayfinder'
 /**
 * @see \App\Http\Controllers\Auth\AuthenticatedSessionController::login
 * @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:18
@@ -42,6 +42,43 @@ login.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: login.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Auth\AuthenticatedSessionController::login
+* @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:18
+* @route '/login'
+*/
+const loginForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: login.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Auth\AuthenticatedSessionController::login
+* @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:18
+* @route '/login'
+*/
+loginForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: login.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Auth\AuthenticatedSessionController::login
+* @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:18
+* @route '/login'
+*/
+loginForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: login.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+login.form = loginForm
 
 /**
 * @see \Illuminate\Routing\RedirectController::__invoke
@@ -138,8 +175,115 @@ home.options = (options?: RouteQueryOptions): RouteDefinition<'options'> => ({
 })
 
 /**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/'
+*/
+const homeForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: home.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/'
+*/
+homeForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: home.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/'
+*/
+homeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: home.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/'
+*/
+homeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: home.url(options),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/'
+*/
+homeForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: home.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/'
+*/
+homeForm.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: home.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/'
+*/
+homeForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: home.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Illuminate\Routing\RedirectController::__invoke
+* @see vendor/laravel/framework/src/Illuminate/Routing/RedirectController.php:19
+* @route '/'
+*/
+homeForm.options = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: home.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'OPTIONS',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+home.form = homeForm
+
+/**
 * @see \App\Http\Controllers\HomeController::products
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:17
 * @route '/products'
 */
 export const products = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -154,7 +298,7 @@ products.definition = {
 
 /**
 * @see \App\Http\Controllers\HomeController::products
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:17
 * @route '/products'
 */
 products.url = (options?: RouteQueryOptions) => {
@@ -163,7 +307,7 @@ products.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\HomeController::products
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:17
 * @route '/products'
 */
 products.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -173,13 +317,50 @@ products.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\HomeController::products
-* @see app/Http/Controllers/HomeController.php:16
+* @see app/Http/Controllers/HomeController.php:17
 * @route '/products'
 */
 products.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: products.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\HomeController::products
+* @see app/Http/Controllers/HomeController.php:17
+* @route '/products'
+*/
+const productsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: products.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\HomeController::products
+* @see app/Http/Controllers/HomeController.php:17
+* @route '/products'
+*/
+productsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: products.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\HomeController::products
+* @see app/Http/Controllers/HomeController.php:17
+* @route '/products'
+*/
+productsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: products.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+products.form = productsForm
 
 /**
 * @see \Inertia\Controller::__invoke
@@ -228,6 +409,43 @@ requestQuotations.head = (options?: RouteQueryOptions): RouteDefinition<'head'> 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/request-quotations'
+*/
+const requestQuotationsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: requestQuotations.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/request-quotations'
+*/
+requestQuotationsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: requestQuotations.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/request-quotations'
+*/
+requestQuotationsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: requestQuotations.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+requestQuotations.form = requestQuotationsForm
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
 * @route '/purchased-orders'
 */
 export const purchasedOrders = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -268,6 +486,43 @@ purchasedOrders.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
     url: purchasedOrders.url(options),
     method: 'head',
 })
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/purchased-orders'
+*/
+const purchasedOrdersForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: purchasedOrders.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/purchased-orders'
+*/
+purchasedOrdersForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: purchasedOrders.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/purchased-orders'
+*/
+purchasedOrdersForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: purchasedOrders.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+purchasedOrders.form = purchasedOrdersForm
 
 /**
 * @see \Inertia\Controller::__invoke
@@ -314,6 +569,43 @@ receivedOrders.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
 })
 
 /**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/received-orders'
+*/
+const receivedOrdersForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: receivedOrders.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/received-orders'
+*/
+receivedOrdersForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: receivedOrders.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/received-orders'
+*/
+receivedOrdersForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: receivedOrders.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+receivedOrders.form = receivedOrdersForm
+
+/**
 * @see \App\Http\Controllers\Auth\AuthenticatedSessionController::logout
 * @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:38
 * @route '/logout'
@@ -347,3 +639,24 @@ logout.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     method: 'post',
 })
 
+/**
+* @see \App\Http\Controllers\Auth\AuthenticatedSessionController::logout
+* @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:38
+* @route '/logout'
+*/
+const logoutForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: logout.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Auth\AuthenticatedSessionController::logout
+* @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:38
+* @route '/logout'
+*/
+logoutForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: logout.url(options),
+    method: 'post',
+})
+
+logout.form = logoutForm

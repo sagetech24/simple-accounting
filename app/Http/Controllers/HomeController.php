@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ProductStatus;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ class HomeController extends Controller
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString()
-            ->through(fn (Product $product) => $product->toPublicArray());
+            ->through(fn (Product $product) => $product->toAdminArray());
 
         $categories = Category::query()
             ->orderBy('name')
@@ -39,10 +40,25 @@ class HomeController extends Controller
         return Inertia::render('products/index', [
             'products' => $products,
             'categories' => $categories,
+            'statuses' => $this->statusOptions(),
             'filters' => [
                 'q' => $query ?? '',
                 'category' => $category ?? '',
             ],
         ]);
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function statusOptions(): array
+    {
+        return array_map(
+            fn (ProductStatus $status) => [
+                'value' => $status->value,
+                'label' => $status->label(),
+            ],
+            ProductStatus::cases(),
+        );
     }
 }

@@ -46,6 +46,28 @@ class Product extends Model
     }
 
     /**
+     * Derived browse availability from status + quantity.
+     */
+    public function availability(): string
+    {
+        return match ($this->status) {
+            ProductStatus::Unavailable => 'unavailable',
+            ProductStatus::Discontinued => 'discontinued',
+            ProductStatus::Available => $this->quantity > 0 ? 'in_stock' : 'out_of_stock',
+        };
+    }
+
+    public function availabilityLabel(): string
+    {
+        return match ($this->availability()) {
+            'in_stock' => 'In stock',
+            'out_of_stock' => 'Out of stock',
+            'unavailable' => 'Unavailable',
+            'discontinued' => 'Discontinued',
+        };
+    }
+
+    /**
      * Public catalog fields only — never includes purchase_price.
      *
      * @return array<string, mixed>
@@ -60,6 +82,8 @@ class Product extends Model
             'selling_price' => $this->selling_price,
             'status' => $this->status->value,
             'status_label' => $this->status->label(),
+            'availability' => $this->availability(),
+            'availability_label' => $this->availabilityLabel(),
             'categories' => $this->categories->map(fn (Category $category) => [
                 'id' => $category->id,
                 'name' => $category->name,
