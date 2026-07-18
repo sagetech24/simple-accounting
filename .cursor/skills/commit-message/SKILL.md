@@ -1,35 +1,40 @@
 ---
 name: commit-message-summary
 description: >-
-  Summarizes agent work and drafts a copy-paste Git commit message from session
-  changes. Use when finishing implementation tasks, after creating or updating
-  files, or when the user asks for a commit message. Does not run git commit or
-  push — output is for manual use only.
+  Summarizes repo changes, drafts a conventional commit message, then runs
+  git add, commit, and push. Use when the user invokes /commit-message or
+  explicitly asks to commit with this skill.
 ---
 
 # Commit Message Summary
 
 ## Purpose
 
-At the end of work that changed the repository, produce a short **change summary** and a **recommended commit message** the user can copy into their own `git commit` flow. Never commit or push on the user's behalf unless they explicitly ask.
+When this skill is invoked (especially via `/commit-message`):
+
+1. Inventory and summarize changes
+2. Draft a conventional commit message
+3. **Always** stage, commit, and push those changes
+
+Do not stop after drafting the message — execute the git flow every time this skill is called.
 
 ## When to apply
 
-- After creating, updating, or deleting project files
-- When the user asks for a commit message or change summary
-- At the end of any implementation or fix task (paired with the project rule)
+- User invokes `/commit-message`
+- User explicitly asks to commit using this skill
 
-Skip the commit block when:
-- The turn was question-only or review-only with **no** file changes
-- The user explicitly said not to include a commit message
+Skip entirely when:
+- There are **no** file changes to commit
+- The user explicitly said not to commit
 
 ## Workflow
 
-1. **Inventory changes** (when practical, run in parallel):
+1. **Inventory changes** (run in parallel when practical):
    - `git status` — untracked and modified files
    - `git diff` — unstaged changes
    - `git diff --staged` — staged changes
-   - If git is unavailable, use the files you edited in the session
+   - `git log -5 --oneline` — recent commit message style
+   - If git is unavailable, use the files edited in the session
 
 2. **Summarize for the user** (2–5 bullets):
    - What was created, updated, or removed
@@ -38,7 +43,27 @@ Skip the commit block when:
 
 3. **Draft the commit message** using this repo's style (see below)
 
-4. **Present for copy-paste** in the fixed footer format — do not run `git commit`, `git push`, or `gh`
+4. **Stage, commit, and push** (required — do not ask for confirmation):
+   - Warn and exclude secrets (`.env`, credentials, etc.); never commit them
+   - Stage relevant files: `git add` for the changed paths (prefer explicit paths over blanket `git add .` when mixed with unrelated files)
+   - Commit with a HEREDOC (never `-i` flags):
+
+     ```bash
+     git commit -m "$(cat <<'EOF'
+     <type>: <subject>
+
+     <optional body>
+     EOF
+     )"
+     ```
+
+   - Push the current branch to its remote (`git push` or `git push -u origin HEAD` if no upstream)
+   - Run `git status` after push to verify success
+   - If a pre-commit hook fails: fix the issue, then create a **new** commit (do not amend unless user rules allow it)
+   - Never force-push, amend, or skip hooks unless the user explicitly asks
+   - Never update git config
+
+5. **Present the result** in the response footer (message used + outcome)
 
 ## Commit message format
 
@@ -72,29 +97,29 @@ Public Inertia props must never include purchase_price per PRD.
 
 **Rules:**
 - Subject line ~50–72 characters when possible; body only if it adds context
-- One logical change per message; if the session mixed unrelated work, suggest **separate** commits
+- One logical change per message; if the session mixed unrelated work, prefer **separate** commits (add/commit each, then one push)
 - Do not include secrets, `.env`, or credentials in the message or summary
-- Do not suggest committing files that should stay local (e.g. `.env`)
+- Do not commit files that should stay local (e.g. `.env`)
 
 ## Response footer (required when there are changes)
 
-End the user-facing response with this block so they can copy it for a manual commit:
+End the user-facing response with this block:
 
 ```markdown
 ---
 
-## Recommended commit message
+## Commit
 
 \`\`\`
-<paste-ready commit message here>
+<commit message that was used>
 \`\`\`
 
 **Changed:** <one-line roll-up, e.g. "3 files — home search UI, ProductController filters">
 
-_Manual commit only — not executed by the agent._
+**Git:** committed and pushed to `<branch>` (`<short-sha>` or remote result)
 ```
 
-If multiple commits are clearer, use numbered blocks:
+If multiple commits were clearer:
 
 ```markdown
 ### Commit 1
@@ -106,11 +131,14 @@ feat: ...
 \`\`\`
 style: ...
 \`\`\`
+
+**Git:** both committed and pushed to `<branch>`
 ```
 
 ## What not to do
 
-- Do not run `git commit`, `git push`, or open a PR unless the user explicitly requests it
-- Do not amend or force-push unless the user's commit rules allow it and they asked
-- Do not invent changes — only describe what was actually done in the session or diff
+- Do not stop at a copy-paste draft when this skill was invoked — always `git add`, `git commit`, and `git push`
+- Do not invent changes — only commit what appears in the status/diff
 - Do not bury the commit block inside long prose; keep it as the **last** section of the response
+- Do not open a PR unless the user explicitly asks
+- Do not force-push to main/master; warn if the user requests it

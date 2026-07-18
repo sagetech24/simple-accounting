@@ -1,14 +1,23 @@
 ---
-description: Append a copy-paste commit message after work that changes the repository
+description: Append a commit-message summary after work; /commit-message also commits and pushes
 alwaysApply: true
 ---
 
 # Commit message summary
 
-At the end of work that changed the repository, follow `.cursor/skills/commit-message/SKILL.md`:
+## End of work that changed the repository
+
+After implementation that changed files, draft a summary only (do **not** commit or push unless the user asked):
 
 - Run `git status`, `git diff`, and `git diff --staged` (in parallel when practical)
-- Summarize changes in 2–5 bullets (what / why), then append the recommended commit footer
+- Summarize changes in 2–5 bullets (what / why), then append a recommended commit footer
 - Use conventional type prefixes (`feat`, `fix`, `style`, `refactor`, `test`, `docs`, `chore`)
 - Skip the commit block on question-only / review-only turns with **no** file changes, or when the user asks not to include one
-- Do **not** run `git commit`, `git push`, or open a PR unless the user explicitly asks
+
+## When the user invokes `/commit-message`
+
+Follow `.cursor/skills/commit-message/SKILL.md` in full:
+
+- Summarize and draft the message
+- Then **always** run `git add`, `git commit`, and `git push`
+- Never stop at a copy-paste-only draft for `/commit-message`
