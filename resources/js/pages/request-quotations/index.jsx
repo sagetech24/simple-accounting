@@ -6,19 +6,11 @@ import {
     restore,
     submit,
 } from '@/actions/App/Http/Controllers/RequestQuotationController';
+import RequestQuotationDetailModal from '@/components/request-quotation-detail-modal';
 import RequestQuotationForm from '@/components/request-quotation-form';
 import AppLayout from '@/layouts/app-layout';
+import { formatMoney } from '@/lib/format-money';
 import { index } from '@/routes/request-quotations';
-
-function formatMoney(value) {
-    const amount = Number(value);
-
-    if (Number.isNaN(amount)) {
-        return '0.00';
-    }
-
-    return amount.toFixed(2);
-}
 
 function formatDate(value) {
     if (!value) {
@@ -194,17 +186,29 @@ export default function RequestQuotationsIndex({
     const [activeTab, setActiveTab] = useState('list');
     const [formKey, setFormKey] = useState(0);
     const [editingQuotation, setEditingQuotation] = useState(null);
+    const [detailQuotation, setDetailQuotation] = useState(null);
     const [openMenuId, setOpenMenuId] = useState(null);
     const [trashed, setTrashed] = useState(filters.trashed ?? '');
 
     function openCreateTab() {
         setEditingQuotation(null);
+        setDetailQuotation(null);
         setFormKey((current) => current + 1);
         setActiveTab('create');
         setOpenMenuId(null);
     }
 
+    function openDetailModal(quotation) {
+        setDetailQuotation(quotation);
+        setOpenMenuId(null);
+    }
+
+    function closeDetailModal() {
+        setDetailQuotation(null);
+    }
+
     function openEditTab(quotation) {
+        setDetailQuotation(null);
         setEditingQuotation(quotation);
         setFormKey((current) => current + 1);
         setActiveTab('create');
@@ -266,6 +270,7 @@ export default function RequestQuotationsIndex({
             return;
         }
 
+        setDetailQuotation(null);
         router.delete(destroy.url(quotation.id));
     }
 
@@ -460,16 +465,23 @@ export default function RequestQuotationsIndex({
                                             key={quotation.id}
                                             className="border-b border-line/80 align-top"
                                         >
-                                            <td className="px-4 py-4">
-                                                <p
-                                                    className={`font-mono text-xs break-all sm:text-sm ${
+                                            <td className="max-w-48 px-4 py-4">
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        openDetailModal(
+                                                            quotation,
+                                                        )
+                                                    }
+                                                    title={quotation.reference}
+                                                    className={`block max-w-full truncate text-left font-mono text-xs break-all underline-offset-2 transition hover:underline focus:underline focus:outline-none ${
                                                         isDeleted
                                                             ? 'text-muted line-through'
-                                                            : 'text-ink'
+                                                            : 'cursor-pointer text-teal-800'
                                                     }`}
                                                 >
                                                     {quotation.reference}
-                                                </p>
+                                                </button>
                                             </td>
                                             <td className="px-4 py-4 text-ink-soft">
                                                 {quotation.supplier_name || '—'}
@@ -580,6 +592,14 @@ export default function RequestQuotationsIndex({
                     />
                 </div>
             )}
+
+            <RequestQuotationDetailModal
+                open={Boolean(detailQuotation)}
+                quotation={detailQuotation}
+                onClose={closeDetailModal}
+                onEdit={openEditTab}
+                onDelete={deleteQuotation}
+            />
         </AppLayout>
     );
 }
