@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Enums\PurchasedOrderStatus;
 use App\Enums\RequestQuotationStatus;
 use App\Enums\SupplierStatus;
 use App\Models\Product;
+use App\Models\PurchasedOrder;
 use App\Models\RequestQuotation;
 use App\Models\RequestQuotationItem;
 use App\Models\Supplier;
@@ -601,5 +603,146 @@ class RequestQuotationTest extends TestCase
             'status' => RequestQuotationStatus::Approved->value,
             'grand_total' => '15.00',
         ]);
+    }
+
+    public function test_approved_quotation_can_create_a_purchase_order(): void
+    {
+        $admin = User::factory()->create();
+        $supplier = Supplier::factory()->active()->create();
+        $productA = Product::factory()->available()->create();
+        $productB = Product::factory()->available()->create();
+        $quotation = RequestQuotation::factory()->approved()->create([
+            'supplier_id' => $supplier->id,
+            'grand_total' => '41.00',
+            'notes' => 'From RFQ',
+        ]);
+        RequestQuotationItem::factory()->create([
+            'request_quotation_id' => $quotation->id,
+            'product_id' => $productA->id,
+            'buying_price' => '10.00',
+            'quantity' => 3,
+            'subtotal' => '30.00',
+        ]);
+        RequestQuotationItem::factory()->create([
+            'request_quotation_id' => $quotation->id,
+            'product_id' => $productB->id,
+            'buying_price' => '5.50',
+            'quantity' => 2,
+            'subtotal' => '11.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('request-quotations.create-purchase-order', $quotation))
+            ->assertRedirect(route('purchased-orders.index'));
+
+        $this->assertDatabaseHas('purchased_orders', [
+            'request_quotation_id' => $quotation->id,
+            'supplier_id' => $supplier->id,
+            'status' => PurchasedOrderStatus::Draft->value,
+            'grand_total' => '41.00',
+            'notes' => 'From RFQ',
+        ]);
+
+        $order = PurchasedOrder::query()
+            ->where('request_quotation_id', $quotation->id)
+            ->firstOrFail();
+
+        $this->assertTrue(Str::isUuid($order->reference));
+        $this->assertNotSame($quotation->reference, $order->reference);
+
+        $this->assertDatabaseHas('purchased_order_items', [
+            'purchased_order_id' => $order->id,
+            'product_id' => $productA->id,
+            'buying_price' => '10.00',
+            'quantity' => 3,
+            'subtotal' => '30.00',
+        ]);
+
+        $this->assertDatabaseHas('purchased_order_items', [
+            'purchased_order_id' => $order->id,
+            'product_id' => $productB->id,
+            'buying_price' => '5.50',
+            'quantity' => 2,
+            'subtotal' => '11.00',
+        ]);
+    }
+
+    public function test_create_purchase_order_rejects_draft_and_pending_quotations(): void
+    {
+        $admin = User::factory()->create();
+        $draft = RequestQuotation::factory()->draft()->create();
+        $pending = RequestQuotation::factory()->pending()->create();
+
+        $this->actingAs($admin)
+            ->post(route('request-quotations.create-purchase-order', $draft))
+            ->assertRedirect(route('request-quotations.index'));
+
+        $this->assertDatabaseCount('purchased_orders', 0);
+
+        $this->actingAs($admin)
+            ->post(route('request-quotations.create-purchase-order', $pending))
+            ->assertRedirect(route('request-quotations.index'));
+
+        $this->assertDatabaseCount('purchased_orders', 0);
+    }
+
+    public function test_create_purchase_order_rejects_second_conversion(): void
+    {
+        $admin = User::factory()->create();
+        $quotation = RequestQuotation::factory()->approved()->create([
+            'grand_total' => '10.00',
+        ]);
+        RequestQuotationItem::factory()->create([
+            'request_quotation_id' => $quotation->id,
+            'buying_price' => '10.00',
+            'quantity' => 1,
+            'subtotal' => '10.00',
+        ]);
+        PurchasedOrder::factory()->draft()->create([
+            'supplier_id' => $quotation->supplier_id,
+            'request_quotation_id' => $quotation->id,
+            'grand_total' => '10.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('request-quotations.create-purchase-order', $quotation))
+            ->assertRedirect(route('request-quotations.index'));
+
+        $this->assertDatabaseCount('purchased_orders', 1);
+    }
+
+    public function test_index_payload_marks_can_create_purchase_order_flag(): void
+    {
+        $admin = User::factory()->create();
+        $approved = RequestQuotation::factory()->approved()->create([
+            'created_at' => now()->subHours(2),
+        ]);
+        $converted = RequestQuotation::factory()->approved()->create([
+            'created_at' => now()->subHour(),
+        ]);
+        $order = PurchasedOrder::factory()->draft()->create([
+            'supplier_id' => $converted->supplier_id,
+            'request_quotation_id' => $converted->id,
+        ]);
+        $draft = RequestQuotation::factory()->draft()->create([
+            'created_at' => now()->subMinutes(30),
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('request-quotations.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('request-quotations/index')
+                ->has('quotations.data', 3)
+                ->where('quotations.data.0.id', $converted->id)
+                ->where('quotations.data.0.can_create_purchase_order', false)
+                ->where('quotations.data.0.purchased_order_id', $order->id)
+                ->where('quotations.data.0.purchased_order_reference', $order->reference)
+                ->where('quotations.data.1.id', $approved->id)
+                ->where('quotations.data.1.can_create_purchase_order', true)
+                ->where('quotations.data.1.purchased_order_id', null)
+                ->where('quotations.data.2.id', $draft->id)
+                ->where('quotations.data.2.can_create_purchase_order', false)
+            );
     }
 }

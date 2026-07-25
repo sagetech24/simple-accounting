@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PurchasedOrderController;
 use App\Http\Controllers\RequestQuotationController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,6 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/', '/products')->name('home');
 
     Route::get('products', [HomeController::class, 'index'])->name('products');
-    Route::inertia('purchased-orders', 'purchased-orders/index')->name('purchased-orders');
     Route::inertia('received-orders', 'received-orders/index')->name('received-orders');
 
     Route::post('suppliers/{supplier}/restore', [SupplierController::class, 'restore'])
@@ -34,10 +34,22 @@ Route::middleware('auth')->group(function () {
         ->name('request-quotations.submit');
     Route::post('request-quotations/{request_quotation}/approve', [RequestQuotationController::class, 'approve'])
         ->name('request-quotations.approve');
+    Route::post('request-quotations/{request_quotation}/create-purchase-order', [RequestQuotationController::class, 'createPurchaseOrder'])
+        ->name('request-quotations.create-purchase-order');
     Route::post('request-quotations/{request_quotation}/restore', [RequestQuotationController::class, 'restore'])
         ->withTrashed()
         ->name('request-quotations.restore');
     Route::resource('request-quotations', RequestQuotationController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::post('purchased-orders/{purchased_order}/mark-ordered', [PurchasedOrderController::class, 'markOrdered'])
+        ->name('purchased-orders.mark-ordered');
+    Route::post('purchased-orders/{purchased_order}/mark-received', [PurchasedOrderController::class, 'markReceived'])
+        ->name('purchased-orders.mark-received');
+    Route::post('purchased-orders/{purchased_order}/restore', [PurchasedOrderController::class, 'restore'])
+        ->withTrashed()
+        ->name('purchased-orders.restore');
+    Route::resource('purchased-orders', PurchasedOrderController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');

@@ -1,7 +1,8 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import SiteHeader from '@/components/site-header';
-import { products, purchasedOrders, receivedOrders } from '@/routes';
+import { products, receivedOrders } from '@/routes';
 import { index as customers } from '@/routes/customers';
+import { index as purchasedOrders } from '@/routes/purchased-orders';
 import { index as requestQuotations } from '@/routes/request-quotations';
 import { index as suppliers } from '@/routes/suppliers';
 

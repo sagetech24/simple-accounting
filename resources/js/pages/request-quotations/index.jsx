@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import { useEffect, useId, useRef, useState } from 'react';
 import {
     approve,
+    createPurchaseOrder,
     destroy,
     restore,
     submit,
@@ -10,6 +11,7 @@ import RequestQuotationDetailModal from '@/components/request-quotation-detail-m
 import RequestQuotationForm from '@/components/request-quotation-form';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
+import { index as purchasedOrdersIndex } from '@/routes/purchased-orders';
 import { index } from '@/routes/request-quotations';
 
 function formatDate(value) {
@@ -47,6 +49,7 @@ function RowActionsMenu({
     onRestore,
     onSubmit,
     onApprove,
+    onCreatePurchaseOrder,
 }) {
     const menuId = useId();
     const rootRef = useRef(null);
@@ -104,7 +107,7 @@ function RowActionsMenu({
                 <div
                     id={menuId}
                     role="menu"
-                    className="absolute top-0 right-12 z-20 min-w-32 rounded-md border border-line bg-white py-1 shadow-md"
+                    className="absolute top-0 right-12 z-20 min-w-44 rounded-md border border-line bg-white py-1 shadow-md"
                 >
                     {!isDeleted && quotation.can_edit && (
                         <button
@@ -144,6 +147,33 @@ function RowActionsMenu({
                         >
                             Approve
                         </button>
+                    )}
+                    {!isDeleted && quotation.can_create_purchase_order && (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                                onClose();
+                                onCreatePurchaseOrder(quotation);
+                            }}
+                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                        >
+                            Create Purchase Order
+                        </button>
+                    )}
+                    {!isDeleted && quotation.purchased_order_id && (
+                        <Link
+                            role="menuitem"
+                            href={purchasedOrdersIndex.url()}
+                            onClick={onClose}
+                            title={
+                                quotation.purchased_order_reference ??
+                                'View purchase order'
+                            }
+                            className="block w-full px-3 py-2 text-left text-sm text-teal-800 transition hover:bg-mist hover:underline"
+                        >
+                            PO created
+                        </Link>
                     )}
                     {!isDeleted && (
                         <button
@@ -276,6 +306,18 @@ export default function RequestQuotationsIndex({
 
     function restoreQuotation(quotation) {
         router.post(restore.url(quotation.id));
+    }
+
+    function createPurchaseOrderFromQuotation(quotation) {
+        if (
+            !window.confirm(
+                `Create a purchase order from quotation “${quotation.reference}”?`,
+            )
+        ) {
+            return;
+        }
+
+        router.post(createPurchaseOrder.url(quotation.id));
     }
 
     const formTabLabel = editingQuotation
@@ -495,11 +537,25 @@ export default function RequestQuotationsIndex({
                                                 )}
                                             </td>
                                             <td className="px-4 py-4">
-                                                <span
-                                                    className={`rounded-full border px-3 py-1 text-xs ${statusBadgeClass(quotation.status)}`}
-                                                >
-                                                    {quotation.status_label}
-                                                </span>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <span
+                                                        className={`rounded-full border px-3 py-1 text-xs ${statusBadgeClass(quotation.status)}`}
+                                                    >
+                                                        {quotation.status_label}
+                                                    </span>
+                                                    {quotation.purchased_order_id && (
+                                                        <Link
+                                                            href={purchasedOrdersIndex.url()}
+                                                            title={
+                                                                quotation.purchased_order_reference ??
+                                                                'View purchase order'
+                                                            }
+                                                            className="rounded-full border border-teal-700/30 bg-teal-500/10 px-3 py-1 text-xs text-teal-800 underline-offset-2 transition hover:bg-teal-500/20 hover:underline focus:underline focus:outline-none"
+                                                        >
+                                                            PO Created
+                                                        </Link>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="px-4 py-4 text-ink-soft">
                                                 {formatDate(
@@ -530,6 +586,9 @@ export default function RequestQuotationsIndex({
                                                     onRestore={restoreQuotation}
                                                     onSubmit={submitQuotation}
                                                     onApprove={approveQuotation}
+                                                    onCreatePurchaseOrder={
+                                                        createPurchaseOrderFromQuotation
+                                                    }
                                                 />
                                             </td>
                                         </tr>

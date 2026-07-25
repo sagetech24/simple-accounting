@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PurchasedOrderStatus;
 use App\Enums\RequestQuotationStatus;
 use App\Enums\SupplierStatus;
 use App\Http\Requests\StoreRequestQuotationRequest;
 use App\Http\Requests\UpdateRequestQuotationRequest;
 use App\Models\Product;
+use App\Models\PurchasedOrder;
 use App\Models\RequestQuotation;
 use App\Models\RequestQuotationItem;
 use App\Models\Supplier;
@@ -31,7 +33,7 @@ class RequestQuotationController extends Controller
         $trashed = $filters['trashed'] ?? null;
 
         $quotations = RequestQuotation::query()
-            ->with(['supplier', 'items.product'])
+            ->with(['supplier', 'items.product', 'purchasedOrder'])
             ->when($trashed === 'only', fn ($builder) => $builder->onlyTrashed())
             ->when($trashed === 'with', fn ($builder) => $builder->withTrashed())
             ->orderedByWorkflow()
@@ -234,6 +236,58 @@ class RequestQuotationController extends Controller
         ]);
 
         return redirect()->route('request-quotations.index');
+    }
+
+    /**
+     * Approved quotation → draft purchase order (once).
+     */
+    public function createPurchaseOrder(RequestQuotation $requestQuotation): RedirectResponse
+    {
+        $requestQuotation->loadMissing(['items', 'purchasedOrder']);
+
+        if ($requestQuotation->status !== RequestQuotationStatus::Approved) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Only approved quotations can create a purchase order.',
+            ]);
+
+            return redirect()->route('request-quotations.index');
+        }
+
+        if ($requestQuotation->purchasedOrder !== null) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'A purchase order already exists for this quotation.',
+            ]);
+
+            return redirect()->route('request-quotations.index');
+        }
+
+        DB::transaction(function () use ($requestQuotation): void {
+            $order = PurchasedOrder::query()->create([
+                'supplier_id' => $requestQuotation->supplier_id,
+                'request_quotation_id' => $requestQuotation->id,
+                'status' => PurchasedOrderStatus::Draft,
+                'grand_total' => $requestQuotation->grand_total,
+                'notes' => $requestQuotation->notes,
+            ]);
+
+            $lineRows = $requestQuotation->items->map(fn (RequestQuotationItem $item) => [
+                'product_id' => $item->product_id,
+                'buying_price' => $item->buying_price,
+                'quantity' => $item->quantity,
+                'subtotal' => $item->subtotal,
+            ])->all();
+
+            $order->items()->createMany($lineRows);
+        });
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Purchase order created from quotation.',
+        ]);
+
+        return redirect()->route('purchased-orders.index');
     }
 
     /**

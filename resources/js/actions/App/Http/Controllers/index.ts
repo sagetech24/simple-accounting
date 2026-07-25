@@ -3,6 +3,7 @@ import HomeController from './HomeController'
 import SupplierController from './SupplierController'
 import CustomerController from './CustomerController'
 import RequestQuotationController from './RequestQuotationController'
+import PurchasedOrderController from './PurchasedOrderController'
 import Admin from './Admin'
 
 const Controllers = {
@@ -11,6 +12,7 @@ const Controllers = {
     SupplierController: Object.assign(SupplierController, SupplierController),
     CustomerController: Object.assign(CustomerController, CustomerController),
     RequestQuotationController: Object.assign(RequestQuotationController, RequestQuotationController),
+    PurchasedOrderController: Object.assign(PurchasedOrderController, PurchasedOrderController),
     Admin: Object.assign(Admin, Admin),
 }
 

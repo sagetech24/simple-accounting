@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -65,6 +66,14 @@ class RequestQuotation extends Model
         return $this->hasMany(RequestQuotationItem::class);
     }
 
+    /**
+     * @return HasOne<PurchasedOrder, $this>
+     */
+    public function purchasedOrder(): HasOne
+    {
+        return $this->hasOne(PurchasedOrder::class);
+    }
+
     public function isEditable(): bool
     {
         return in_array($this->status, [
@@ -73,11 +82,28 @@ class RequestQuotation extends Model
         ], true);
     }
 
+    public function canCreatePurchaseOrder(): bool
+    {
+        if ($this->status !== RequestQuotationStatus::Approved || $this->deleted_at !== null) {
+            return false;
+        }
+
+        if ($this->relationLoaded('purchasedOrder')) {
+            return $this->purchasedOrder === null;
+        }
+
+        return ! $this->purchasedOrder()->exists();
+    }
+
     /**
      * @return array<string, mixed>
      */
     public function toArrayPayload(): array
     {
+        $purchasedOrder = $this->relationLoaded('purchasedOrder')
+            ? $this->purchasedOrder
+            : $this->purchasedOrder()->first();
+
         return [
             'id' => $this->id,
             'reference' => $this->reference,
@@ -99,6 +125,9 @@ class RequestQuotation extends Model
                 RequestQuotationStatus::Approved => null,
             },
             'can_edit' => $this->isEditable() && $this->deleted_at === null,
+            'can_create_purchase_order' => $this->canCreatePurchaseOrder(),
+            'purchased_order_id' => $purchasedOrder?->id,
+            'purchased_order_reference' => $purchasedOrder?->reference,
             'deleted_at' => $this->deleted_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

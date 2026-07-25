@@ -38,17 +38,20 @@ class ExampleTest extends TestCase
     {
         $admin = User::factory()->create();
 
-        $pages = [
-            'purchased-orders' => 'purchased-orders/index',
-            'received-orders' => 'received-orders/index',
-        ];
+        $this->actingAs($admin)
+            ->get(route('received-orders'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('received-orders/index'));
+    }
 
-        foreach ($pages as $route => $component) {
-            $this->actingAs($admin)
-                ->get(route($route))
-                ->assertOk()
-                ->assertInertia(fn (Assert $page) => $page->component($component));
-        }
+    public function test_authenticated_users_can_view_purchased_orders(): void
+    {
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)
+            ->get(route('purchased-orders.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('purchased-orders/index'));
     }
 
     public function test_login_page_is_shown(): void

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\RequestQuotationController::submit
-* @see app/Http/Controllers/RequestQuotationController.php:190
+* @see app/Http/Controllers/RequestQuotationController.php:192
 * @route '/request-quotations/{request_quotation}/submit'
 */
 export const submit = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ submit.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::submit
-* @see app/Http/Controllers/RequestQuotationController.php:190
+* @see app/Http/Controllers/RequestQuotationController.php:192
 * @route '/request-quotations/{request_quotation}/submit'
 */
 submit.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ submit.url = (args: { request_quotation: number | { id: number } } | [request_qu
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::submit
-* @see app/Http/Controllers/RequestQuotationController.php:190
+* @see app/Http/Controllers/RequestQuotationController.php:192
 * @route '/request-quotations/{request_quotation}/submit'
 */
 submit.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -59,7 +59,7 @@ submit.post = (args: { request_quotation: number | { id: number } } | [request_q
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::submit
-* @see app/Http/Controllers/RequestQuotationController.php:190
+* @see app/Http/Controllers/RequestQuotationController.php:192
 * @route '/request-quotations/{request_quotation}/submit'
 */
 const submitForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ const submitForm = (args: { request_quotation: number | { id: number } } | [requ
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::submit
-* @see app/Http/Controllers/RequestQuotationController.php:190
+* @see app/Http/Controllers/RequestQuotationController.php:192
 * @route '/request-quotations/{request_quotation}/submit'
 */
 submitForm.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -81,7 +81,7 @@ submit.form = submitForm
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::approve
-* @see app/Http/Controllers/RequestQuotationController.php:216
+* @see app/Http/Controllers/RequestQuotationController.php:218
 * @route '/request-quotations/{request_quotation}/approve'
 */
 export const approve = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -96,7 +96,7 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::approve
-* @see app/Http/Controllers/RequestQuotationController.php:216
+* @see app/Http/Controllers/RequestQuotationController.php:218
 * @route '/request-quotations/{request_quotation}/approve'
 */
 approve.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -129,7 +129,7 @@ approve.url = (args: { request_quotation: number | { id: number } } | [request_q
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::approve
-* @see app/Http/Controllers/RequestQuotationController.php:216
+* @see app/Http/Controllers/RequestQuotationController.php:218
 * @route '/request-quotations/{request_quotation}/approve'
 */
 approve.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -139,7 +139,7 @@ approve.post = (args: { request_quotation: number | { id: number } } | [request_
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::approve
-* @see app/Http/Controllers/RequestQuotationController.php:216
+* @see app/Http/Controllers/RequestQuotationController.php:218
 * @route '/request-quotations/{request_quotation}/approve'
 */
 const approveForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -149,7 +149,7 @@ const approveForm = (args: { request_quotation: number | { id: number } } | [req
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::approve
-* @see app/Http/Controllers/RequestQuotationController.php:216
+* @see app/Http/Controllers/RequestQuotationController.php:218
 * @route '/request-quotations/{request_quotation}/approve'
 */
 approveForm.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -160,8 +160,88 @@ approveForm.post = (args: { request_quotation: number | { id: number } } | [requ
 approve.form = approveForm
 
 /**
+* @see \App\Http\Controllers\RequestQuotationController::createPurchaseOrder
+* @see app/Http/Controllers/RequestQuotationController.php:244
+* @route '/request-quotations/{request_quotation}/create-purchase-order'
+*/
+export const createPurchaseOrder = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: createPurchaseOrder.url(args, options),
+    method: 'post',
+})
+
+createPurchaseOrder.definition = {
+    methods: ["post"],
+    url: '/request-quotations/{request_quotation}/create-purchase-order',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::createPurchaseOrder
+* @see app/Http/Controllers/RequestQuotationController.php:244
+* @route '/request-quotations/{request_quotation}/create-purchase-order'
+*/
+createPurchaseOrder.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { request_quotation: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { request_quotation: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            request_quotation: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        request_quotation: typeof args.request_quotation === 'object'
+        ? args.request_quotation.id
+        : args.request_quotation,
+    }
+
+    return createPurchaseOrder.definition.url
+            .replace('{request_quotation}', parsedArgs.request_quotation.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::createPurchaseOrder
+* @see app/Http/Controllers/RequestQuotationController.php:244
+* @route '/request-quotations/{request_quotation}/create-purchase-order'
+*/
+createPurchaseOrder.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: createPurchaseOrder.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::createPurchaseOrder
+* @see app/Http/Controllers/RequestQuotationController.php:244
+* @route '/request-quotations/{request_quotation}/create-purchase-order'
+*/
+const createPurchaseOrderForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: createPurchaseOrder.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::createPurchaseOrder
+* @see app/Http/Controllers/RequestQuotationController.php:244
+* @route '/request-quotations/{request_quotation}/create-purchase-order'
+*/
+createPurchaseOrderForm.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: createPurchaseOrder.url(args, options),
+    method: 'post',
+})
+
+createPurchaseOrder.form = createPurchaseOrderForm
+
+/**
 * @see \App\Http\Controllers\RequestQuotationController::restore
-* @see app/Http/Controllers/RequestQuotationController.php:175
+* @see app/Http/Controllers/RequestQuotationController.php:177
 * @route '/request-quotations/{request_quotation}/restore'
 */
 export const restore = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -176,7 +256,7 @@ restore.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::restore
-* @see app/Http/Controllers/RequestQuotationController.php:175
+* @see app/Http/Controllers/RequestQuotationController.php:177
 * @route '/request-quotations/{request_quotation}/restore'
 */
 restore.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -209,7 +289,7 @@ restore.url = (args: { request_quotation: number | { id: number } } | [request_q
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::restore
-* @see app/Http/Controllers/RequestQuotationController.php:175
+* @see app/Http/Controllers/RequestQuotationController.php:177
 * @route '/request-quotations/{request_quotation}/restore'
 */
 restore.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -219,7 +299,7 @@ restore.post = (args: { request_quotation: number | { id: number } } | [request_
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::restore
-* @see app/Http/Controllers/RequestQuotationController.php:175
+* @see app/Http/Controllers/RequestQuotationController.php:177
 * @route '/request-quotations/{request_quotation}/restore'
 */
 const restoreForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -229,7 +309,7 @@ const restoreForm = (args: { request_quotation: number | { id: number } } | [req
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::restore
-* @see app/Http/Controllers/RequestQuotationController.php:175
+* @see app/Http/Controllers/RequestQuotationController.php:177
 * @route '/request-quotations/{request_quotation}/restore'
 */
 restoreForm.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -241,7 +321,7 @@ restore.form = restoreForm
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::index
-* @see app/Http/Controllers/RequestQuotationController.php:25
+* @see app/Http/Controllers/RequestQuotationController.php:27
 * @route '/request-quotations'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -256,7 +336,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::index
-* @see app/Http/Controllers/RequestQuotationController.php:25
+* @see app/Http/Controllers/RequestQuotationController.php:27
 * @route '/request-quotations'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -265,7 +345,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::index
-* @see app/Http/Controllers/RequestQuotationController.php:25
+* @see app/Http/Controllers/RequestQuotationController.php:27
 * @route '/request-quotations'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -275,7 +355,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::index
-* @see app/Http/Controllers/RequestQuotationController.php:25
+* @see app/Http/Controllers/RequestQuotationController.php:27
 * @route '/request-quotations'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -285,7 +365,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::index
-* @see app/Http/Controllers/RequestQuotationController.php:25
+* @see app/Http/Controllers/RequestQuotationController.php:27
 * @route '/request-quotations'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -295,7 +375,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::index
-* @see app/Http/Controllers/RequestQuotationController.php:25
+* @see app/Http/Controllers/RequestQuotationController.php:27
 * @route '/request-quotations'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -305,7 +385,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::index
-* @see app/Http/Controllers/RequestQuotationController.php:25
+* @see app/Http/Controllers/RequestQuotationController.php:27
 * @route '/request-quotations'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -322,7 +402,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::store
-* @see app/Http/Controllers/RequestQuotationController.php:78
+* @see app/Http/Controllers/RequestQuotationController.php:80
 * @route '/request-quotations'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -337,7 +417,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::store
-* @see app/Http/Controllers/RequestQuotationController.php:78
+* @see app/Http/Controllers/RequestQuotationController.php:80
 * @route '/request-quotations'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -346,7 +426,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::store
-* @see app/Http/Controllers/RequestQuotationController.php:78
+* @see app/Http/Controllers/RequestQuotationController.php:80
 * @route '/request-quotations'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -356,7 +436,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::store
-* @see app/Http/Controllers/RequestQuotationController.php:78
+* @see app/Http/Controllers/RequestQuotationController.php:80
 * @route '/request-quotations'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -366,7 +446,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::store
-* @see app/Http/Controllers/RequestQuotationController.php:78
+* @see app/Http/Controllers/RequestQuotationController.php:80
 * @route '/request-quotations'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -378,7 +458,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:112
+* @see app/Http/Controllers/RequestQuotationController.php:114
 * @route '/request-quotations/{request_quotation}'
 */
 export const update = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -393,7 +473,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:112
+* @see app/Http/Controllers/RequestQuotationController.php:114
 * @route '/request-quotations/{request_quotation}'
 */
 update.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -426,7 +506,7 @@ update.url = (args: { request_quotation: number | { id: number } } | [request_qu
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:112
+* @see app/Http/Controllers/RequestQuotationController.php:114
 * @route '/request-quotations/{request_quotation}'
 */
 update.put = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -436,7 +516,7 @@ update.put = (args: { request_quotation: number | { id: number } } | [request_qu
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:112
+* @see app/Http/Controllers/RequestQuotationController.php:114
 * @route '/request-quotations/{request_quotation}'
 */
 update.patch = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -446,7 +526,7 @@ update.patch = (args: { request_quotation: number | { id: number } } | [request_
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:112
+* @see app/Http/Controllers/RequestQuotationController.php:114
 * @route '/request-quotations/{request_quotation}'
 */
 const updateForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -461,7 +541,7 @@ const updateForm = (args: { request_quotation: number | { id: number } } | [requ
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:112
+* @see app/Http/Controllers/RequestQuotationController.php:114
 * @route '/request-quotations/{request_quotation}'
 */
 updateForm.put = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -476,7 +556,7 @@ updateForm.put = (args: { request_quotation: number | { id: number } } | [reques
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:112
+* @see app/Http/Controllers/RequestQuotationController.php:114
 * @route '/request-quotations/{request_quotation}'
 */
 updateForm.patch = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -493,7 +573,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::destroy
-* @see app/Http/Controllers/RequestQuotationController.php:160
+* @see app/Http/Controllers/RequestQuotationController.php:162
 * @route '/request-quotations/{request_quotation}'
 */
 export const destroy = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -508,7 +588,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::destroy
-* @see app/Http/Controllers/RequestQuotationController.php:160
+* @see app/Http/Controllers/RequestQuotationController.php:162
 * @route '/request-quotations/{request_quotation}'
 */
 destroy.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -541,7 +621,7 @@ destroy.url = (args: { request_quotation: number | { id: number } } | [request_q
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::destroy
-* @see app/Http/Controllers/RequestQuotationController.php:160
+* @see app/Http/Controllers/RequestQuotationController.php:162
 * @route '/request-quotations/{request_quotation}'
 */
 destroy.delete = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -551,7 +631,7 @@ destroy.delete = (args: { request_quotation: number | { id: number } } | [reques
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::destroy
-* @see app/Http/Controllers/RequestQuotationController.php:160
+* @see app/Http/Controllers/RequestQuotationController.php:162
 * @route '/request-quotations/{request_quotation}'
 */
 const destroyForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -566,7 +646,7 @@ const destroyForm = (args: { request_quotation: number | { id: number } } | [req
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::destroy
-* @see app/Http/Controllers/RequestQuotationController.php:160
+* @see app/Http/Controllers/RequestQuotationController.php:162
 * @route '/request-quotations/{request_quotation}'
 */
 destroyForm.delete = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -584,6 +664,7 @@ destroy.form = destroyForm
 const requestQuotations = {
     submit: Object.assign(submit, submit),
     approve: Object.assign(approve, approve),
+    createPurchaseOrder: Object.assign(createPurchaseOrder, createPurchaseOrder),
     restore: Object.assign(restore, restore),
     index: Object.assign(index, index),
     store: Object.assign(store, store),
