@@ -277,8 +277,8 @@ export default function ProductsIndex({
                 </div>
             </form>
 
-            <div className="mt-6 overflow-x-auto px-4">
-                <table className="w-full min-w-[780px] border-collapse text-left text-sm">
+            <div className="mt-6 px-4">
+                <table className="w-full border-collapse text-left text-sm">
                     <thead className="sticky top-0 bg-teal-500/10">
                         <tr className="border-b border-line text-xs tracking-wide uppercase">
                             <th className="px-4 py-3 font-medium text-muted">

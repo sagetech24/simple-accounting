@@ -70,7 +70,7 @@ export default function AppLayout({ title, children }) {
                             </nav>
                         </aside>
 
-                        <div className="min-h-[800px] w-full flex-1 overflow-auto rounded-md border border-line bg-white/80 px-0">
+                        <div className="min-h-[800px] w-full flex-1 rounded-md border border-line bg-white/80 px-0">
                             {children}
                         </div>
                     </div>

@@ -333,8 +333,8 @@ export default function SuppliersIndex({ suppliers, filters, statuses }) {
                 </div>
             </form>
 
-            <div className="mt-6 overflow-x-auto table-auto px-4">
-                <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+            <div className="mt-6 px-4">
+                <table className="w-full border-collapse text-left text-sm">
                     <thead className="sticky top-0 bg-teal-500/10 px-2">
                         <tr className="border-b border-line text-xs tracking-wide uppercase">
                             {sortableColumns.map((column) => (
@@ -433,7 +433,7 @@ export default function SuppliersIndex({ suppliers, filters, statuses }) {
             </div>
 
             {suppliers.last_page > 1 && (
-                <div className="mt-8 flex flex-wrap items-center gap-2 text-sm">
+                <div className="mt-8 px-4 mb-4 flex flex-wrap items-center gap-2 text-sm">
                     {suppliers.links.map((link, i) => {
                         if (!link.url) {
                             return (

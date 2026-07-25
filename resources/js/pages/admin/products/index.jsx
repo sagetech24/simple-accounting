@@ -149,7 +149,7 @@ export default function AdminProductsIndex({ products, filters }) {
                     </form>
 
                     <div
-                        className="mt-8 overflow-x-auto opacity-0 motion-safe:animate-[fade-up_0.8s_ease_forwards]"
+                        className="mt-8 opacity-0 motion-safe:animate-[fade-up_0.8s_ease_forwards]"
                         style={{ animationDelay: '140ms' }}
                     >
                         <table className="w-full min-w-[720px] border-collapse text-left text-sm">

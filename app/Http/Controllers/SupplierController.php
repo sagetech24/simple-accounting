@@ -37,7 +37,7 @@ class SupplierController extends Controller
             ->search($query)
             ->orderBy($sort, $direction)
             ->orderBy('id')
-            ->paginate(15)
+            ->paginate(8)
             ->withQueryString()
             ->through(fn (Supplier $supplier) => $supplier->toArrayPayload());
 

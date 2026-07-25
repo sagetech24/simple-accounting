@@ -29,7 +29,7 @@ class HomeController extends Controller
             ->search($query)
             ->inCategory($category)
             ->orderBy('name')
-            ->paginate(12)
+            ->paginate(8)
             ->withQueryString()
             ->through(fn (Product $product) => $product->toAdminArray());
 
