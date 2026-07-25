@@ -1,12 +1,8 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import SiteHeader from '@/components/site-header';
-import {
-    products,
-    purchasedOrders,
-    receivedOrders,
-    requestQuotations,
-} from '@/routes';
+import { products, purchasedOrders, receivedOrders } from '@/routes';
 import { index as customers } from '@/routes/customers';
+import { index as requestQuotations } from '@/routes/request-quotations';
 import { index as suppliers } from '@/routes/suppliers';
 
 const navItems = [
@@ -43,8 +39,8 @@ export default function AppLayout({ title, children }) {
 
                 <SiteHeader />
 
-                <main className="relative z-10 mx-auto w-full py-5 px-4">
-                    <div className="flex gap-2 sm:gap-4 p-0">
+                <main className="relative z-10 mx-auto w-full px-4 py-5">
+                    <div className="flex gap-2 p-0 sm:gap-4">
                         <aside className="xl:w-min-40 min-w-28">
                             <nav
                                 aria-label="Main"

@@ -31,7 +31,7 @@ Internal ops app for catalog pricing and early procurement workflow. Ignore the 
 | Products | `/products` | Shipped — search/browse panel (no `purchase_price`) |
 | Suppliers | `/suppliers` | Shipped — full CRUD |
 | Customers | `/customers` | Shipped — full CRUD |
-| Request Quotations | `/request-quotations` | Stub empty panel |
+| Request Quotations | `/request-quotations` | Shipped — list + create tabs, draft → pending → approved |
 | Purchased Orders | `/purchased-orders` | Stub empty panel |
 | Received Orders | `/received-orders` | Stub empty panel |
 
@@ -106,13 +106,35 @@ Admin product management lives under `/admin/products` (also auth-gated).
 
 ---
 
+## Domain — Request Quotation
+
+| Field | Rules |
+|-------|--------|
+| `reference` | Unique UUID; auto-generated (client preview or server fallback) |
+| `supplier_id` | Required; must be an active, non-deleted supplier |
+| `status` | Enum: `draft` \| `pending` \| `approved` — new records start as `draft` |
+| `grand_total` | Decimal; **server-calculated** from line subtotals |
+| `notes` | Nullable text |
+| Line items | At least one; distinct non-deleted `product_id`, `buying_price` ≥ 0, `quantity` ≥ 1, server `subtotal` |
+
+### Request Quotations UX
+
+- Single index page (`/request-quotations`) with two tabs: **list** (default) and **create**
+- List: ordered pending → approved → draft, newest within status; shows reference, supplier, item count, grand total, status, created date
+- Workflow actions: Draft → Submit (pending), Pending → Approve; toast flash on mutations
+- Create: searchable supplier + product pickers; editable buying price/qty lines; live subtotals and grand total; save as draft
+- Routes: `index`, `store`, `request-quotations.submit`, `request-quotations.approve`
+- Soft-deleted suppliers/products excluded from pickers; existing quotations still show related names via `withTrashed`
+
+---
+
 ## Out of scope (v1)
 
-Multi-user roles, public registration, public/guest catalog, payments, multi-tenant, mobile API, full RFQ/PO/receiving transaction ledgers (stubs only until scoped).
+Multi-user roles, public registration, public/guest catalog, payments, multi-tenant, mobile API, full Purchased Orders / Received Orders transaction ledgers (stubs only until scoped).
 
 ## Recommended next (v1.x)
 
-- Implement RFQ → Purchased Orders → Received Orders as real domains
+- Convert Approved RFQs into Purchased Orders → Received Orders
 - Link suppliers to products / purchase flow
 - Product polish: margin, low-stock, price history, admin filters
 - Policies/gates even with one admin

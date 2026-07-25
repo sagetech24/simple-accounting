@@ -2,86 +2,6 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/request-quotations'
-*/
-const Controllercae9b2d5e8c0535c278da399646a00a9 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllercae9b2d5e8c0535c278da399646a00a9.url(options),
-    method: 'get',
-})
-
-Controllercae9b2d5e8c0535c278da399646a00a9.definition = {
-    methods: ["get","head"],
-    url: '/request-quotations',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/request-quotations'
-*/
-Controllercae9b2d5e8c0535c278da399646a00a9.url = (options?: RouteQueryOptions) => {
-    return Controllercae9b2d5e8c0535c278da399646a00a9.definition.url + queryParams(options)
-}
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/request-quotations'
-*/
-Controllercae9b2d5e8c0535c278da399646a00a9.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllercae9b2d5e8c0535c278da399646a00a9.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/request-quotations'
-*/
-Controllercae9b2d5e8c0535c278da399646a00a9.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controllercae9b2d5e8c0535c278da399646a00a9.url(options),
-    method: 'head',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/request-quotations'
-*/
-const Controllercae9b2d5e8c0535c278da399646a00a9Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllercae9b2d5e8c0535c278da399646a00a9.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/request-quotations'
-*/
-Controllercae9b2d5e8c0535c278da399646a00a9Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllercae9b2d5e8c0535c278da399646a00a9.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/request-quotations'
-*/
-Controllercae9b2d5e8c0535c278da399646a00a9Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllercae9b2d5e8c0535c278da399646a00a9.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-Controllercae9b2d5e8c0535c278da399646a00a9.form = Controllercae9b2d5e8c0535c278da399646a00a9Form
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
 * @route '/purchased-orders'
 */
 const Controllerce78fcc7f29d28301eb93f208e355c2e = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -246,7 +166,6 @@ Controller3cdccbc8ab2387bcd670af6eb2b4da6b.form = Controller3cdccbc8ab2387bcd670
 * or import the route by name from your generated `routes/` directory.
 */
 const Controller = {
-    '/request-quotations': Controllercae9b2d5e8c0535c278da399646a00a9,
     '/purchased-orders': Controllerce78fcc7f29d28301eb93f208e355c2e,
     '/received-orders': Controller3cdccbc8ab2387bcd670af6eb2b4da6b,
 }

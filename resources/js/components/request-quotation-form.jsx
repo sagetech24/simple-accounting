@@ -1,0 +1,432 @@
+import { useForm } from '@inertiajs/react';
+import { useMemo, useState } from 'react';
+import { store } from '@/actions/App/Http/Controllers/RequestQuotationController';
+import SearchableSelect from '@/components/searchable-select';
+
+function formatMoney(value) {
+    const amount = Number(value);
+
+    if (Number.isNaN(amount)) {
+        return '0.00';
+    }
+
+    return amount.toFixed(2);
+}
+
+function lineSubtotal(buyingPrice, quantity) {
+    const price = Number(buyingPrice);
+    const qty = Number(quantity);
+
+    if (Number.isNaN(price) || Number.isNaN(qty)) {
+        return 0;
+    }
+
+    return price * qty;
+}
+
+export default function RequestQuotationForm({
+    suppliers,
+    products,
+    onCancel,
+    onSuccess,
+}) {
+    const [reference] = useState(() => crypto.randomUUID());
+    const [productQuery, setProductQuery] = useState('');
+    const [productPickerOpen, setProductPickerOpen] = useState(false);
+
+    const form = useForm({
+        reference,
+        supplier_id: '',
+        notes: '',
+        items: [],
+    });
+
+    const availableProducts = useMemo(() => {
+        const selectedIds = new Set(
+            form.data.items.map((item) => item.product_id),
+        );
+
+        return products.filter((product) => !selectedIds.has(product.id));
+    }, [products, form.data.items]);
+
+    const filteredProducts = useMemo(() => {
+        const term = productQuery.trim().toLowerCase();
+
+        if (!term) {
+            return availableProducts;
+        }
+
+        return availableProducts.filter((product) =>
+            product.name.toLowerCase().includes(term),
+        );
+    }, [availableProducts, productQuery]);
+
+    const grandTotal = useMemo(
+        () =>
+            form.data.items.reduce(
+                (sum, item) =>
+                    sum + lineSubtotal(item.buying_price, item.quantity),
+                0,
+            ),
+        [form.data.items],
+    );
+
+    function selectSupplier(supplier) {
+        form.setData('supplier_id', supplier?.id ?? '');
+    }
+
+    function addProduct(product) {
+        form.setData('items', [
+            ...form.data.items,
+            {
+                product_id: product.id,
+                product_name: product.name,
+                buying_price: formatMoney(product.purchase_price),
+                quantity: 1,
+            },
+        ]);
+        setProductQuery('');
+        setProductPickerOpen(false);
+        form.clearErrors('items');
+    }
+
+    function updateItem(index, field, value) {
+        form.setData(
+            'items',
+            form.data.items.map((item, itemIndex) =>
+                itemIndex === index ? { ...item, [field]: value } : item,
+            ),
+        );
+    }
+
+    function removeItem(index) {
+        form.setData(
+            'items',
+            form.data.items.filter((_, itemIndex) => itemIndex !== index),
+        );
+    }
+
+    function submit(event) {
+        event.preventDefault();
+
+        form.post(store.url(), {
+            preserveScroll: true,
+            onSuccess: () => {
+                onSuccess?.();
+            },
+        });
+    }
+
+    const selectedSupplier =
+        suppliers.find((supplier) => supplier.id === form.data.supplier_id) ??
+        null;
+
+    return (
+        <form onSubmit={submit} className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+                <div>
+                    <label
+                        htmlFor="reference"
+                        className="mb-1.5 block text-sm font-medium text-ink-soft"
+                    >
+                        Quotation reference
+                    </label>
+                    <input
+                        id="reference"
+                        type="text"
+                        value={form.data.reference}
+                        readOnly
+                        className="min-h-11 w-full border border-line bg-mist/40 px-3 font-mono text-sm text-ink-soft outline-none"
+                    />
+                    <p className="mt-1.5 text-xs text-muted">
+                        Auto-generated UUID for this quotation.
+                    </p>
+                    {form.errors.reference && (
+                        <p className="mt-1.5 text-sm text-warn">
+                            {form.errors.reference}
+                        </p>
+                    )}
+                </div>
+
+                <SearchableSelect
+                    id="supplier_id"
+                    label="Supplier"
+                    placeholder="Search suppliers…"
+                    options={suppliers}
+                    value={selectedSupplier?.id ?? null}
+                    onChange={selectSupplier}
+                    getOptionLabel={(supplier) => supplier.name}
+                    getOptionMeta={(supplier) =>
+                        [supplier.contact_name, supplier.email]
+                            .filter(Boolean)
+                            .join(' · ')
+                    }
+                    emptyMessage="No active suppliers match."
+                    error={form.errors.supplier_id}
+                    disabled={form.processing}
+                />
+            </div>
+
+            <div>
+                <div className="mb-1.5 flex items-center justify-between gap-3">
+                    <label
+                        htmlFor="product_search"
+                        className="block text-sm font-medium text-ink-soft"
+                    >
+                        Add products
+                    </label>
+                    <span className="text-xs text-muted">
+                        {form.data.items.length}{' '}
+                        {form.data.items.length === 1 ? 'line' : 'lines'}
+                    </span>
+                </div>
+
+                <div className="relative">
+                    <input
+                        id="product_search"
+                        type="search"
+                        value={productQuery}
+                        disabled={
+                            form.processing || availableProducts.length === 0
+                        }
+                        placeholder={
+                            availableProducts.length === 0
+                                ? 'All products already added'
+                                : 'Search products to add…'
+                        }
+                        onChange={(event) => {
+                            setProductQuery(event.target.value);
+                            setProductPickerOpen(true);
+                        }}
+                        onFocus={() => setProductPickerOpen(true)}
+                        onBlur={() => {
+                            window.setTimeout(
+                                () => setProductPickerOpen(false),
+                                150,
+                            );
+                        }}
+                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-60"
+                    />
+
+                    {productPickerOpen && availableProducts.length > 0 && (
+                        <ul className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md border border-line bg-white py-1 shadow-md">
+                            {filteredProducts.length === 0 && (
+                                <li className="px-3 py-2 text-sm text-muted">
+                                    No products match.
+                                </li>
+                            )}
+                            {filteredProducts.map((product) => (
+                                <li key={product.id}>
+                                    <button
+                                        type="button"
+                                        onMouseDown={(event) =>
+                                            event.preventDefault()
+                                        }
+                                        onClick={() => addProduct(product)}
+                                        className="block w-full px-3 py-2.5 text-left transition hover:bg-mist"
+                                    >
+                                        <span className="block text-sm font-medium text-ink">
+                                            {product.name}
+                                        </span>
+                                        <span className="mt-0.5 block text-xs text-muted">
+                                            Buy{' '}
+                                            {formatMoney(
+                                                product.purchase_price,
+                                            )}{' '}
+                                            · {product.status_label}
+                                        </span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+
+                {form.errors.items && (
+                    <p className="mt-1.5 text-sm text-warn">
+                        {form.errors.items}
+                    </p>
+                )}
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+                    <thead className="bg-teal-500/10">
+                        <tr className="border-b border-line text-xs tracking-wide uppercase">
+                            <th className="px-4 py-3 font-medium text-muted">
+                                Product
+                            </th>
+                            <th className="px-4 py-3 font-medium text-muted">
+                                Buying price
+                            </th>
+                            <th className="px-4 py-3 font-medium text-muted">
+                                Qty
+                            </th>
+                            <th className="px-4 py-3 font-medium text-muted">
+                                Subtotal
+                            </th>
+                            <th className="w-24 px-4 py-3 text-right">
+                                <span className="sr-only">Actions</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {form.data.items.length === 0 && (
+                            <tr>
+                                <td
+                                    colSpan={5}
+                                    className="px-4 py-10 text-center text-muted"
+                                >
+                                    Search and add products to build this
+                                    quotation.
+                                </td>
+                            </tr>
+                        )}
+                        {form.data.items.map((item, index) => {
+                            const subtotal = lineSubtotal(
+                                item.buying_price,
+                                item.quantity,
+                            );
+                            const priceError =
+                                form.errors[`items.${index}.buying_price`];
+                            const qtyError =
+                                form.errors[`items.${index}.quantity`];
+                            const productError =
+                                form.errors[`items.${index}.product_id`];
+
+                            return (
+                                <tr
+                                    key={item.product_id}
+                                    className="border-b border-line/80 align-top"
+                                >
+                                    <td className="px-4 py-3">
+                                        <p className="font-medium text-ink">
+                                            {item.product_name}
+                                        </p>
+                                        {productError && (
+                                            <p className="mt-1 text-sm text-warn">
+                                                {productError}
+                                            </p>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={item.buying_price}
+                                            disabled={form.processing}
+                                            onChange={(event) =>
+                                                updateItem(
+                                                    index,
+                                                    'buying_price',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            className="min-h-11 w-full max-w-36 border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                        />
+                                        {priceError && (
+                                            <p className="mt-1 text-sm text-warn">
+                                                {priceError}
+                                            </p>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            step="1"
+                                            value={item.quantity}
+                                            disabled={form.processing}
+                                            onChange={(event) =>
+                                                updateItem(
+                                                    index,
+                                                    'quantity',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            className="min-h-11 w-full max-w-24 border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                        />
+                                        {qtyError && (
+                                            <p className="mt-1 text-sm text-warn">
+                                                {qtyError}
+                                            </p>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3 font-medium text-ink">
+                                        {formatMoney(subtotal)}
+                                    </td>
+                                    <td className="px-4 py-3 text-right">
+                                        <button
+                                            type="button"
+                                            disabled={form.processing}
+                                            onClick={() => removeItem(index)}
+                                            className="min-h-11 rounded-md border border-line bg-white px-3 text-sm text-warn transition hover:border-warn/40 disabled:opacity-60"
+                                        >
+                                            Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="flex flex-col gap-4 border-t border-line pt-4 sm:flex-row sm:items-end sm:justify-between">
+                <div className="sm:max-w-md sm:flex-1">
+                    <label
+                        htmlFor="notes"
+                        className="mb-1.5 block text-sm font-medium text-ink-soft"
+                    >
+                        Notes
+                    </label>
+                    <textarea
+                        id="notes"
+                        rows={3}
+                        value={form.data.notes ?? ''}
+                        disabled={form.processing}
+                        onChange={(event) =>
+                            form.setData('notes', event.target.value)
+                        }
+                        className="w-full border border-line bg-white/80 px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                    />
+                    {form.errors.notes && (
+                        <p className="mt-1.5 text-sm text-warn">
+                            {form.errors.notes}
+                        </p>
+                    )}
+                </div>
+
+                <div className="rounded-md border border-line bg-mist/40 px-4 py-3 text-right sm:min-w-56">
+                    <p className="text-xs tracking-wide text-muted uppercase">
+                        Grand total
+                    </p>
+                    <p className="mt-1 text-2xl font-semibold text-ink">
+                        {formatMoney(grandTotal)}
+                    </p>
+                </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+                <button
+                    type="submit"
+                    disabled={form.processing}
+                    className="min-h-11 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800 disabled:opacity-60"
+                >
+                    {form.processing ? 'Saving…' : 'Save as draft'}
+                </button>
+                {onCancel && (
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={form.processing}
+                        className="min-h-11 rounded-md border border-line bg-white px-5 text-sm font-medium text-ink-soft transition hover:border-ink/30 hover:text-ink disabled:opacity-60"
+                    >
+                        Cancel
+                    </button>
+                )}
+            </div>
+        </form>
+    );
+}

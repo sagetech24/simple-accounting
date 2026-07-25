@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\RequestQuotationController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +17,6 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/', '/products')->name('home');
 
     Route::get('products', [HomeController::class, 'index'])->name('products');
-    Route::inertia('request-quotations', 'request-quotations/index')->name('request-quotations');
     Route::inertia('purchased-orders', 'purchased-orders/index')->name('purchased-orders');
     Route::inertia('received-orders', 'received-orders/index')->name('received-orders');
 
@@ -29,6 +29,13 @@ Route::middleware('auth')->group(function () {
         ->withTrashed()
         ->name('customers.restore');
     Route::resource('customers', CustomerController::class)->except(['show', 'create', 'edit']);
+
+    Route::post('request-quotations/{request_quotation}/submit', [RequestQuotationController::class, 'submit'])
+        ->name('request-quotations.submit');
+    Route::post('request-quotations/{request_quotation}/approve', [RequestQuotationController::class, 'approve'])
+        ->name('request-quotations.approve');
+    Route::resource('request-quotations', RequestQuotationController::class)
+        ->only(['index', 'store']);
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
