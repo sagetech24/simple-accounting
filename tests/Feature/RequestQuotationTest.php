@@ -538,4 +538,68 @@ class RequestQuotationTest extends TestCase
                 ->where('quotations.data.1.can_edit', true)
             );
     }
+
+    public function test_quotations_can_be_saved_and_approved_on_create(): void
+    {
+        $admin = User::factory()->create();
+        $supplier = Supplier::factory()->active()->create();
+        $product = Product::factory()->available()->create();
+
+        $this->actingAs($admin)
+            ->post(route('request-quotations.store'), [
+                'supplier_id' => $supplier->id,
+                'save_and_approve' => true,
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'buying_price' => '12.00',
+                        'quantity' => 2,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('request-quotations.index'));
+
+        $this->assertDatabaseHas('request_quotations', [
+            'supplier_id' => $supplier->id,
+            'status' => RequestQuotationStatus::Approved->value,
+            'grand_total' => '24.00',
+        ]);
+    }
+
+    public function test_draft_quotations_can_be_saved_and_approved_on_update(): void
+    {
+        $admin = User::factory()->create();
+        $supplier = Supplier::factory()->active()->create();
+        $product = Product::factory()->available()->create();
+        $quotation = RequestQuotation::factory()->draft()->create([
+            'supplier_id' => $supplier->id,
+        ]);
+        RequestQuotationItem::factory()->create([
+            'request_quotation_id' => $quotation->id,
+            'product_id' => $product->id,
+            'buying_price' => '5.00',
+            'quantity' => 1,
+            'subtotal' => '5.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('request-quotations.update', $quotation), [
+                'supplier_id' => $supplier->id,
+                'save_and_approve' => true,
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'buying_price' => '5.00',
+                        'quantity' => 3,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('request-quotations.index'));
+
+        $this->assertDatabaseHas('request_quotations', [
+            'id' => $quotation->id,
+            'status' => RequestQuotationStatus::Approved->value,
+            'grand_total' => '15.00',
+        ]);
+    }
 }

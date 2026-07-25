@@ -73,19 +73,23 @@ class RequestQuotationController extends Controller
     }
 
     /**
-     * Persist a new draft quotation with line items.
+     * Persist a new quotation with line items (draft or approved).
      */
     public function store(StoreRequestQuotationRequest $request): RedirectResponse
     {
         $attributes = $request->quotationAttributes();
         $items = $request->itemAttributes();
+        $approve = $request->boolean('save_and_approve');
+        $status = $approve
+            ? RequestQuotationStatus::Approved
+            : RequestQuotationStatus::Draft;
 
-        DB::transaction(function () use ($attributes, $items): void {
+        DB::transaction(function () use ($attributes, $items, $status): void {
             [$grandTotal, $lineRows] = $this->buildLineRows($items);
 
             $quotation = RequestQuotation::query()->create([
                 ...$attributes,
-                'status' => RequestQuotationStatus::Draft,
+                'status' => $status,
                 'grand_total' => $grandTotal,
             ]);
 
@@ -94,7 +98,9 @@ class RequestQuotationController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Request quotation saved as draft.',
+            'message' => $approve
+                ? 'Request quotation saved and approved.'
+                : 'Request quotation saved as draft.',
         ]);
 
         return redirect()->route('request-quotations.index');
@@ -118,14 +124,21 @@ class RequestQuotationController extends Controller
 
         $attributes = $request->quotationAttributes();
         $items = $request->itemAttributes();
+        $approve = $request->boolean('save_and_approve');
 
-        DB::transaction(function () use ($requestQuotation, $attributes, $items): void {
+        DB::transaction(function () use ($requestQuotation, $attributes, $items, $approve): void {
             [$grandTotal, $lineRows] = $this->buildLineRows($items);
 
-            $requestQuotation->update([
+            $payload = [
                 ...$attributes,
                 'grand_total' => $grandTotal,
-            ]);
+            ];
+
+            if ($approve) {
+                $payload['status'] = RequestQuotationStatus::Approved;
+            }
+
+            $requestQuotation->update($payload);
 
             $requestQuotation->items()->delete();
             $requestQuotation->items()->createMany($lineRows);
@@ -133,7 +146,9 @@ class RequestQuotationController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Request quotation updated.',
+            'message' => $approve
+                ? 'Request quotation saved and approved.'
+                : 'Request quotation updated.',
         ]);
 
         return redirect()->route('request-quotations.index');

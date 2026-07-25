@@ -27,6 +27,7 @@ class UpdateRequestQuotationRequest extends FormRequest
                 Rule::exists('suppliers', 'id')->whereNull('deleted_at'),
             ],
             'notes' => ['nullable', 'string'],
+            'save_and_approve' => ['sometimes', 'boolean'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
                 'required',

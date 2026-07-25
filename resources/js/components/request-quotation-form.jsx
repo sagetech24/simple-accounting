@@ -36,6 +36,7 @@ export default function RequestQuotationForm({
         reference,
         supplier_id: quotation?.supplier_id ?? '',
         notes: quotation?.notes ?? '',
+        save_and_approve: false,
         items: (quotation?.items ?? []).map((item) => ({
             product_id: item.product_id,
             product_name: item.product_name,
@@ -109,13 +110,19 @@ export default function RequestQuotationForm({
         );
     }
 
-    function submit(event) {
-        event.preventDefault();
+    function persist(approve) {
+        form.transform((data) => ({
+            ...data,
+            save_and_approve: approve,
+        }));
 
         const options = {
             preserveScroll: true,
             onSuccess: () => {
                 onSuccess?.();
+            },
+            onFinish: () => {
+                form.transform((data) => data);
             },
         };
 
@@ -127,17 +134,29 @@ export default function RequestQuotationForm({
         form.post(store.url(), options);
     }
 
+    function submit(event) {
+        event.preventDefault();
+        persist(false);
+    }
+
+    function saveAndApprove(event) {
+        event.preventDefault();
+        persist(true);
+    }
+
     const selectedSupplier =
         suppliers.find((supplier) => supplier.id === form.data.supplier_id) ??
         null;
 
-    const submitLabel = isEditing
+    const draftLabel = isEditing
         ? form.processing
             ? 'Saving…'
             : 'Save changes'
         : form.processing
           ? 'Saving…'
-          : 'Save as draft';
+          : 'Save as Draft';
+
+    const approveLabel = form.processing ? 'Saving…' : 'Save & Approve';
 
     return (
         <form onSubmit={submit} className="space-y-6">
@@ -439,7 +458,15 @@ export default function RequestQuotationForm({
                     disabled={form.processing}
                     className="min-h-11 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800 disabled:opacity-60"
                 >
-                    {submitLabel}
+                    {draftLabel}
+                </button>
+                <button
+                    type="button"
+                    onClick={saveAndApprove}
+                    disabled={form.processing}
+                    className="min-h-11 rounded-md border border-teal-700 bg-white px-5 text-sm font-medium tracking-wide text-teal-800 transition hover:bg-teal-50 disabled:opacity-60"
+                >
+                    {approveLabel}
                 </button>
                 {onCancel && (
                     <button
