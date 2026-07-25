@@ -1,4 +1,4 @@
-import { Link, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import {
     store,
@@ -6,7 +6,6 @@ import {
 } from '@/actions/App/Http/Controllers/PurchasedOrderController';
 import SearchableSelect from '@/components/searchable-select';
 import { formatDecimal, formatMoney } from '@/lib/format-money';
-import { index as requestQuotationsIndex } from '@/routes/request-quotations';
 
 function lineSubtotal(buyingPrice, quantity) {
     const price = Number(buyingPrice);
@@ -25,6 +24,7 @@ export default function PurchasedOrderForm({
     order = null,
     onCancel,
     onSuccess,
+    onViewSourceQuotation,
 }) {
     const isEditing = Boolean(order?.id);
     const [reference] = useState(() => order?.reference ?? crypto.randomUUID());
@@ -148,13 +148,15 @@ export default function PurchasedOrderForm({
                         <>
                             {' '}
                             Source quotation:{' '}
-                            {order.request_quotation_id ? (
-                                <Link
-                                    href={requestQuotationsIndex.url()}
-                                    className="font-mono text-xs text-teal-800 underline-offset-2 hover:underline"
+                            {order.request_quotation_id &&
+                            onViewSourceQuotation ? (
+                                <button
+                                    type="button"
+                                    onClick={() => onViewSourceQuotation(order)}
+                                    className="cursor-pointer font-mono text-xs text-teal-800 underline-offset-2 hover:underline"
                                 >
                                     {order.request_quotation_reference}
-                                </Link>
+                                </button>
                             ) : (
                                 <span className="font-mono text-xs">
                                     {order.request_quotation_reference}

@@ -1,8 +1,6 @@
-import { Link } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { formatMoney } from '@/lib/format-money';
-import { index as requestQuotationsIndex } from '@/routes/request-quotations';
 
 function formatDate(value) {
     if (!value) {
@@ -35,6 +33,7 @@ export default function PurchasedOrderDetailModal({
     onClose,
     onEdit,
     onDelete,
+    onViewSourceQuotation,
 }) {
     useEffect(() => {
         if (!open) {
@@ -151,12 +150,19 @@ export default function PurchasedOrderDetailModal({
                         <p className="mt-1 font-mono text-sm break-all text-ink-soft">
                             {order.request_quotation_id &&
                             order.request_quotation_reference ? (
-                                <Link
-                                    href={requestQuotationsIndex.url()}
-                                    className="text-teal-800 underline-offset-2 transition hover:underline focus:underline focus:outline-none"
-                                >
-                                    {order.request_quotation_reference}
-                                </Link>
+                                onViewSourceQuotation ? (
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            onViewSourceQuotation(order)
+                                        }
+                                        className="cursor-pointer text-left text-teal-800 underline-offset-2 transition hover:underline focus:underline focus:outline-none"
+                                    >
+                                        {order.request_quotation_reference}
+                                    </button>
+                                ) : (
+                                    order.request_quotation_reference
+                                )
                             ) : (
                                 '—'
                             )}
@@ -190,6 +196,71 @@ export default function PurchasedOrderDetailModal({
                         </p>
                     </div>
                 )}
+
+                {order.meta &&
+                    (order.meta.invoice_number ||
+                        order.meta.delivery_number ||
+                        order.meta.delivery_person ||
+                        order.meta.delivery_date ||
+                        order.meta.received_by) && (
+                        <div className="mt-6">
+                            <p className="mb-2 text-xs tracking-wide text-muted uppercase">
+                                Receipt details
+                            </p>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {order.meta.invoice_number && (
+                                    <div>
+                                        <p className="text-xs tracking-wide text-muted uppercase">
+                                            Invoice number
+                                        </p>
+                                        <p className="mt-1 text-sm text-ink-soft">
+                                            {order.meta.invoice_number}
+                                        </p>
+                                    </div>
+                                )}
+                                {order.meta.delivery_number && (
+                                    <div>
+                                        <p className="text-xs tracking-wide text-muted uppercase">
+                                            Delivery number
+                                        </p>
+                                        <p className="mt-1 text-sm text-ink-soft">
+                                            {order.meta.delivery_number}
+                                        </p>
+                                    </div>
+                                )}
+                                {order.meta.delivery_person && (
+                                    <div>
+                                        <p className="text-xs tracking-wide text-muted uppercase">
+                                            Delivery person
+                                        </p>
+                                        <p className="mt-1 text-sm text-ink-soft">
+                                            {order.meta.delivery_person}
+                                        </p>
+                                    </div>
+                                )}
+                                {order.meta.delivery_date && (
+                                    <div>
+                                        <p className="text-xs tracking-wide text-muted uppercase">
+                                            Delivery date
+                                        </p>
+                                        <p className="mt-1 text-sm text-ink-soft">
+                                            {order.meta.delivery_date}
+                                        </p>
+                                    </div>
+                                )}
+                                {order.meta.received_by && (
+                                    <div>
+                                        <p className="text-xs tracking-wide text-muted uppercase">
+                                            Received by
+                                        </p>
+                                        <p className="mt-1 text-sm text-ink-soft">
+                                            {order.meta.received_by}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                 <div className="mt-6">
                     <p className="mb-2 text-xs tracking-wide text-muted uppercase">
@@ -249,7 +320,7 @@ export default function PurchasedOrderDetailModal({
                 </div>
 
                 <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-line pt-4">
-                    {canEdit && (
+                    {canEdit && onEdit && (
                         <button
                             type="button"
                             onClick={() => onEdit(order)}
@@ -258,7 +329,7 @@ export default function PurchasedOrderDetailModal({
                             Edit
                         </button>
                     )}
-                    {canDelete && (
+                    {canDelete && onDelete && (
                         <button
                             type="button"
                             onClick={() => onDelete(order)}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\PurchasedOrderStatus;
 use App\Enums\SupplierStatus;
+use App\Http\Requests\MarkReceivedWithAdjustmentRequest;
 use App\Http\Requests\StorePurchasedOrderRequest;
 use App\Http\Requests\UpdatePurchasedOrderRequest;
 use App\Models\Product;
@@ -31,7 +32,7 @@ class PurchasedOrderController extends Controller
         $trashed = $filters['trashed'] ?? null;
 
         $orders = PurchasedOrder::query()
-            ->with(['supplier', 'requestQuotation', 'items.product'])
+            ->with(['supplier', 'requestQuotation.supplier', 'requestQuotation.items.product', 'items.product'])
             ->when($trashed === 'only', fn ($builder) => $builder->onlyTrashed())
             ->when($trashed === 'with', fn ($builder) => $builder->withTrashed())
             ->orderedByWorkflow()
@@ -196,10 +197,12 @@ class PurchasedOrderController extends Controller
     }
 
     /**
-     * Ordered → Received.
+     * Ordered → Received, optionally adjusting line quantities and prices.
      */
-    public function markReceived(PurchasedOrder $purchasedOrder): RedirectResponse
-    {
+    public function markReceivedWithAdjustment(
+        MarkReceivedWithAdjustmentRequest $request,
+        PurchasedOrder $purchasedOrder,
+    ): RedirectResponse {
         if ($purchasedOrder->status !== PurchasedOrderStatus::Ordered) {
             Inertia::flash('toast', [
                 'type' => 'error',
@@ -209,13 +212,25 @@ class PurchasedOrderController extends Controller
             return redirect()->route('purchased-orders.index');
         }
 
-        $purchasedOrder->update([
-            'status' => PurchasedOrderStatus::Received,
-        ]);
+        $items = $request->itemAttributes();
+        $meta = $request->metaAttributes();
+
+        DB::transaction(function () use ($purchasedOrder, $items, $meta): void {
+            [$grandTotal, $lineRows] = $this->buildLineRows($items);
+
+            $purchasedOrder->update([
+                'status' => PurchasedOrderStatus::Received,
+                'grand_total' => $grandTotal,
+                'meta' => $meta,
+            ]);
+
+            $purchasedOrder->items()->delete();
+            $purchasedOrder->items()->createMany($lineRows);
+        });
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Purchase order marked as received.',
+            'message' => 'Purchase order received with adjustments.',
         ]);
 
         return redirect()->route('purchased-orders.index');

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::markOrdered
-* @see app/Http/Controllers/PurchasedOrderController.php:175
+* @see app/Http/Controllers/PurchasedOrderController.php:176
 * @route '/purchased-orders/{purchased_order}/mark-ordered'
 */
 export const markOrdered = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ markOrdered.definition = {
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::markOrdered
-* @see app/Http/Controllers/PurchasedOrderController.php:175
+* @see app/Http/Controllers/PurchasedOrderController.php:176
 * @route '/purchased-orders/{purchased_order}/mark-ordered'
 */
 markOrdered.url = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ markOrdered.url = (args: { purchased_order: number | { id: number } } | [purchas
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::markOrdered
-* @see app/Http/Controllers/PurchasedOrderController.php:175
+* @see app/Http/Controllers/PurchasedOrderController.php:176
 * @route '/purchased-orders/{purchased_order}/mark-ordered'
 */
 markOrdered.post = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -59,7 +59,7 @@ markOrdered.post = (args: { purchased_order: number | { id: number } } | [purcha
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::markOrdered
-* @see app/Http/Controllers/PurchasedOrderController.php:175
+* @see app/Http/Controllers/PurchasedOrderController.php:176
 * @route '/purchased-orders/{purchased_order}/mark-ordered'
 */
 const markOrderedForm = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ const markOrderedForm = (args: { purchased_order: number | { id: number } } | [p
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::markOrdered
-* @see app/Http/Controllers/PurchasedOrderController.php:175
+* @see app/Http/Controllers/PurchasedOrderController.php:176
 * @route '/purchased-orders/{purchased_order}/mark-ordered'
 */
 markOrderedForm.post = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -80,26 +80,26 @@ markOrderedForm.post = (args: { purchased_order: number | { id: number } } | [pu
 markOrdered.form = markOrderedForm
 
 /**
-* @see \App\Http\Controllers\PurchasedOrderController::markReceived
-* @see app/Http/Controllers/PurchasedOrderController.php:201
-* @route '/purchased-orders/{purchased_order}/mark-received'
+* @see \App\Http\Controllers\PurchasedOrderController::markReceivedWithAdjustment
+* @see app/Http/Controllers/PurchasedOrderController.php:202
+* @route '/purchased-orders/{purchased_order}/mark-received-with-adjustment'
 */
-export const markReceived = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: markReceived.url(args, options),
+export const markReceivedWithAdjustment = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: markReceivedWithAdjustment.url(args, options),
     method: 'post',
 })
 
-markReceived.definition = {
+markReceivedWithAdjustment.definition = {
     methods: ["post"],
-    url: '/purchased-orders/{purchased_order}/mark-received',
+    url: '/purchased-orders/{purchased_order}/mark-received-with-adjustment',
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see \App\Http\Controllers\PurchasedOrderController::markReceived
-* @see app/Http/Controllers/PurchasedOrderController.php:201
-* @route '/purchased-orders/{purchased_order}/mark-received'
+* @see \App\Http\Controllers\PurchasedOrderController::markReceivedWithAdjustment
+* @see app/Http/Controllers/PurchasedOrderController.php:202
+* @route '/purchased-orders/{purchased_order}/mark-received-with-adjustment'
 */
-markReceived.url = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+markReceivedWithAdjustment.url = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { purchased_order: args }
     }
@@ -122,46 +122,46 @@ markReceived.url = (args: { purchased_order: number | { id: number } } | [purcha
         : args.purchased_order,
     }
 
-    return markReceived.definition.url
+    return markReceivedWithAdjustment.definition.url
             .replace('{purchased_order}', parsedArgs.purchased_order.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\PurchasedOrderController::markReceived
-* @see app/Http/Controllers/PurchasedOrderController.php:201
-* @route '/purchased-orders/{purchased_order}/mark-received'
+* @see \App\Http\Controllers\PurchasedOrderController::markReceivedWithAdjustment
+* @see app/Http/Controllers/PurchasedOrderController.php:202
+* @route '/purchased-orders/{purchased_order}/mark-received-with-adjustment'
 */
-markReceived.post = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: markReceived.url(args, options),
+markReceivedWithAdjustment.post = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: markReceivedWithAdjustment.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\PurchasedOrderController::markReceived
-* @see app/Http/Controllers/PurchasedOrderController.php:201
-* @route '/purchased-orders/{purchased_order}/mark-received'
+* @see \App\Http\Controllers\PurchasedOrderController::markReceivedWithAdjustment
+* @see app/Http/Controllers/PurchasedOrderController.php:202
+* @route '/purchased-orders/{purchased_order}/mark-received-with-adjustment'
 */
-const markReceivedForm = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: markReceived.url(args, options),
+const markReceivedWithAdjustmentForm = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: markReceivedWithAdjustment.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\PurchasedOrderController::markReceived
-* @see app/Http/Controllers/PurchasedOrderController.php:201
-* @route '/purchased-orders/{purchased_order}/mark-received'
+* @see \App\Http\Controllers\PurchasedOrderController::markReceivedWithAdjustment
+* @see app/Http/Controllers/PurchasedOrderController.php:202
+* @route '/purchased-orders/{purchased_order}/mark-received-with-adjustment'
 */
-markReceivedForm.post = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: markReceived.url(args, options),
+markReceivedWithAdjustmentForm.post = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: markReceivedWithAdjustment.url(args, options),
     method: 'post',
 })
 
-markReceived.form = markReceivedForm
+markReceivedWithAdjustment.form = markReceivedWithAdjustmentForm
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::restore
-* @see app/Http/Controllers/PurchasedOrderController.php:160
+* @see app/Http/Controllers/PurchasedOrderController.php:161
 * @route '/purchased-orders/{purchased_order}/restore'
 */
 export const restore = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -176,7 +176,7 @@ restore.definition = {
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::restore
-* @see app/Http/Controllers/PurchasedOrderController.php:160
+* @see app/Http/Controllers/PurchasedOrderController.php:161
 * @route '/purchased-orders/{purchased_order}/restore'
 */
 restore.url = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -209,7 +209,7 @@ restore.url = (args: { purchased_order: number | { id: number } } | [purchased_o
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::restore
-* @see app/Http/Controllers/PurchasedOrderController.php:160
+* @see app/Http/Controllers/PurchasedOrderController.php:161
 * @route '/purchased-orders/{purchased_order}/restore'
 */
 restore.post = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -219,7 +219,7 @@ restore.post = (args: { purchased_order: number | { id: number } } | [purchased_
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::restore
-* @see app/Http/Controllers/PurchasedOrderController.php:160
+* @see app/Http/Controllers/PurchasedOrderController.php:161
 * @route '/purchased-orders/{purchased_order}/restore'
 */
 const restoreForm = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -229,7 +229,7 @@ const restoreForm = (args: { purchased_order: number | { id: number } } | [purch
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::restore
-* @see app/Http/Controllers/PurchasedOrderController.php:160
+* @see app/Http/Controllers/PurchasedOrderController.php:161
 * @route '/purchased-orders/{purchased_order}/restore'
 */
 restoreForm.post = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -241,7 +241,7 @@ restore.form = restoreForm
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::index
-* @see app/Http/Controllers/PurchasedOrderController.php:25
+* @see app/Http/Controllers/PurchasedOrderController.php:26
 * @route '/purchased-orders'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -256,7 +256,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::index
-* @see app/Http/Controllers/PurchasedOrderController.php:25
+* @see app/Http/Controllers/PurchasedOrderController.php:26
 * @route '/purchased-orders'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -265,7 +265,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::index
-* @see app/Http/Controllers/PurchasedOrderController.php:25
+* @see app/Http/Controllers/PurchasedOrderController.php:26
 * @route '/purchased-orders'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -275,7 +275,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::index
-* @see app/Http/Controllers/PurchasedOrderController.php:25
+* @see app/Http/Controllers/PurchasedOrderController.php:26
 * @route '/purchased-orders'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -285,7 +285,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::index
-* @see app/Http/Controllers/PurchasedOrderController.php:25
+* @see app/Http/Controllers/PurchasedOrderController.php:26
 * @route '/purchased-orders'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -295,7 +295,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::index
-* @see app/Http/Controllers/PurchasedOrderController.php:25
+* @see app/Http/Controllers/PurchasedOrderController.php:26
 * @route '/purchased-orders'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -305,7 +305,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::index
-* @see app/Http/Controllers/PurchasedOrderController.php:25
+* @see app/Http/Controllers/PurchasedOrderController.php:26
 * @route '/purchased-orders'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -322,7 +322,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::store
-* @see app/Http/Controllers/PurchasedOrderController.php:78
+* @see app/Http/Controllers/PurchasedOrderController.php:79
 * @route '/purchased-orders'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -337,7 +337,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::store
-* @see app/Http/Controllers/PurchasedOrderController.php:78
+* @see app/Http/Controllers/PurchasedOrderController.php:79
 * @route '/purchased-orders'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -346,7 +346,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::store
-* @see app/Http/Controllers/PurchasedOrderController.php:78
+* @see app/Http/Controllers/PurchasedOrderController.php:79
 * @route '/purchased-orders'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -356,7 +356,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::store
-* @see app/Http/Controllers/PurchasedOrderController.php:78
+* @see app/Http/Controllers/PurchasedOrderController.php:79
 * @route '/purchased-orders'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -366,7 +366,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::store
-* @see app/Http/Controllers/PurchasedOrderController.php:78
+* @see app/Http/Controllers/PurchasedOrderController.php:79
 * @route '/purchased-orders'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -378,7 +378,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::update
-* @see app/Http/Controllers/PurchasedOrderController.php:106
+* @see app/Http/Controllers/PurchasedOrderController.php:107
 * @route '/purchased-orders/{purchased_order}'
 */
 export const update = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -393,7 +393,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::update
-* @see app/Http/Controllers/PurchasedOrderController.php:106
+* @see app/Http/Controllers/PurchasedOrderController.php:107
 * @route '/purchased-orders/{purchased_order}'
 */
 update.url = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -426,7 +426,7 @@ update.url = (args: { purchased_order: number | { id: number } } | [purchased_or
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::update
-* @see app/Http/Controllers/PurchasedOrderController.php:106
+* @see app/Http/Controllers/PurchasedOrderController.php:107
 * @route '/purchased-orders/{purchased_order}'
 */
 update.put = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -436,7 +436,7 @@ update.put = (args: { purchased_order: number | { id: number } } | [purchased_or
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::update
-* @see app/Http/Controllers/PurchasedOrderController.php:106
+* @see app/Http/Controllers/PurchasedOrderController.php:107
 * @route '/purchased-orders/{purchased_order}'
 */
 update.patch = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -446,7 +446,7 @@ update.patch = (args: { purchased_order: number | { id: number } } | [purchased_
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::update
-* @see app/Http/Controllers/PurchasedOrderController.php:106
+* @see app/Http/Controllers/PurchasedOrderController.php:107
 * @route '/purchased-orders/{purchased_order}'
 */
 const updateForm = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -461,7 +461,7 @@ const updateForm = (args: { purchased_order: number | { id: number } } | [purcha
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::update
-* @see app/Http/Controllers/PurchasedOrderController.php:106
+* @see app/Http/Controllers/PurchasedOrderController.php:107
 * @route '/purchased-orders/{purchased_order}'
 */
 updateForm.put = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -476,7 +476,7 @@ updateForm.put = (args: { purchased_order: number | { id: number } } | [purchase
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::update
-* @see app/Http/Controllers/PurchasedOrderController.php:106
+* @see app/Http/Controllers/PurchasedOrderController.php:107
 * @route '/purchased-orders/{purchased_order}'
 */
 updateForm.patch = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -493,7 +493,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::destroy
-* @see app/Http/Controllers/PurchasedOrderController.php:145
+* @see app/Http/Controllers/PurchasedOrderController.php:146
 * @route '/purchased-orders/{purchased_order}'
 */
 export const destroy = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -508,7 +508,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::destroy
-* @see app/Http/Controllers/PurchasedOrderController.php:145
+* @see app/Http/Controllers/PurchasedOrderController.php:146
 * @route '/purchased-orders/{purchased_order}'
 */
 destroy.url = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -541,7 +541,7 @@ destroy.url = (args: { purchased_order: number | { id: number } } | [purchased_o
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::destroy
-* @see app/Http/Controllers/PurchasedOrderController.php:145
+* @see app/Http/Controllers/PurchasedOrderController.php:146
 * @route '/purchased-orders/{purchased_order}'
 */
 destroy.delete = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -551,7 +551,7 @@ destroy.delete = (args: { purchased_order: number | { id: number } } | [purchase
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::destroy
-* @see app/Http/Controllers/PurchasedOrderController.php:145
+* @see app/Http/Controllers/PurchasedOrderController.php:146
 * @route '/purchased-orders/{purchased_order}'
 */
 const destroyForm = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -566,7 +566,7 @@ const destroyForm = (args: { purchased_order: number | { id: number } } | [purch
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::destroy
-* @see app/Http/Controllers/PurchasedOrderController.php:145
+* @see app/Http/Controllers/PurchasedOrderController.php:146
 * @route '/purchased-orders/{purchased_order}'
 */
 destroyForm.delete = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -581,6 +581,6 @@ destroyForm.delete = (args: { purchased_order: number | { id: number } } | [purc
 
 destroy.form = destroyForm
 
-const PurchasedOrderController = { markOrdered, markReceived, restore, index, store, update, destroy }
+const PurchasedOrderController = { markOrdered, markReceivedWithAdjustment, restore, index, store, update, destroy }
 
 export default PurchasedOrderController

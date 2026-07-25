@@ -229,7 +229,7 @@ export default function RequestQuotationDetailModal({
                 </div>
 
                 <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-line pt-4">
-                    {canEdit && (
+                    {canEdit && onEdit && (
                         <button
                             type="button"
                             onClick={() => onEdit(quotation)}
@@ -238,7 +238,7 @@ export default function RequestQuotationDetailModal({
                             Edit
                         </button>
                     )}
-                    {canDelete && (
+                    {canDelete && onDelete && (
                         <button
                             type="button"
                             onClick={() => onDelete(quotation)}

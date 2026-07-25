@@ -44,8 +44,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('purchased-orders/{purchased_order}/mark-ordered', [PurchasedOrderController::class, 'markOrdered'])
         ->name('purchased-orders.mark-ordered');
-    Route::post('purchased-orders/{purchased_order}/mark-received', [PurchasedOrderController::class, 'markReceived'])
-        ->name('purchased-orders.mark-received');
+    Route::post('purchased-orders/{purchased_order}/mark-received-with-adjustment', [PurchasedOrderController::class, 'markReceivedWithAdjustment'])
+        ->name('purchased-orders.mark-received-with-adjustment');
     Route::post('purchased-orders/{purchased_order}/restore', [PurchasedOrderController::class, 'restore'])
         ->withTrashed()
         ->name('purchased-orders.restore');

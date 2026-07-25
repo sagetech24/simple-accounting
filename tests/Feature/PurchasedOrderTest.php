@@ -298,7 +298,7 @@ class PurchasedOrderTest extends TestCase
         );
     }
 
-    public function test_draft_can_be_marked_ordered_and_ordered_can_be_marked_received(): void
+    public function test_draft_can_be_marked_ordered(): void
     {
         $admin = User::factory()->create();
         $order = PurchasedOrder::factory()->draft()->create();
@@ -311,23 +311,12 @@ class PurchasedOrderTest extends TestCase
             'id' => $order->id,
             'status' => PurchasedOrderStatus::Ordered->value,
         ]);
-
-        $this->actingAs($admin)
-            ->post(route('purchased-orders.mark-received', $order))
-            ->assertRedirect(route('purchased-orders.index'));
-
-        $this->assertDatabaseHas('purchased_orders', [
-            'id' => $order->id,
-            'status' => PurchasedOrderStatus::Received->value,
-        ]);
     }
 
     public function test_forbidden_status_transitions_are_rejected(): void
     {
         $admin = User::factory()->create();
         $ordered = PurchasedOrder::factory()->ordered()->create();
-        $received = PurchasedOrder::factory()->received()->create();
-        $draft = PurchasedOrder::factory()->draft()->create();
 
         $this->actingAs($admin)
             ->post(route('purchased-orders.mark-ordered', $ordered))
@@ -337,23 +326,240 @@ class PurchasedOrderTest extends TestCase
             'id' => $ordered->id,
             'status' => PurchasedOrderStatus::Ordered->value,
         ]);
+    }
+
+    public function test_ordered_can_be_received_with_line_adjustments(): void
+    {
+        $admin = User::factory()->create();
+        $supplier = Supplier::factory()->active()->create();
+        $productA = Product::factory()->available()->create();
+        $productB = Product::factory()->available()->create();
+
+        $order = PurchasedOrder::factory()->ordered()->create([
+            'supplier_id' => $supplier->id,
+            'grand_total' => '30.00',
+            'notes' => 'As ordered',
+        ]);
+        PurchasedOrderItem::factory()->create([
+            'purchased_order_id' => $order->id,
+            'product_id' => $productA->id,
+            'buying_price' => '10.00',
+            'quantity' => 2,
+            'subtotal' => '20.00',
+        ]);
+        PurchasedOrderItem::factory()->create([
+            'purchased_order_id' => $order->id,
+            'product_id' => $productB->id,
+            'buying_price' => '5.00',
+            'quantity' => 2,
+            'subtotal' => '10.00',
+        ]);
 
         $this->actingAs($admin)
-            ->post(route('purchased-orders.mark-received', $draft))
+            ->post(route('purchased-orders.mark-received-with-adjustment', $order), [
+                'items' => [
+                    [
+                        'product_id' => $productA->id,
+                        'buying_price' => '12.50',
+                        'quantity' => 1,
+                    ],
+                    [
+                        'product_id' => $productB->id,
+                        'buying_price' => '4.00',
+                        'quantity' => 3,
+                    ],
+                ],
+                'invoice_number' => 'INV-100',
+                'delivery_number' => 'DN-55',
+                'delivery_person' => 'Alex Rider',
+                'delivery_date' => '2026-07-25',
+            ])
+            ->assertRedirect(route('purchased-orders.index'));
+
+        $order->refresh();
+
+        $this->assertSame(PurchasedOrderStatus::Received, $order->status);
+        $this->assertSame('24.50', $order->grand_total);
+        $this->assertSame('As ordered', $order->notes);
+        $this->assertSame([
+            'invoice_number' => 'INV-100',
+            'delivery_number' => 'DN-55',
+            'delivery_person' => 'Alex Rider',
+            'delivery_date' => '2026-07-25',
+            'received_by' => $admin->name,
+        ], $order->meta);
+
+        $this->assertDatabaseHas('purchased_order_items', [
+            'purchased_order_id' => $order->id,
+            'product_id' => $productA->id,
+            'buying_price' => '12.50',
+            'quantity' => 1,
+            'subtotal' => '12.50',
+        ]);
+
+        $this->assertDatabaseHas('purchased_order_items', [
+            'purchased_order_id' => $order->id,
+            'product_id' => $productB->id,
+            'buying_price' => '4.00',
+            'quantity' => 3,
+            'subtotal' => '12.00',
+        ]);
+    }
+
+    public function test_receive_with_adjustment_can_drop_unavailable_lines(): void
+    {
+        $admin = User::factory()->create();
+        $supplier = Supplier::factory()->active()->create();
+        $productA = Product::factory()->available()->create();
+        $productB = Product::factory()->available()->create();
+
+        $order = PurchasedOrder::factory()->ordered()->create([
+            'supplier_id' => $supplier->id,
+            'grand_total' => '30.00',
+        ]);
+        PurchasedOrderItem::factory()->create([
+            'purchased_order_id' => $order->id,
+            'product_id' => $productA->id,
+            'buying_price' => '10.00',
+            'quantity' => 2,
+            'subtotal' => '20.00',
+        ]);
+        PurchasedOrderItem::factory()->create([
+            'purchased_order_id' => $order->id,
+            'product_id' => $productB->id,
+            'buying_price' => '5.00',
+            'quantity' => 2,
+            'subtotal' => '10.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('purchased-orders.mark-received-with-adjustment', $order), [
+                'items' => [
+                    [
+                        'product_id' => $productA->id,
+                        'buying_price' => '10.00',
+                        'quantity' => 2,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('purchased-orders.index'));
+
+        $order->refresh();
+
+        $this->assertSame(PurchasedOrderStatus::Received, $order->status);
+        $this->assertSame('20.00', $order->grand_total);
+        $this->assertSame($admin->name, $order->meta['received_by']);
+
+        $this->assertDatabaseHas('purchased_order_items', [
+            'purchased_order_id' => $order->id,
+            'product_id' => $productA->id,
+            'quantity' => 2,
+            'subtotal' => '20.00',
+        ]);
+
+        $this->assertDatabaseMissing('purchased_order_items', [
+            'purchased_order_id' => $order->id,
+            'product_id' => $productB->id,
+        ]);
+    }
+
+    public function test_receive_with_adjustment_rejects_draft_and_unknown_products(): void
+    {
+        $admin = User::factory()->create();
+        $supplier = Supplier::factory()->active()->create();
+        $product = Product::factory()->available()->create();
+        $otherProduct = Product::factory()->available()->create();
+
+        $draft = PurchasedOrder::factory()->draft()->create([
+            'supplier_id' => $supplier->id,
+            'grand_total' => '10.00',
+        ]);
+        PurchasedOrderItem::factory()->create([
+            'purchased_order_id' => $draft->id,
+            'product_id' => $product->id,
+            'buying_price' => '10.00',
+            'quantity' => 1,
+            'subtotal' => '10.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('purchased-orders.mark-received-with-adjustment', $draft), [
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'buying_price' => '11.00',
+                        'quantity' => 2,
+                    ],
+                ],
+            ])
             ->assertRedirect(route('purchased-orders.index'));
 
         $this->assertDatabaseHas('purchased_orders', [
             'id' => $draft->id,
             'status' => PurchasedOrderStatus::Draft->value,
+            'grand_total' => '10.00',
+        ]);
+
+        $ordered = PurchasedOrder::factory()->ordered()->create([
+            'supplier_id' => $supplier->id,
+            'grand_total' => '10.00',
+        ]);
+        PurchasedOrderItem::factory()->create([
+            'purchased_order_id' => $ordered->id,
+            'product_id' => $product->id,
+            'buying_price' => '10.00',
+            'quantity' => 1,
+            'subtotal' => '10.00',
         ]);
 
         $this->actingAs($admin)
-            ->post(route('purchased-orders.mark-received', $received))
+            ->from(route('purchased-orders.index'))
+            ->post(route('purchased-orders.mark-received-with-adjustment', $ordered), [
+                'items' => [
+                    [
+                        'product_id' => $otherProduct->id,
+                        'buying_price' => '11.00',
+                        'quantity' => 2,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('purchased-orders.index'))
+            ->assertSessionHasErrors('items');
+
+        $this->assertDatabaseHas('purchased_orders', [
+            'id' => $ordered->id,
+            'status' => PurchasedOrderStatus::Ordered->value,
+            'grand_total' => '10.00',
+        ]);
+
+        $received = PurchasedOrder::factory()->received()->create([
+            'supplier_id' => $supplier->id,
+            'grand_total' => '10.00',
+        ]);
+        PurchasedOrderItem::factory()->create([
+            'purchased_order_id' => $received->id,
+            'product_id' => $product->id,
+            'buying_price' => '10.00',
+            'quantity' => 1,
+            'subtotal' => '10.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('purchased-orders.mark-received-with-adjustment', $received), [
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'buying_price' => '11.00',
+                        'quantity' => 2,
+                    ],
+                ],
+            ])
             ->assertRedirect(route('purchased-orders.index'));
 
         $this->assertDatabaseHas('purchased_orders', [
             'id' => $received->id,
             'status' => PurchasedOrderStatus::Received->value,
+            'grand_total' => '10.00',
         ]);
     }
 

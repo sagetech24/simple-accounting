@@ -20,6 +20,7 @@ use Illuminate\Support\Str;
     'status',
     'grand_total',
     'notes',
+    'meta',
 ])]
 class PurchasedOrder extends Model
 {
@@ -47,6 +48,7 @@ class PurchasedOrder extends Model
         return [
             'status' => PurchasedOrderStatus::class,
             'grand_total' => 'decimal:2',
+            'meta' => 'array',
         ];
     }
 
@@ -82,19 +84,33 @@ class PurchasedOrder extends Model
     /**
      * @return array<string, mixed>
      */
-    public function toArrayPayload(): array
+    public function toArrayPayload(bool $includeRelated = true): array
     {
+        $requestQuotation = $this->relationLoaded('requestQuotation')
+            ? $this->requestQuotation
+            : null;
+
+        if ($includeRelated && $requestQuotation === null && $this->request_quotation_id !== null) {
+            $requestQuotation = $this->requestQuotation()
+                ->with(['supplier', 'items.product'])
+                ->first();
+        }
+
         return [
             'id' => $this->id,
             'reference' => $this->reference,
             'supplier_id' => $this->supplier_id,
             'supplier_name' => $this->supplier?->name,
             'request_quotation_id' => $this->request_quotation_id,
-            'request_quotation_reference' => $this->requestQuotation?->reference,
+            'request_quotation_reference' => $requestQuotation?->reference ?? $this->requestQuotation?->reference,
+            'request_quotation' => $includeRelated && $requestQuotation !== null
+                ? $requestQuotation->toArrayPayload(includeRelated: false)
+                : null,
             'status' => $this->status->value,
             'status_label' => $this->status->label(),
             'grand_total' => $this->grand_total,
             'notes' => $this->notes,
+            'meta' => $this->meta,
             'item_count' => $this->relationLoaded('items')
                 ? $this->items->count()
                 : $this->items()->count(),

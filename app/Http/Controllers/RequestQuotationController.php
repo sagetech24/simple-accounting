@@ -33,7 +33,7 @@ class RequestQuotationController extends Controller
         $trashed = $filters['trashed'] ?? null;
 
         $quotations = RequestQuotation::query()
-            ->with(['supplier', 'items.product', 'purchasedOrder'])
+            ->with(['supplier', 'items.product', 'purchasedOrder.supplier', 'purchasedOrder.items.product'])
             ->when($trashed === 'only', fn ($builder) => $builder->onlyTrashed())
             ->when($trashed === 'with', fn ($builder) => $builder->withTrashed())
             ->orderedByWorkflow()

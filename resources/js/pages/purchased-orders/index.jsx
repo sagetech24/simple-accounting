@@ -3,15 +3,15 @@ import { useEffect, useId, useRef, useState } from 'react';
 import {
     destroy,
     markOrdered,
-    markReceived,
     restore,
 } from '@/actions/App/Http/Controllers/PurchasedOrderController';
 import PurchasedOrderDetailModal from '@/components/purchased-order-detail-modal';
 import PurchasedOrderForm from '@/components/purchased-order-form';
+import PurchasedOrderReceiveAdjustmentModal from '@/components/purchased-order-receive-adjustment-modal';
+import RequestQuotationDetailModal from '@/components/request-quotation-detail-modal';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
 import { index } from '@/routes/purchased-orders';
-import { index as requestQuotationsIndex } from '@/routes/request-quotations';
 
 function formatDate(value) {
     if (!value) {
@@ -47,7 +47,7 @@ function RowActionsMenu({
     onDelete,
     onRestore,
     onMarkOrdered,
-    onMarkReceived,
+    onMarkReceivedWithAdjustment,
 }) {
     const menuId = useId();
     const rootRef = useRef(null);
@@ -139,11 +139,11 @@ function RowActionsMenu({
                             role="menuitem"
                             onClick={() => {
                                 onClose();
-                                onMarkReceived(order);
+                                onMarkReceivedWithAdjustment(order);
                             }}
                             className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
                         >
-                            Mark as Received
+                            Receive Adjustment
                         </button>
                     )}
                     {!isDeleted && (
@@ -188,18 +188,24 @@ export default function PurchasedOrdersIndex({
     const [formKey, setFormKey] = useState(0);
     const [editingOrder, setEditingOrder] = useState(null);
     const [detailOrder, setDetailOrder] = useState(null);
+    const [detailQuotation, setDetailQuotation] = useState(null);
+    const [adjustmentOrder, setAdjustmentOrder] = useState(null);
     const [openMenuId, setOpenMenuId] = useState(null);
     const [trashed, setTrashed] = useState(filters.trashed ?? '');
 
     function openCreateTab() {
         setEditingOrder(null);
         setDetailOrder(null);
+        setDetailQuotation(null);
+        setAdjustmentOrder(null);
         setFormKey((current) => current + 1);
         setActiveTab('create');
         setOpenMenuId(null);
     }
 
     function openDetailModal(order) {
+        setDetailQuotation(null);
+        setAdjustmentOrder(null);
         setDetailOrder(order);
         setOpenMenuId(null);
     }
@@ -208,8 +214,36 @@ export default function PurchasedOrdersIndex({
         setDetailOrder(null);
     }
 
+    function openSourceQuotationDetail(order) {
+        if (!order.request_quotation) {
+            return;
+        }
+
+        setDetailOrder(null);
+        setAdjustmentOrder(null);
+        setDetailQuotation(order.request_quotation);
+        setOpenMenuId(null);
+    }
+
+    function closeSourceQuotationDetail() {
+        setDetailQuotation(null);
+    }
+
+    function openReceiveAdjustmentModal(order) {
+        setDetailOrder(null);
+        setDetailQuotation(null);
+        setAdjustmentOrder(order);
+        setOpenMenuId(null);
+    }
+
+    function closeReceiveAdjustmentModal() {
+        setAdjustmentOrder(null);
+    }
+
     function openEditTab(order) {
         setDetailOrder(null);
+        setDetailQuotation(null);
+        setAdjustmentOrder(null);
         setEditingOrder(order);
         setFormKey((current) => current + 1);
         setActiveTab('create');
@@ -258,24 +292,13 @@ export default function PurchasedOrdersIndex({
         router.post(markOrdered.url(order.id));
     }
 
-    function markOrderAsReceived(order) {
-        if (
-            !window.confirm(
-                `Mark purchase order “${order.reference}” as received?`,
-            )
-        ) {
-            return;
-        }
-
-        router.post(markReceived.url(order.id));
-    }
-
     function deleteOrder(order) {
         if (!window.confirm(`Delete purchase order “${order.reference}”?`)) {
             return;
         }
 
         setDetailOrder(null);
+        setAdjustmentOrder(null);
         router.delete(destroy.url(order.id));
     }
 
@@ -493,17 +516,22 @@ export default function PurchasedOrdersIndex({
                                             <td className="max-w-40 px-4 py-4 font-mono text-xs break-all text-ink-soft">
                                                 {order.request_quotation_id &&
                                                 order.request_quotation_reference ? (
-                                                    <Link
-                                                        href={requestQuotationsIndex.url()}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            openSourceQuotationDetail(
+                                                                order,
+                                                            )
+                                                        }
                                                         title={
                                                             order.request_quotation_reference
                                                         }
-                                                        className="block max-w-full truncate text-teal-800 underline-offset-2 transition hover:underline focus:underline focus:outline-none"
+                                                        className="block max-w-full truncate text-left text-teal-800 underline-offset-2 transition hover:underline focus:underline focus:outline-none"
                                                     >
                                                         {
                                                             order.request_quotation_reference
                                                         }
-                                                    </Link>
+                                                    </button>
                                                 ) : (
                                                     '—'
                                                 )}
@@ -548,8 +576,8 @@ export default function PurchasedOrdersIndex({
                                                     onMarkOrdered={
                                                         markOrderAsOrdered
                                                     }
-                                                    onMarkReceived={
-                                                        markOrderAsReceived
+                                                    onMarkReceivedWithAdjustment={
+                                                        openReceiveAdjustmentModal
                                                     }
                                                 />
                                             </td>
@@ -610,6 +638,7 @@ export default function PurchasedOrdersIndex({
                         order={editingOrder}
                         onCancel={cancelForm}
                         onSuccess={handleFormSuccess}
+                        onViewSourceQuotation={openSourceQuotationDetail}
                     />
                 </div>
             )}
@@ -620,6 +649,20 @@ export default function PurchasedOrdersIndex({
                 onClose={closeDetailModal}
                 onEdit={openEditTab}
                 onDelete={deleteOrder}
+                onViewSourceQuotation={openSourceQuotationDetail}
+            />
+
+            <PurchasedOrderReceiveAdjustmentModal
+                key={adjustmentOrder?.id ?? 'receive-adjustment'}
+                open={Boolean(adjustmentOrder)}
+                order={adjustmentOrder}
+                onClose={closeReceiveAdjustmentModal}
+            />
+
+            <RequestQuotationDetailModal
+                open={Boolean(detailQuotation)}
+                quotation={detailQuotation}
+                onClose={closeSourceQuotationDetail}
             />
         </AppLayout>
     );

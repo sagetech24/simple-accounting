@@ -98,11 +98,11 @@ class RequestQuotation extends Model
     /**
      * @return array<string, mixed>
      */
-    public function toArrayPayload(): array
+    public function toArrayPayload(bool $includeRelated = true): array
     {
         $purchasedOrder = $this->relationLoaded('purchasedOrder')
             ? $this->purchasedOrder
-            : $this->purchasedOrder()->first();
+            : ($includeRelated ? $this->purchasedOrder()->with(['supplier', 'items.product'])->first() : $this->purchasedOrder()->first());
 
         return [
             'id' => $this->id,
@@ -128,6 +128,9 @@ class RequestQuotation extends Model
             'can_create_purchase_order' => $this->canCreatePurchaseOrder(),
             'purchased_order_id' => $purchasedOrder?->id,
             'purchased_order_reference' => $purchasedOrder?->reference,
+            'purchased_order' => $includeRelated && $purchasedOrder !== null
+                ? $purchasedOrder->toArrayPayload(includeRelated: false)
+                : null,
             'deleted_at' => $this->deleted_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

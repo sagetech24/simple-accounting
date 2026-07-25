@@ -738,9 +738,11 @@ class RequestQuotationTest extends TestCase
                 ->where('quotations.data.0.can_create_purchase_order', false)
                 ->where('quotations.data.0.purchased_order_id', $order->id)
                 ->where('quotations.data.0.purchased_order_reference', $order->reference)
+                ->where('quotations.data.0.purchased_order.id', $order->id)
                 ->where('quotations.data.1.id', $approved->id)
                 ->where('quotations.data.1.can_create_purchase_order', true)
                 ->where('quotations.data.1.purchased_order_id', null)
+                ->where('quotations.data.1.purchased_order', null)
                 ->where('quotations.data.2.id', $draft->id)
                 ->where('quotations.data.2.can_create_purchase_order', false)
             );

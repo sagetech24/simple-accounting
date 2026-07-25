@@ -7,11 +7,11 @@ import {
     restore,
     submit,
 } from '@/actions/App/Http/Controllers/RequestQuotationController';
+import PurchasedOrderDetailModal from '@/components/purchased-order-detail-modal';
 import RequestQuotationDetailModal from '@/components/request-quotation-detail-modal';
 import RequestQuotationForm from '@/components/request-quotation-form';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
-import { index as purchasedOrdersIndex } from '@/routes/purchased-orders';
 import { index } from '@/routes/request-quotations';
 
 function formatDate(value) {
@@ -50,6 +50,7 @@ function RowActionsMenu({
     onSubmit,
     onApprove,
     onCreatePurchaseOrder,
+    onViewPurchaseOrder,
 }) {
     const menuId = useId();
     const rootRef = useRef(null);
@@ -162,18 +163,21 @@ function RowActionsMenu({
                         </button>
                     )}
                     {!isDeleted && quotation.purchased_order_id && (
-                        <Link
+                        <button
+                            type="button"
                             role="menuitem"
-                            href={purchasedOrdersIndex.url()}
-                            onClick={onClose}
+                            onClick={() => {
+                                onClose();
+                                onViewPurchaseOrder(quotation);
+                            }}
                             title={
                                 quotation.purchased_order_reference ??
                                 'View purchase order'
                             }
-                            className="block w-full px-3 py-2 text-left text-sm text-teal-800 transition hover:bg-mist hover:underline"
+                            className="block w-full px-3 py-2 text-left text-sm text-teal-800 transition hover:bg-mist hover:text-ink"
                         >
                             PO created
-                        </Link>
+                        </button>
                     )}
                     {!isDeleted && (
                         <button
@@ -217,18 +221,21 @@ export default function RequestQuotationsIndex({
     const [formKey, setFormKey] = useState(0);
     const [editingQuotation, setEditingQuotation] = useState(null);
     const [detailQuotation, setDetailQuotation] = useState(null);
+    const [detailPurchaseOrder, setDetailPurchaseOrder] = useState(null);
     const [openMenuId, setOpenMenuId] = useState(null);
     const [trashed, setTrashed] = useState(filters.trashed ?? '');
 
     function openCreateTab() {
         setEditingQuotation(null);
         setDetailQuotation(null);
+        setDetailPurchaseOrder(null);
         setFormKey((current) => current + 1);
         setActiveTab('create');
         setOpenMenuId(null);
     }
 
     function openDetailModal(quotation) {
+        setDetailPurchaseOrder(null);
         setDetailQuotation(quotation);
         setOpenMenuId(null);
     }
@@ -237,8 +244,23 @@ export default function RequestQuotationsIndex({
         setDetailQuotation(null);
     }
 
+    function openPurchaseOrderDetail(quotation) {
+        if (!quotation.purchased_order) {
+            return;
+        }
+
+        setDetailQuotation(null);
+        setDetailPurchaseOrder(quotation.purchased_order);
+        setOpenMenuId(null);
+    }
+
+    function closePurchaseOrderDetail() {
+        setDetailPurchaseOrder(null);
+    }
+
     function openEditTab(quotation) {
         setDetailQuotation(null);
+        setDetailPurchaseOrder(null);
         setEditingQuotation(quotation);
         setFormKey((current) => current + 1);
         setActiveTab('create');
@@ -544,8 +566,13 @@ export default function RequestQuotationsIndex({
                                                         {quotation.status_label}
                                                     </span>
                                                     {quotation.purchased_order_id && (
-                                                        <Link
-                                                            href={purchasedOrdersIndex.url()}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                openPurchaseOrderDetail(
+                                                                    quotation,
+                                                                )
+                                                            }
                                                             title={
                                                                 quotation.purchased_order_reference ??
                                                                 'View purchase order'
@@ -553,7 +580,7 @@ export default function RequestQuotationsIndex({
                                                             className="rounded-full border border-teal-700/30 bg-teal-500/10 px-3 py-1 text-xs text-teal-800 underline-offset-2 transition hover:bg-teal-500/20 hover:underline focus:underline focus:outline-none"
                                                         >
                                                             PO Created
-                                                        </Link>
+                                                        </button>
                                                     )}
                                                 </div>
                                             </td>
@@ -588,6 +615,9 @@ export default function RequestQuotationsIndex({
                                                     onApprove={approveQuotation}
                                                     onCreatePurchaseOrder={
                                                         createPurchaseOrderFromQuotation
+                                                    }
+                                                    onViewPurchaseOrder={
+                                                        openPurchaseOrderDetail
                                                     }
                                                 />
                                             </td>
@@ -658,6 +688,12 @@ export default function RequestQuotationsIndex({
                 onClose={closeDetailModal}
                 onEdit={openEditTab}
                 onDelete={deleteQuotation}
+            />
+
+            <PurchasedOrderDetailModal
+                open={Boolean(detailPurchaseOrder)}
+                order={detailPurchaseOrder}
+                onClose={closePurchaseOrderDetail}
             />
         </AppLayout>
     );
