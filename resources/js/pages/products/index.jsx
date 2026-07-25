@@ -3,20 +3,8 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { destroy } from '@/actions/App/Http/Controllers/Admin/ProductController';
 import ProductModal from '@/components/product-modal';
 import AppLayout from '@/layouts/app-layout';
+import { formatMoney } from '@/lib/format-money';
 import { products as productsRoute } from '@/routes';
-
-function formatPrice(value) {
-    const amount = Number(value);
-
-    if (Number.isNaN(amount)) {
-        return '—';
-    }
-
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-    }).format(amount);
-}
 
 function availabilityBadgeClass(availability) {
     switch (availability) {
@@ -33,7 +21,14 @@ function availabilityBadgeClass(availability) {
     }
 }
 
-function RowActionsMenu({ product, open, onToggle, onClose, onEdit, onDelete }) {
+function RowActionsMenu({
+    product,
+    open,
+    onToggle,
+    onClose,
+    onEdit,
+    onDelete,
+}) {
     const menuId = useId();
     const rootRef = useRef(null);
 
@@ -328,7 +323,7 @@ export default function ProductsIndex({
                                     )}
                                 </td>
                                 <td className="px-4 py-4 font-medium text-price tabular-nums">
-                                    {formatPrice(product.selling_price)}
+                                    {formatMoney(product.selling_price)}
                                 </td>
                                 <td className="px-4 py-4 text-ink-soft tabular-nums">
                                     {product.quantity}

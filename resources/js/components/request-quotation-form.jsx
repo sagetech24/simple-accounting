@@ -5,16 +5,7 @@ import {
     update,
 } from '@/actions/App/Http/Controllers/RequestQuotationController';
 import SearchableSelect from '@/components/searchable-select';
-
-function formatMoney(value) {
-    const amount = Number(value);
-
-    if (Number.isNaN(amount)) {
-        return '0.00';
-    }
-
-    return amount.toFixed(2);
-}
+import { formatDecimal, formatMoney } from '@/lib/format-money';
 
 function lineSubtotal(buyingPrice, quantity) {
     const price = Number(buyingPrice);
@@ -48,7 +39,7 @@ export default function RequestQuotationForm({
         items: (quotation?.items ?? []).map((item) => ({
             product_id: item.product_id,
             product_name: item.product_name,
-            buying_price: formatMoney(item.buying_price),
+            buying_price: formatDecimal(item.buying_price),
             quantity: item.quantity,
         })),
     });
@@ -93,7 +84,7 @@ export default function RequestQuotationForm({
             {
                 product_id: product.id,
                 product_name: product.name,
-                buying_price: formatMoney(product.purchase_price),
+                buying_price: formatDecimal(product.purchase_price),
                 quantity: 1,
             },
         ]);

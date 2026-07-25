@@ -5,14 +5,8 @@ import {
     restore,
 } from '@/actions/App/Http/Controllers/Admin/ProductController';
 import SiteHeader from '@/components/site-header';
+import { formatMoney } from '@/lib/format-money';
 import { create, edit, index } from '@/routes/admin/products';
-
-function formatMoney(value) {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-    }).format(Number(value));
-}
 
 export default function AdminProductsIndex({ products, filters }) {
     const [q, setQ] = useState(filters.q ?? '');
