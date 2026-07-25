@@ -31,7 +31,7 @@ Internal ops app for catalog pricing and early procurement workflow. Ignore the 
 | Products | `/products` | Shipped — search/browse panel (no `purchase_price`) |
 | Suppliers | `/suppliers` | Shipped — full CRUD |
 | Customers | `/customers` | Shipped — full CRUD |
-| Request Quotations | `/request-quotations` | Shipped — list + create tabs, draft → pending → approved |
+| Request Quotations | `/request-quotations` | Shipped — list + create/edit tabs, soft delete, draft → pending → approved |
 | Purchased Orders | `/purchased-orders` | Stub empty panel |
 | Received Orders | `/received-orders` | Stub empty panel |
 
@@ -115,15 +115,17 @@ Admin product management lives under `/admin/products` (also auth-gated).
 | `status` | Enum: `draft` \| `pending` \| `approved` — new records start as `draft` |
 | `grand_total` | Decimal; **server-calculated** from line subtotals |
 | `notes` | Nullable text |
-| Line items | At least one; distinct non-deleted `product_id`, `buying_price` ≥ 0, `quantity` ≥ 1, server `subtotal` |
+| Soft delete | `deleted_at`; trash filters on index |
 
 ### Request Quotations UX
 
-- Single index page (`/request-quotations`) with two tabs: **list** (default) and **create**
+- Single index page (`/request-quotations`) with two tabs: **list** (default) and **create/edit**
 - List: ordered pending → approved → draft, newest within status; shows reference, supplier, item count, grand total, status, created date
-- Workflow actions: Draft → Submit (pending), Pending → Approve; toast flash on mutations
+- Trash filter (`trashed=only|with`); soft delete + restore; toast flash on mutations
+- Workflow actions: Draft → Submit (pending), Pending → Approve
+- Edit: draft and pending only (approved is locked); reuses create form on the create/edit tab
 - Create: searchable supplier + product pickers; editable buying price/qty lines; live subtotals and grand total; save as draft
-- Routes: `index`, `store`, `request-quotations.submit`, `request-quotations.approve`
+- Routes: `index`, `store`, `update`, `destroy`, `request-quotations.restore`, `request-quotations.submit`, `request-quotations.approve`
 - Soft-deleted suppliers/products excluded from pickers; existing quotations still show related names via `withTrashed`
 
 ---

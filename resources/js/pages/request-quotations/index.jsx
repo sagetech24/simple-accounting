@@ -1,11 +1,14 @@
 import { Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import {
     approve,
+    destroy,
+    restore,
     submit,
 } from '@/actions/App/Http/Controllers/RequestQuotationController';
 import RequestQuotationForm from '@/components/request-quotation-form';
 import AppLayout from '@/layouts/app-layout';
+import { index } from '@/routes/request-quotations';
 
 function formatMoney(value) {
     const amount = Number(value);
@@ -33,34 +36,209 @@ function formatDate(value) {
 }
 
 function statusBadgeClass(status) {
-    return matchStatus(status, {
-        pending: 'border-amber-600/30 bg-amber-400/10 text-amber-800',
-        approved: 'border-green-600/30 bg-green-400/10 text-green-700',
-        draft: 'border-slate-500/30 bg-slate-400/10 text-slate-700',
-        fallback: 'border-line bg-mist text-ink-soft',
-    });
+    return (
+        {
+            pending: 'border-amber-600/30 bg-amber-400/10 text-amber-800',
+            approved: 'border-green-600/30 bg-green-400/10 text-green-700',
+            draft: 'border-slate-500/30 bg-slate-400/10 text-slate-700',
+        }[status] ?? 'border-line bg-mist text-ink-soft'
+    );
 }
 
-function matchStatus(status, classes) {
-    return classes[status] ?? classes.fallback;
+function RowActionsMenu({
+    quotation,
+    open,
+    onToggle,
+    onClose,
+    onEdit,
+    onDelete,
+    onRestore,
+    onSubmit,
+    onApprove,
+}) {
+    const menuId = useId();
+    const rootRef = useRef(null);
+    const isDeleted = Boolean(quotation.deleted_at);
+
+    useEffect(() => {
+        if (!open) {
+            return undefined;
+        }
+
+        function handlePointerDown(event) {
+            if (!rootRef.current?.contains(event.target)) {
+                onClose();
+            }
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        }
+
+        document.addEventListener('pointerdown', handlePointerDown);
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('pointerdown', handlePointerDown);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [open, onClose]);
+
+    return (
+        <div ref={rootRef} className="relative flex justify-end">
+            <button
+                type="button"
+                onClick={onToggle}
+                className="inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-ink-soft transition duration-300 hover:scale-105 hover:bg-gray-100"
+                aria-label={`Actions for ${quotation.reference}`}
+                aria-haspopup="menu"
+                aria-expanded={open}
+                aria-controls={open ? menuId : undefined}
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-5"
+                    aria-hidden="true"
+                >
+                    <path d="M12 6.75a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3ZM12 13.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3ZM12 20.25a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" />
+                </svg>
+            </button>
+
+            {open && (
+                <div
+                    id={menuId}
+                    role="menu"
+                    className="absolute top-0 right-12 z-20 min-w-32 rounded-md border border-line bg-white py-1 shadow-md"
+                >
+                    {!isDeleted && quotation.can_edit && (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                                onClose();
+                                onEdit(quotation);
+                            }}
+                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                        >
+                            Edit
+                        </button>
+                    )}
+                    {!isDeleted && quotation.next_action === 'submit' && (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                                onClose();
+                                onSubmit(quotation);
+                            }}
+                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                        >
+                            Submit
+                        </button>
+                    )}
+                    {!isDeleted && quotation.next_action === 'approve' && (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                                onClose();
+                                onApprove(quotation);
+                            }}
+                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                        >
+                            Approve
+                        </button>
+                    )}
+                    {!isDeleted && (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                                onClose();
+                                onDelete(quotation);
+                            }}
+                            className="block w-full px-3 py-2 text-left text-sm text-warn transition hover:bg-mist"
+                        >
+                            Delete
+                        </button>
+                    )}
+                    {isDeleted && (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                                onClose();
+                                onRestore(quotation);
+                            }}
+                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                        >
+                            Restore
+                        </button>
+                    )}
+                </div>
+            )}
+        </div>
+    );
 }
 
 export default function RequestQuotationsIndex({
     quotations,
     suppliers,
     products,
+    filters = { trashed: '' },
 }) {
     const [activeTab, setActiveTab] = useState('list');
     const [formKey, setFormKey] = useState(0);
+    const [editingQuotation, setEditingQuotation] = useState(null);
+    const [openMenuId, setOpenMenuId] = useState(null);
+    const [trashed, setTrashed] = useState(filters.trashed ?? '');
 
     function openCreateTab() {
+        setEditingQuotation(null);
         setFormKey((current) => current + 1);
         setActiveTab('create');
+        setOpenMenuId(null);
     }
 
-    function handleCreated() {
+    function openEditTab(quotation) {
+        setEditingQuotation(quotation);
+        setFormKey((current) => current + 1);
+        setActiveTab('create');
+        setOpenMenuId(null);
+    }
+
+    function handleFormSuccess() {
+        setEditingQuotation(null);
         setActiveTab('list');
         setFormKey((current) => current + 1);
+    }
+
+    function cancelForm() {
+        setEditingQuotation(null);
+        setActiveTab('list');
+    }
+
+    function visitIndex(params) {
+        router.get(index.url(), params, {
+            preserveState: true,
+            replace: true,
+        });
+    }
+
+    function applyTrashFilter(event) {
+        event.preventDefault();
+        visitIndex({
+            trashed: trashed || undefined,
+        });
+    }
+
+    function clearTrashFilter() {
+        setTrashed('');
+        visitIndex({});
     }
 
     function submitQuotation(quotation) {
@@ -82,6 +260,22 @@ export default function RequestQuotationsIndex({
 
         router.post(approve.url(quotation.id));
     }
+
+    function deleteQuotation(quotation) {
+        if (!window.confirm(`Delete quotation “${quotation.reference}”?`)) {
+            return;
+        }
+
+        router.delete(destroy.url(quotation.id));
+    }
+
+    function restoreQuotation(quotation) {
+        router.post(restore.url(quotation.id));
+    }
+
+    const formTabLabel = editingQuotation
+        ? 'Edit Quotation'
+        : 'Create New Quotation';
 
     return (
         <AppLayout title="Request Quotations">
@@ -137,7 +331,10 @@ export default function RequestQuotationsIndex({
                         id="tab-list"
                         aria-selected={activeTab === 'list'}
                         aria-controls="panel-list"
-                        onClick={() => setActiveTab('list')}
+                        onClick={() => {
+                            setEditingQuotation(null);
+                            setActiveTab('list');
+                        }}
                         className={`min-h-11 border-b-2 px-4 text-sm font-medium transition ${
                             activeTab === 'list'
                                 ? 'border-teal-700 text-teal-800'
@@ -159,7 +356,7 @@ export default function RequestQuotationsIndex({
                                 : 'border-transparent text-muted hover:text-ink'
                         }`}
                     >
-                        Create New Quotation
+                        {formTabLabel}
                     </button>
                 </div>
             </div>
@@ -171,8 +368,51 @@ export default function RequestQuotationsIndex({
                     aria-labelledby="tab-list"
                     className="p-4"
                 >
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[780px] border-collapse text-left text-sm">
+                    <form
+                        onSubmit={applyTrashFilter}
+                        className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end"
+                    >
+                        <div className="sm:w-48">
+                            <label
+                                htmlFor="trashed"
+                                className="mb-1.5 block text-sm font-medium text-ink-soft"
+                            >
+                                Trash
+                            </label>
+                            <select
+                                id="trashed"
+                                value={trashed}
+                                onChange={(event) =>
+                                    setTrashed(event.target.value)
+                                }
+                                className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                            >
+                                <option value="">Active only</option>
+                                <option value="with">Include deleted</option>
+                                <option value="only">Deleted only</option>
+                            </select>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                type="submit"
+                                className="min-h-11 rounded-md bg-teal-600 px-4 text-sm font-medium tracking-wider text-paper transition hover:bg-teal-800"
+                            >
+                                Filter
+                            </button>
+                            {filters.trashed && (
+                                <button
+                                    type="button"
+                                    onClick={clearTrashFilter}
+                                    className="min-h-11 border border-line bg-white/70 px-4 text-sm text-ink-soft transition hover:border-ink/30"
+                                >
+                                    Clear
+                                </button>
+                            )}
+                        </div>
+                    </form>
+
+                    <div>
+                        <table className="w-full border-collapse text-left text-sm">
                             <thead className="sticky top-0 bg-teal-500/10">
                                 <tr className="border-b border-line text-xs tracking-wide uppercase">
                                     <th className="px-4 py-3 font-medium text-muted">
@@ -193,7 +433,7 @@ export default function RequestQuotationsIndex({
                                     <th className="px-4 py-3 font-medium text-muted">
                                         Created
                                     </th>
-                                    <th className="w-36 px-4 py-3 text-right">
+                                    <th className="w-14 px-4 py-3 text-right">
                                         <span className="sr-only">Actions</span>
                                     </th>
                                 </tr>
@@ -205,78 +445,84 @@ export default function RequestQuotationsIndex({
                                             colSpan={7}
                                             className="px-4 py-10 text-center text-muted"
                                         >
-                                            No request quotations yet. Create
-                                            one from the Create New Quotation
-                                            tab.
+                                            No request quotations match these
+                                            filters.
                                         </td>
                                     </tr>
                                 )}
-                                {quotations.data.map((quotation) => (
-                                    <tr
-                                        key={quotation.id}
-                                        className="border-b border-line/80 align-top"
-                                    >
-                                        <td className="px-4 py-4">
-                                            <p className="font-mono text-xs break-all text-ink sm:text-sm">
-                                                {quotation.reference}
-                                            </p>
-                                        </td>
-                                        <td className="px-4 py-4 text-ink-soft">
-                                            {quotation.supplier_name || '—'}
-                                        </td>
-                                        <td className="px-4 py-4 text-ink-soft">
-                                            {quotation.item_count}
-                                        </td>
-                                        <td className="px-4 py-4 font-medium text-ink">
-                                            {formatMoney(quotation.grand_total)}
-                                        </td>
-                                        <td className="px-4 py-4">
-                                            <span
-                                                className={`rounded-full border px-3 py-1 text-xs ${statusBadgeClass(quotation.status)}`}
-                                            >
-                                                {quotation.status_label}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-4 text-ink-soft">
-                                            {formatDate(quotation.created_at)}
-                                        </td>
-                                        <td className="px-4 py-3 text-right">
-                                            {quotation.next_action ===
-                                                'submit' && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        submitQuotation(
-                                                            quotation,
-                                                        )
-                                                    }
-                                                    className="min-h-11 rounded-md bg-teal-700 px-3 text-sm font-medium text-paper transition hover:bg-teal-800"
+                                {quotations.data.map((quotation) => {
+                                    const isDeleted = Boolean(
+                                        quotation.deleted_at,
+                                    );
+
+                                    return (
+                                        <tr
+                                            key={quotation.id}
+                                            className="border-b border-line/80 align-top"
+                                        >
+                                            <td className="px-4 py-4">
+                                                <p
+                                                    className={`font-mono text-xs break-all sm:text-sm ${
+                                                        isDeleted
+                                                            ? 'text-muted line-through'
+                                                            : 'text-ink'
+                                                    }`}
                                                 >
-                                                    Submit
-                                                </button>
-                                            )}
-                                            {quotation.next_action ===
-                                                'approve' && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        approveQuotation(
-                                                            quotation,
-                                                        )
-                                                    }
-                                                    className="min-h-11 rounded-md bg-teal-700 px-3 text-sm font-medium text-paper transition hover:bg-teal-800"
+                                                    {quotation.reference}
+                                                </p>
+                                            </td>
+                                            <td className="px-4 py-4 text-ink-soft">
+                                                {quotation.supplier_name || '—'}
+                                            </td>
+                                            <td className="px-4 py-4 text-ink-soft">
+                                                {quotation.item_count}
+                                            </td>
+                                            <td className="px-4 py-4 font-medium text-ink">
+                                                {formatMoney(
+                                                    quotation.grand_total,
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-4">
+                                                <span
+                                                    className={`rounded-full border px-3 py-1 text-xs ${statusBadgeClass(quotation.status)}`}
                                                 >
-                                                    Approve
-                                                </button>
-                                            )}
-                                            {quotation.next_action === null && (
-                                                <span className="text-xs text-muted">
-                                                    Complete
+                                                    {quotation.status_label}
                                                 </span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                            </td>
+                                            <td className="px-4 py-4 text-ink-soft">
+                                                {formatDate(
+                                                    quotation.created_at,
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <RowActionsMenu
+                                                    quotation={quotation}
+                                                    open={
+                                                        openMenuId ===
+                                                        quotation.id
+                                                    }
+                                                    onToggle={() =>
+                                                        setOpenMenuId(
+                                                            (current) =>
+                                                                current ===
+                                                                quotation.id
+                                                                    ? null
+                                                                    : quotation.id,
+                                                        )
+                                                    }
+                                                    onClose={() =>
+                                                        setOpenMenuId(null)
+                                                    }
+                                                    onEdit={openEditTab}
+                                                    onDelete={deleteQuotation}
+                                                    onRestore={restoreQuotation}
+                                                    onSubmit={submitQuotation}
+                                                    onApprove={approveQuotation}
+                                                />
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
@@ -328,8 +574,9 @@ export default function RequestQuotationsIndex({
                         key={formKey}
                         suppliers={suppliers}
                         products={products}
-                        onCancel={() => setActiveTab('list')}
-                        onSuccess={handleCreated}
+                        quotation={editingQuotation}
+                        onCancel={cancelForm}
+                        onSuccess={handleFormSuccess}
                     />
                 </div>
             )}

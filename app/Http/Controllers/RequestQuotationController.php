@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Enums\RequestQuotationStatus;
 use App\Enums\SupplierStatus;
 use App\Http\Requests\StoreRequestQuotationRequest;
+use App\Http\Requests\UpdateRequestQuotationRequest;
 use App\Models\Product;
 use App\Models\RequestQuotation;
 use App\Models\RequestQuotationItem;
 use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,18 +22,29 @@ class RequestQuotationController extends Controller
     /**
      * Quotation list (default) with create-tab picker props.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $filters = $request->validate([
+            'trashed' => ['nullable', 'string', Rule::in(['only', 'with'])],
+        ]);
+
+        $trashed = $filters['trashed'] ?? null;
+
         $quotations = RequestQuotation::query()
             ->with(['supplier', 'items.product'])
+            ->when($trashed === 'only', fn ($builder) => $builder->onlyTrashed())
+            ->when($trashed === 'with', fn ($builder) => $builder->withTrashed())
             ->orderedByWorkflow()
-            ->paginate(15)
+            ->paginate(8)
             ->withQueryString()
             ->through(fn (RequestQuotation $quotation) => $quotation->toArrayPayload());
 
         return Inertia::render('request-quotations/index', [
             'quotations' => $quotations,
             'statuses' => $this->statusOptions(),
+            'filters' => [
+                'trashed' => $trashed ?? '',
+            ],
             'suppliers' => Supplier::query()
                 ->where('status', SupplierStatus::Active)
                 ->orderBy('name')
@@ -67,23 +81,7 @@ class RequestQuotationController extends Controller
         $items = $request->itemAttributes();
 
         DB::transaction(function () use ($attributes, $items): void {
-            $grandTotal = '0.00';
-
-            $lineRows = [];
-            foreach ($items as $item) {
-                $subtotal = RequestQuotationItem::calculateSubtotal(
-                    $item['buying_price'],
-                    $item['quantity'],
-                );
-                $grandTotal = number_format((float) $grandTotal + (float) $subtotal, 2, '.', '');
-
-                $lineRows[] = [
-                    'product_id' => $item['product_id'],
-                    'buying_price' => $item['buying_price'],
-                    'quantity' => $item['quantity'],
-                    'subtotal' => $subtotal,
-                ];
-            }
+            [$grandTotal, $lineRows] = $this->buildLineRows($items);
 
             $quotation = RequestQuotation::query()->create([
                 ...$attributes,
@@ -97,6 +95,75 @@ class RequestQuotationController extends Controller
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Request quotation saved as draft.',
+        ]);
+
+        return redirect()->route('request-quotations.index');
+    }
+
+    /**
+     * Update a draft or pending quotation. Approved quotations are locked.
+     */
+    public function update(
+        UpdateRequestQuotationRequest $request,
+        RequestQuotation $requestQuotation,
+    ): RedirectResponse {
+        if (! $requestQuotation->isEditable()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Approved quotations cannot be modified.',
+            ]);
+
+            return redirect()->route('request-quotations.index');
+        }
+
+        $attributes = $request->quotationAttributes();
+        $items = $request->itemAttributes();
+
+        DB::transaction(function () use ($requestQuotation, $attributes, $items): void {
+            [$grandTotal, $lineRows] = $this->buildLineRows($items);
+
+            $requestQuotation->update([
+                ...$attributes,
+                'grand_total' => $grandTotal,
+            ]);
+
+            $requestQuotation->items()->delete();
+            $requestQuotation->items()->createMany($lineRows);
+        });
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Request quotation updated.',
+        ]);
+
+        return redirect()->route('request-quotations.index');
+    }
+
+    /**
+     * Soft-delete a quotation.
+     */
+    public function destroy(RequestQuotation $requestQuotation): RedirectResponse
+    {
+        $requestQuotation->delete();
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Request quotation deleted.',
+        ]);
+
+        return redirect()->route('request-quotations.index');
+    }
+
+    /**
+     * Restore a soft-deleted quotation.
+     */
+    public function restore(RequestQuotation $requestQuotation): RedirectResponse
+    {
+        $requestQuotation->restore();
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Request quotation restored.',
         ]);
 
         return redirect()->route('request-quotations.index');
@@ -152,6 +219,33 @@ class RequestQuotationController extends Controller
         ]);
 
         return redirect()->route('request-quotations.index');
+    }
+
+    /**
+     * @param  list<array{product_id: int, buying_price: string, quantity: int}>  $items
+     * @return array{0: string, 1: list<array{product_id: int, buying_price: string, quantity: int, subtotal: string}>}
+     */
+    private function buildLineRows(array $items): array
+    {
+        $grandTotal = '0.00';
+        $lineRows = [];
+
+        foreach ($items as $item) {
+            $subtotal = RequestQuotationItem::calculateSubtotal(
+                $item['buying_price'],
+                $item['quantity'],
+            );
+            $grandTotal = number_format((float) $grandTotal + (float) $subtotal, 2, '.', '');
+
+            $lineRows[] = [
+                'product_id' => $item['product_id'],
+                'buying_price' => $item['buying_price'],
+                'quantity' => $item['quantity'],
+                'subtotal' => $subtotal,
+            ];
+        }
+
+        return [$grandTotal, $lineRows];
     }
 
     /**

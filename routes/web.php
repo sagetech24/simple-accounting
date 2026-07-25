@@ -34,8 +34,11 @@ Route::middleware('auth')->group(function () {
         ->name('request-quotations.submit');
     Route::post('request-quotations/{request_quotation}/approve', [RequestQuotationController::class, 'approve'])
         ->name('request-quotations.approve');
+    Route::post('request-quotations/{request_quotation}/restore', [RequestQuotationController::class, 'restore'])
+        ->withTrashed()
+        ->name('request-quotations.restore');
     Route::resource('request-quotations', RequestQuotationController::class)
-        ->only(['index', 'store']);
+        ->only(['index', 'store', 'update', 'destroy']);
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 #[Fillable([
@@ -22,7 +23,7 @@ use Illuminate\Support\Str;
 class RequestQuotation extends Model
 {
     /** @use HasFactory<RequestQuotationFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected static function booted(): void
     {
@@ -64,6 +65,14 @@ class RequestQuotation extends Model
         return $this->hasMany(RequestQuotationItem::class);
     }
 
+    public function isEditable(): bool
+    {
+        return in_array($this->status, [
+            RequestQuotationStatus::Draft,
+            RequestQuotationStatus::Pending,
+        ], true);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -89,6 +98,8 @@ class RequestQuotation extends Model
                 RequestQuotationStatus::Pending => 'approve',
                 RequestQuotationStatus::Approved => null,
             },
+            'can_edit' => $this->isEditable() && $this->deleted_at === null,
+            'deleted_at' => $this->deleted_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

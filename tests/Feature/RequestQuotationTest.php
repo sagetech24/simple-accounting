@@ -356,4 +356,186 @@ class RequestQuotationTest extends TestCase
             'status' => RequestQuotationStatus::Approved->value,
         ]);
     }
+
+    public function test_draft_and_pending_quotations_can_be_updated(): void
+    {
+        $admin = User::factory()->create();
+        $supplier = Supplier::factory()->active()->create();
+        $newSupplier = Supplier::factory()->active()->create();
+        $product = Product::factory()->available()->create();
+        $newProduct = Product::factory()->available()->create();
+
+        $draft = RequestQuotation::factory()->draft()->create([
+            'supplier_id' => $supplier->id,
+            'grand_total' => '10.00',
+            'notes' => 'Old notes',
+        ]);
+        RequestQuotationItem::factory()->create([
+            'request_quotation_id' => $draft->id,
+            'product_id' => $product->id,
+            'buying_price' => '10.00',
+            'quantity' => 1,
+            'subtotal' => '10.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('request-quotations.update', $draft), [
+                'supplier_id' => $newSupplier->id,
+                'notes' => 'Updated notes',
+                'items' => [
+                    [
+                        'product_id' => $newProduct->id,
+                        'buying_price' => '7.50',
+                        'quantity' => 4,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('request-quotations.index'));
+
+        $this->assertDatabaseHas('request_quotations', [
+            'id' => $draft->id,
+            'supplier_id' => $newSupplier->id,
+            'status' => RequestQuotationStatus::Draft->value,
+            'grand_total' => '30.00',
+            'notes' => 'Updated notes',
+        ]);
+
+        $this->assertDatabaseMissing('request_quotation_items', [
+            'request_quotation_id' => $draft->id,
+            'product_id' => $product->id,
+        ]);
+
+        $this->assertDatabaseHas('request_quotation_items', [
+            'request_quotation_id' => $draft->id,
+            'product_id' => $newProduct->id,
+            'buying_price' => '7.50',
+            'quantity' => 4,
+            'subtotal' => '30.00',
+        ]);
+
+        $pending = RequestQuotation::factory()->pending()->create([
+            'supplier_id' => $supplier->id,
+        ]);
+        RequestQuotationItem::factory()->create([
+            'request_quotation_id' => $pending->id,
+            'product_id' => $product->id,
+            'buying_price' => '2.00',
+            'quantity' => 1,
+            'subtotal' => '2.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('request-quotations.update', $pending), [
+                'supplier_id' => $supplier->id,
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'buying_price' => '3.00',
+                        'quantity' => 2,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('request-quotations.index'));
+
+        $this->assertDatabaseHas('request_quotations', [
+            'id' => $pending->id,
+            'status' => RequestQuotationStatus::Pending->value,
+            'grand_total' => '6.00',
+        ]);
+    }
+
+    public function test_approved_quotations_cannot_be_updated(): void
+    {
+        $admin = User::factory()->create();
+        $supplier = Supplier::factory()->active()->create();
+        $product = Product::factory()->available()->create();
+        $quotation = RequestQuotation::factory()->approved()->create([
+            'supplier_id' => $supplier->id,
+            'grand_total' => '5.00',
+            'notes' => 'Locked',
+        ]);
+        RequestQuotationItem::factory()->create([
+            'request_quotation_id' => $quotation->id,
+            'product_id' => $product->id,
+            'buying_price' => '5.00',
+            'quantity' => 1,
+            'subtotal' => '5.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('request-quotations.update', $quotation), [
+                'supplier_id' => $supplier->id,
+                'notes' => 'Should not save',
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'buying_price' => '9.00',
+                        'quantity' => 9,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('request-quotations.index'));
+
+        $this->assertDatabaseHas('request_quotations', [
+            'id' => $quotation->id,
+            'grand_total' => '5.00',
+            'notes' => 'Locked',
+            'status' => RequestQuotationStatus::Approved->value,
+        ]);
+    }
+
+    public function test_quotations_can_be_soft_deleted_and_restored(): void
+    {
+        $admin = User::factory()->create();
+        $quotation = RequestQuotation::factory()->draft()->create();
+
+        $this->actingAs($admin)
+            ->delete(route('request-quotations.destroy', $quotation))
+            ->assertRedirect(route('request-quotations.index'));
+
+        $this->assertSoftDeleted($quotation);
+
+        $this->actingAs($admin)
+            ->get(route('request-quotations.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('request-quotations/index')
+                ->has('quotations.data', 0)
+            );
+
+        $this->actingAs($admin)
+            ->get(route('request-quotations.index', ['trashed' => 'only']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('request-quotations/index')
+                ->has('quotations.data', 1)
+                ->where('quotations.data.0.id', $quotation->id)
+                ->where('filters.trashed', 'only')
+            );
+
+        $this->actingAs($admin)
+            ->post(route('request-quotations.restore', $quotation))
+            ->assertRedirect(route('request-quotations.index'));
+
+        $this->assertNotSoftDeleted($quotation);
+    }
+
+    public function test_index_payload_marks_editable_flags(): void
+    {
+        $admin = User::factory()->create();
+        $draft = RequestQuotation::factory()->draft()->create();
+        $approved = RequestQuotation::factory()->approved()->create();
+
+        $this->actingAs($admin)
+            ->get(route('request-quotations.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('request-quotations/index')
+                ->has('quotations.data', 2)
+                ->where('quotations.data.0.id', $approved->id)
+                ->where('quotations.data.0.can_edit', false)
+                ->where('quotations.data.1.id', $draft->id)
+                ->where('quotations.data.1.can_edit', true)
+            );
+    }
 }

@@ -1,6 +1,9 @@
 import { useForm } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import { store } from '@/actions/App/Http/Controllers/RequestQuotationController';
+import {
+    store,
+    update,
+} from '@/actions/App/Http/Controllers/RequestQuotationController';
 import SearchableSelect from '@/components/searchable-select';
 
 function formatMoney(value) {
@@ -27,18 +30,27 @@ function lineSubtotal(buyingPrice, quantity) {
 export default function RequestQuotationForm({
     suppliers,
     products,
+    quotation = null,
     onCancel,
     onSuccess,
 }) {
-    const [reference] = useState(() => crypto.randomUUID());
+    const isEditing = Boolean(quotation?.id);
+    const [reference] = useState(
+        () => quotation?.reference ?? crypto.randomUUID(),
+    );
     const [productQuery, setProductQuery] = useState('');
     const [productPickerOpen, setProductPickerOpen] = useState(false);
 
     const form = useForm({
         reference,
-        supplier_id: '',
-        notes: '',
-        items: [],
+        supplier_id: quotation?.supplier_id ?? '',
+        notes: quotation?.notes ?? '',
+        items: (quotation?.items ?? []).map((item) => ({
+            product_id: item.product_id,
+            product_name: item.product_name,
+            buying_price: formatMoney(item.buying_price),
+            quantity: item.quantity,
+        })),
     });
 
     const availableProducts = useMemo(() => {
@@ -109,20 +121,42 @@ export default function RequestQuotationForm({
     function submit(event) {
         event.preventDefault();
 
-        form.post(store.url(), {
+        const options = {
             preserveScroll: true,
             onSuccess: () => {
                 onSuccess?.();
             },
-        });
+        };
+
+        if (isEditing) {
+            form.put(update.url(quotation.id), options);
+            return;
+        }
+
+        form.post(store.url(), options);
     }
 
     const selectedSupplier =
         suppliers.find((supplier) => supplier.id === form.data.supplier_id) ??
         null;
 
+    const submitLabel = isEditing
+        ? form.processing
+            ? 'Saving…'
+            : 'Save changes'
+        : form.processing
+          ? 'Saving…'
+          : 'Save as draft';
+
     return (
         <form onSubmit={submit} className="space-y-6">
+            {isEditing && (
+                <p className="rounded-md border border-line bg-mist/40 px-3 py-2 text-sm text-ink-soft">
+                    Editing {quotation.status_label.toLowerCase()} quotation.
+                    Reference stays the same.
+                </p>
+            )}
+
             <div className="grid gap-6 lg:grid-cols-2">
                 <div>
                     <label
@@ -414,7 +448,7 @@ export default function RequestQuotationForm({
                     disabled={form.processing}
                     className="min-h-11 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800 disabled:opacity-60"
                 >
-                    {form.processing ? 'Saving…' : 'Save as draft'}
+                    {submitLabel}
                 </button>
                 {onCancel && (
                     <button
