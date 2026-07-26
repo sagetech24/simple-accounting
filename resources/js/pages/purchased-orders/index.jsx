@@ -688,6 +688,7 @@ export default function PurchasedOrdersIndex({
                 onEdit={openEditTab}
                 onDelete={deleteOrder}
                 onViewSourceQuotation={openSourceQuotationDetail}
+                onAddPrepayment={openPrepaymentModal}
             />
 
             <PurchasedOrderReceiveAdjustmentModal

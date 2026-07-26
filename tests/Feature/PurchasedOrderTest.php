@@ -742,9 +742,11 @@ class PurchasedOrderTest extends TestCase
             'created_at' => now()->subHours(2),
         ]);
         $ordered = PurchasedOrder::factory()->ordered()->create([
+            'grand_total' => '100.00',
             'created_at' => now()->subHour(),
         ]);
         $received = PurchasedOrder::factory()->received()->create([
+            'grand_total' => '50.00',
             'created_at' => now()->subMinutes(30),
         ]);
 
@@ -762,7 +764,29 @@ class PurchasedOrderTest extends TestCase
                 ->where('orders.data.1.can_add_prepayment', false)
                 ->where('orders.data.2.id', $received->id)
                 ->where('orders.data.2.can_edit', false)
-                ->where('orders.data.2.can_add_prepayment', false)
+                ->where('orders.data.2.can_add_prepayment', true)
+            );
+    }
+
+    public function test_fully_paid_ordered_order_cannot_add_prepayment(): void
+    {
+        $admin = User::factory()->create();
+        $order = PurchasedOrder::factory()->ordered()->create([
+            'grand_total' => '100.00',
+        ]);
+        PurchasedOrderPayment::factory()->cash()->create([
+            'purchased_order_id' => $order->id,
+            'amount' => '100.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('purchased-orders.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('purchased-orders/index')
+                ->where('orders.data.0.id', $order->id)
+                ->where('orders.data.0.balance_due', '0.00')
+                ->where('orders.data.0.can_add_prepayment', false)
             );
     }
 
@@ -891,6 +915,28 @@ class PurchasedOrderTest extends TestCase
             ->assertRedirect(route('purchased-orders.index'));
 
         $this->assertDatabaseCount('purchased_order_payments', 0);
+    }
+
+    public function test_received_with_balance_due_can_record_prepayment(): void
+    {
+        $admin = User::factory()->create(['name' => 'Admin User']);
+        $order = PurchasedOrder::factory()->received()->create([
+            'grand_total' => '100.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('purchased-orders.payments.store', $order), [
+                'method' => PurchasedOrderPaymentMethod::Cash->value,
+                'amount' => '25.00',
+            ])
+            ->assertRedirect(route('purchased-orders.index'));
+
+        $this->assertDatabaseHas('purchased_order_payments', [
+            'purchased_order_id' => $order->id,
+            'method' => PurchasedOrderPaymentMethod::Cash->value,
+            'amount' => '25.00',
+            'recorded_by' => 'Admin User',
+        ]);
     }
 
     public function test_prepayment_amount_cannot_exceed_balance(): void

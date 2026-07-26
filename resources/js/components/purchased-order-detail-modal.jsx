@@ -34,6 +34,7 @@ export default function PurchasedOrderDetailModal({
     onEdit,
     onDelete,
     onViewSourceQuotation,
+    onAddPrepayment,
 }) {
     useEffect(() => {
         if (!open) {
@@ -389,23 +390,50 @@ export default function PurchasedOrderDetailModal({
                                             }
                                         }
 
+                                        const detailLines = [
+                                            ...details,
+                                            payment.notes,
+                                        ].filter(Boolean);
+                                        const isPdc =
+                                            payment.method ===
+                                            'post_dated_check';
+
                                         return (
                                             <tr
                                                 key={payment.id}
                                                 className="border-b border-line/80 last:border-b-0"
                                             >
-                                                <td className="px-3 py-3 font-medium text-ink">
-                                                    {payment.method_label}
+                                                <td className="px-3 py-3 font-medium text-ink items-start flex">
+                                                    {isPdc ? 'PDC' : payment.method_label}
                                                 </td>
                                                 <td className="px-3 py-3 text-ink-soft">
-                                                    {details.length > 0
-                                                        ? details.join(' · ')
-                                                        : payment.notes || '—'}
+                                                    {detailLines.length ===
+                                                    0 ? (
+                                                        '—'
+                                                    ) : isPdc ? (
+                                                            <div className="space-y-0.5">
+                                                                <p className="whitespace-nowrap text-xs">
+                                                                    Banks: {detailLines[0]}
+                                                                </p>
+                                                                <p className="whitespace-nowrap text-xs">
+                                                                    Check #: {detailLines[1]}
+                                                                </p>
+                                                                <p className="whitespace-nowrap text-xs">
+                                                                    Due Date: {formatDate(detailLines[2])}
+                                                                </p>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="whitespace-nowrap text-xs">
+                                                            {detailLines.join(
+                                                                ' · ',
+                                                            )}
+                                                        </span>
+                                                    )}
                                                 </td>
-                                                <td className="px-3 py-3 font-medium text-ink">
+                                                <td className="px-3 py-3 font-medium text-ink flex items-start">
                                                     {formatMoney(payment.amount)}
                                                 </td>
-                                                <td className="px-3 py-3 text-ink-soft">
+                                                <td className="px-3 py-3 text-ink-soft text-xs">
                                                     <p>
                                                         {formatDate(
                                                             payment.paid_at,
@@ -413,7 +441,7 @@ export default function PurchasedOrderDetailModal({
                                                     </p>
                                                     {payment.recorded_by && (
                                                         <p className="mt-1 text-xs text-muted">
-                                                            {payment.recorded_by}
+                                                            Created by: {payment.recorded_by}
                                                         </p>
                                                     )}
                                                 </td>
@@ -434,6 +462,15 @@ export default function PurchasedOrderDetailModal({
                             className="min-h-11 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800"
                         >
                             Edit
+                        </button>
+                    )}
+                    {order.can_add_prepayment && onAddPrepayment && (
+                        <button
+                            type="button"
+                            onClick={() => onAddPrepayment(order)}
+                            className="min-h-11 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800"
+                        >
+                            Add Pre-payment
                         </button>
                     )}
                     {canDelete && onDelete && (

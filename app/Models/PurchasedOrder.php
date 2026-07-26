@@ -107,7 +107,12 @@ class PurchasedOrder extends Model
 
     public function canAddPrepayment(): bool
     {
-        return $this->status === PurchasedOrderStatus::Ordered && $this->deleted_at === null;
+        return in_array($this->status, [
+            PurchasedOrderStatus::Ordered,
+            PurchasedOrderStatus::Received,
+        ], true)
+            && $this->deleted_at === null
+            && (float) $this->balanceDue() > 0;
     }
 
     /**

@@ -259,7 +259,7 @@ class PurchasedOrderController extends Controller
     }
 
     /**
-     * Record a pre-payment against an ordered purchase order.
+     * Record a pre-payment against an ordered or received purchase order with balance due.
      */
     public function storePayment(
         StorePurchasedOrderPaymentRequest $request,
@@ -268,7 +268,7 @@ class PurchasedOrderController extends Controller
         if (! $purchasedOrder->canAddPrepayment()) {
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'Pre-payments can only be added to ordered purchase orders.',
+                'message' => 'Pre-payments can only be added when there is a remaining balance.',
             ]);
 
             return redirect()->route('purchased-orders.index');
