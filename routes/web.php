@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PurchasedOrderController;
@@ -46,11 +47,18 @@ Route::middleware('auth')->group(function () {
         ->name('purchased-orders.mark-ordered');
     Route::post('purchased-orders/{purchased_order}/mark-received-with-adjustment', [PurchasedOrderController::class, 'markReceivedWithAdjustment'])
         ->name('purchased-orders.mark-received-with-adjustment');
+    Route::post('purchased-orders/{purchased_order}/payments', [PurchasedOrderController::class, 'storePayment'])
+        ->name('purchased-orders.payments.store');
     Route::post('purchased-orders/{purchased_order}/restore', [PurchasedOrderController::class, 'restore'])
         ->withTrashed()
         ->name('purchased-orders.restore');
     Route::resource('purchased-orders', PurchasedOrderController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::post('bank-accounts/{bank_account}/restore', [BankAccountController::class, 'restore'])
+        ->withTrashed()
+        ->name('bank-accounts.restore');
+    Route::resource('bank-accounts', BankAccountController::class)->except(['show', 'create', 'edit']);
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 

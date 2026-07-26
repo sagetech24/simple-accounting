@@ -76,9 +76,38 @@ class PurchasedOrder extends Model
         return $this->hasMany(PurchasedOrderItem::class);
     }
 
+    /**
+     * @return HasMany<PurchasedOrderPayment, $this>
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(PurchasedOrderPayment::class)->orderByDesc('paid_at')->orderByDesc('id');
+    }
+
     public function isEditable(): bool
     {
         return $this->status === PurchasedOrderStatus::Draft;
+    }
+
+    public function amountPaid(): string
+    {
+        $sum = $this->relationLoaded('payments')
+            ? $this->payments->sum(fn (PurchasedOrderPayment $payment) => (float) $payment->amount)
+            : (float) $this->payments()->sum('amount');
+
+        return number_format($sum, 2, '.', '');
+    }
+
+    public function balanceDue(): string
+    {
+        $balance = (float) $this->grand_total - (float) $this->amountPaid();
+
+        return number_format(max(0, $balance), 2, '.', '');
+    }
+
+    public function canAddPrepayment(): bool
+    {
+        return $this->status === PurchasedOrderStatus::Ordered && $this->deleted_at === null;
     }
 
     /**
@@ -96,6 +125,9 @@ class PurchasedOrder extends Model
                 ->first();
         }
 
+        $amountPaid = $this->amountPaid();
+        $balanceDue = $this->balanceDue();
+
         return [
             'id' => $this->id,
             'reference' => $this->reference,
@@ -109,6 +141,8 @@ class PurchasedOrder extends Model
             'status' => $this->status->value,
             'status_label' => $this->status->label(),
             'grand_total' => $this->grand_total,
+            'amount_paid' => $amountPaid,
+            'balance_due' => $balanceDue,
             'notes' => $this->notes,
             'meta' => $this->meta,
             'item_count' => $this->relationLoaded('items')
@@ -117,12 +151,16 @@ class PurchasedOrder extends Model
             'items' => $this->relationLoaded('items')
                 ? $this->items->map(fn (PurchasedOrderItem $item) => $item->toArrayPayload())->values()->all()
                 : [],
+            'payments' => $this->relationLoaded('payments')
+                ? $this->payments->map(fn (PurchasedOrderPayment $payment) => $payment->toArrayPayload())->values()->all()
+                : [],
             'next_action' => match ($this->status) {
                 PurchasedOrderStatus::Draft => 'mark_ordered',
                 PurchasedOrderStatus::Ordered => 'mark_received',
                 PurchasedOrderStatus::Received => null,
             },
             'can_edit' => $this->isEditable() && $this->deleted_at === null,
+            'can_add_prepayment' => $this->canAddPrepayment(),
             'deleted_at' => $this->deleted_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

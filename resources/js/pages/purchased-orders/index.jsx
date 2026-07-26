@@ -7,6 +7,7 @@ import {
 } from '@/actions/App/Http/Controllers/PurchasedOrderController';
 import PurchasedOrderDetailModal from '@/components/purchased-order-detail-modal';
 import PurchasedOrderForm from '@/components/purchased-order-form';
+import PurchasedOrderPrepaymentModal from '@/components/purchased-order-prepayment-modal';
 import PurchasedOrderReceiveAdjustmentModal from '@/components/purchased-order-receive-adjustment-modal';
 import RequestQuotationDetailModal from '@/components/request-quotation-detail-modal';
 import AppLayout from '@/layouts/app-layout';
@@ -48,6 +49,7 @@ function RowActionsMenu({
     onRestore,
     onMarkOrdered,
     onMarkReceivedWithAdjustment,
+    onAddPrepayment,
 }) {
     const menuId = useId();
     const rootRef = useRef(null);
@@ -146,6 +148,19 @@ function RowActionsMenu({
                             Receive Adjustment
                         </button>
                     )}
+                    {!isDeleted && order.can_add_prepayment && (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                                onClose();
+                                onAddPrepayment(order);
+                            }}
+                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                        >
+                            Add Pre-payment
+                        </button>
+                    )}
                     {!isDeleted && (
                         <button
                             type="button"
@@ -182,6 +197,8 @@ export default function PurchasedOrdersIndex({
     orders,
     suppliers,
     products,
+    bankAccounts = [],
+    paymentMethods = [],
     filters = { trashed: '' },
 }) {
     const [activeTab, setActiveTab] = useState('list');
@@ -190,6 +207,7 @@ export default function PurchasedOrdersIndex({
     const [detailOrder, setDetailOrder] = useState(null);
     const [detailQuotation, setDetailQuotation] = useState(null);
     const [adjustmentOrder, setAdjustmentOrder] = useState(null);
+    const [prepaymentOrder, setPrepaymentOrder] = useState(null);
     const [openMenuId, setOpenMenuId] = useState(null);
     const [trashed, setTrashed] = useState(filters.trashed ?? '');
 
@@ -198,6 +216,7 @@ export default function PurchasedOrdersIndex({
         setDetailOrder(null);
         setDetailQuotation(null);
         setAdjustmentOrder(null);
+        setPrepaymentOrder(null);
         setFormKey((current) => current + 1);
         setActiveTab('create');
         setOpenMenuId(null);
@@ -206,6 +225,7 @@ export default function PurchasedOrdersIndex({
     function openDetailModal(order) {
         setDetailQuotation(null);
         setAdjustmentOrder(null);
+        setPrepaymentOrder(null);
         setDetailOrder(order);
         setOpenMenuId(null);
     }
@@ -221,6 +241,7 @@ export default function PurchasedOrdersIndex({
 
         setDetailOrder(null);
         setAdjustmentOrder(null);
+        setPrepaymentOrder(null);
         setDetailQuotation(order.request_quotation);
         setOpenMenuId(null);
     }
@@ -232,6 +253,7 @@ export default function PurchasedOrdersIndex({
     function openReceiveAdjustmentModal(order) {
         setDetailOrder(null);
         setDetailQuotation(null);
+        setPrepaymentOrder(null);
         setAdjustmentOrder(order);
         setOpenMenuId(null);
     }
@@ -240,10 +262,23 @@ export default function PurchasedOrdersIndex({
         setAdjustmentOrder(null);
     }
 
+    function openPrepaymentModal(order) {
+        setDetailOrder(null);
+        setDetailQuotation(null);
+        setAdjustmentOrder(null);
+        setPrepaymentOrder(order);
+        setOpenMenuId(null);
+    }
+
+    function closePrepaymentModal() {
+        setPrepaymentOrder(null);
+    }
+
     function openEditTab(order) {
         setDetailOrder(null);
         setDetailQuotation(null);
         setAdjustmentOrder(null);
+        setPrepaymentOrder(null);
         setEditingOrder(order);
         setFormKey((current) => current + 1);
         setActiveTab('create');
@@ -579,6 +614,9 @@ export default function PurchasedOrdersIndex({
                                                     onMarkReceivedWithAdjustment={
                                                         openReceiveAdjustmentModal
                                                     }
+                                                    onAddPrepayment={
+                                                        openPrepaymentModal
+                                                    }
                                                 />
                                             </td>
                                         </tr>
@@ -657,6 +695,15 @@ export default function PurchasedOrdersIndex({
                 open={Boolean(adjustmentOrder)}
                 order={adjustmentOrder}
                 onClose={closeReceiveAdjustmentModal}
+            />
+
+            <PurchasedOrderPrepaymentModal
+                key={prepaymentOrder?.id ?? 'prepayment'}
+                open={Boolean(prepaymentOrder)}
+                order={prepaymentOrder}
+                paymentMethods={paymentMethods}
+                bankAccounts={bankAccounts}
+                onClose={closePrepaymentModal}
             />
 
             <RequestQuotationDetailModal

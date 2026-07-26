@@ -184,6 +184,22 @@ export default function PurchasedOrderDetailModal({
                             {formatMoney(order.grand_total)}
                         </p>
                     </div>
+                    <div>
+                        <p className="text-xs tracking-wide text-muted uppercase">
+                            Amount paid
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-ink">
+                            {formatMoney(order.amount_paid ?? 0)}
+                        </p>
+                    </div>
+                    <div>
+                        <p className="text-xs tracking-wide text-muted uppercase">
+                            Balance due
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-ink">
+                            {formatMoney(order.balance_due ?? order.grand_total)}
+                        </p>
+                    </div>
                 </div>
 
                 {order.notes && (
@@ -318,6 +334,97 @@ export default function PurchasedOrderDetailModal({
                         </table>
                     </div>
                 </div>
+
+                {(order.payments ?? []).length > 0 && (
+                    <div className="mt-6">
+                        <p className="mb-2 text-xs tracking-wide text-muted uppercase">
+                            Pre-payments ({order.payments.length})
+                        </p>
+                        <div className="rounded-md border border-line">
+                            <table className="w-full border-collapse text-left text-sm">
+                                <thead className="bg-teal-500/10">
+                                    <tr className="border-b border-line text-xs tracking-wide uppercase">
+                                        <th className="px-3 py-2.5 font-medium text-muted">
+                                            Method
+                                        </th>
+                                        <th className="px-3 py-2.5 font-medium text-muted">
+                                            Details
+                                        </th>
+                                        <th className="px-3 py-2.5 font-medium text-muted">
+                                            Amount
+                                        </th>
+                                        <th className="px-3 py-2.5 font-medium text-muted">
+                                            Recorded
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {order.payments.map((payment) => {
+                                        const details = [];
+
+                                        if (payment.platform) {
+                                            details.push(payment.platform);
+                                        }
+                                        if (payment.bank_name) {
+                                            details.push(payment.bank_name);
+                                        }
+                                        if (payment.reference_number) {
+                                            details.push(
+                                                `Ref ${payment.reference_number}`,
+                                            );
+                                        }
+                                        if (payment.bank_check) {
+                                            details.push(
+                                                payment.bank_check
+                                                    .bank_account_name ||
+                                                    'Bank',
+                                            );
+                                            details.push(
+                                                `#${payment.bank_check.check_number}`,
+                                            );
+                                            if (payment.bank_check.due_date) {
+                                                details.push(
+                                                    `Due ${payment.bank_check.due_date}`,
+                                                );
+                                            }
+                                        }
+
+                                        return (
+                                            <tr
+                                                key={payment.id}
+                                                className="border-b border-line/80 last:border-b-0"
+                                            >
+                                                <td className="px-3 py-3 font-medium text-ink">
+                                                    {payment.method_label}
+                                                </td>
+                                                <td className="px-3 py-3 text-ink-soft">
+                                                    {details.length > 0
+                                                        ? details.join(' · ')
+                                                        : payment.notes || '—'}
+                                                </td>
+                                                <td className="px-3 py-3 font-medium text-ink">
+                                                    {formatMoney(payment.amount)}
+                                                </td>
+                                                <td className="px-3 py-3 text-ink-soft">
+                                                    <p>
+                                                        {formatDate(
+                                                            payment.paid_at,
+                                                        )}
+                                                    </p>
+                                                    {payment.recorded_by && (
+                                                        <p className="mt-1 text-xs text-muted">
+                                                            {payment.recorded_by}
+                                                        </p>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
 
                 <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-line pt-4">
                     {canEdit && onEdit && (

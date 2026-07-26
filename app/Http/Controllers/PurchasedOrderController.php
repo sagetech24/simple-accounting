@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BankAccountStatus;
+use App\Enums\PurchasedOrderPaymentMethod;
 use App\Enums\PurchasedOrderStatus;
 use App\Enums\SupplierStatus;
 use App\Http\Requests\MarkReceivedWithAdjustmentRequest;
+use App\Http\Requests\StorePurchasedOrderPaymentRequest;
 use App\Http\Requests\StorePurchasedOrderRequest;
 use App\Http\Requests\UpdatePurchasedOrderRequest;
+use App\Models\BankAccount;
+use App\Models\BankCheck;
 use App\Models\Product;
 use App\Models\PurchasedOrder;
 use App\Models\PurchasedOrderItem;
@@ -32,7 +37,13 @@ class PurchasedOrderController extends Controller
         $trashed = $filters['trashed'] ?? null;
 
         $orders = PurchasedOrder::query()
-            ->with(['supplier', 'requestQuotation.supplier', 'requestQuotation.items.product', 'items.product'])
+            ->with([
+                'supplier',
+                'requestQuotation.supplier',
+                'requestQuotation.items.product',
+                'items.product',
+                'payments.bankCheck.bankAccount',
+            ])
             ->when($trashed === 'only', fn ($builder) => $builder->onlyTrashed())
             ->when($trashed === 'with', fn ($builder) => $builder->withTrashed())
             ->orderedByWorkflow()
@@ -43,6 +54,7 @@ class PurchasedOrderController extends Controller
         return Inertia::render('purchased-orders/index', [
             'orders' => $orders,
             'statuses' => $this->statusOptions(),
+            'paymentMethods' => $this->paymentMethodOptions(),
             'filters' => [
                 'trashed' => $trashed ?? '',
             ],
@@ -67,6 +79,16 @@ class PurchasedOrderController extends Controller
                     'purchase_price' => $product->purchase_price,
                     'status' => $product->status->value,
                     'status_label' => $product->status->label(),
+                ])
+                ->values()
+                ->all(),
+            'bankAccounts' => BankAccount::query()
+                ->where('status', BankAccountStatus::Active)
+                ->orderBy('name')
+                ->get()
+                ->map(fn (BankAccount $bankAccount) => [
+                    'id' => $bankAccount->id,
+                    'name' => $bankAccount->name,
                 ])
                 ->values()
                 ->all(),
@@ -237,6 +259,43 @@ class PurchasedOrderController extends Controller
     }
 
     /**
+     * Record a pre-payment against an ordered purchase order.
+     */
+    public function storePayment(
+        StorePurchasedOrderPaymentRequest $request,
+        PurchasedOrder $purchasedOrder,
+    ): RedirectResponse {
+        if (! $purchasedOrder->canAddPrepayment()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Pre-payments can only be added to ordered purchase orders.',
+            ]);
+
+            return redirect()->route('purchased-orders.index');
+        }
+
+        $userName = $request->user()?->name ?? 'Unknown';
+        $paymentAttributes = $request->paymentAttributes($userName);
+        $bankCheckAttributes = $request->bankCheckAttributes($userName);
+
+        DB::transaction(function () use ($purchasedOrder, $paymentAttributes, $bankCheckAttributes): void {
+            if ($bankCheckAttributes !== null) {
+                $bankCheck = BankCheck::query()->create($bankCheckAttributes);
+                $paymentAttributes['bank_check_id'] = $bankCheck->id;
+            }
+
+            $purchasedOrder->payments()->create($paymentAttributes);
+        });
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Pre-payment recorded.',
+        ]);
+
+        return redirect()->route('purchased-orders.index');
+    }
+
+    /**
      * @param  list<array{product_id: int, buying_price: string, quantity: int}>  $items
      * @return array{0: string, 1: list<array{product_id: int, buying_price: string, quantity: int, subtotal: string}>}
      */
@@ -274,6 +333,20 @@ class PurchasedOrderController extends Controller
                 'label' => $status->label(),
             ],
             PurchasedOrderStatus::cases(),
+        );
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function paymentMethodOptions(): array
+    {
+        return array_map(
+            fn (PurchasedOrderPaymentMethod $method) => [
+                'value' => $method->value,
+                'label' => $method->label(),
+            ],
+            PurchasedOrderPaymentMethod::cases(),
         );
     }
 }

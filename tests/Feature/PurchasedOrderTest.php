@@ -2,11 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Enums\PurchasedOrderPaymentMethod;
 use App\Enums\PurchasedOrderStatus;
 use App\Enums\SupplierStatus;
+use App\Models\BankAccount;
+use App\Models\BankCheck;
 use App\Models\Product;
 use App\Models\PurchasedOrder;
 use App\Models\PurchasedOrderItem;
+use App\Models\PurchasedOrderPayment;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -752,10 +756,178 @@ class PurchasedOrderTest extends TestCase
                 ->has('orders.data', 3)
                 ->where('orders.data.0.id', $ordered->id)
                 ->where('orders.data.0.can_edit', false)
+                ->where('orders.data.0.can_add_prepayment', true)
                 ->where('orders.data.1.id', $draft->id)
                 ->where('orders.data.1.can_edit', true)
+                ->where('orders.data.1.can_add_prepayment', false)
                 ->where('orders.data.2.id', $received->id)
                 ->where('orders.data.2.can_edit', false)
+                ->where('orders.data.2.can_add_prepayment', false)
+            );
+    }
+
+    public function test_ordered_can_record_cash_prepayment(): void
+    {
+        $admin = User::factory()->create(['name' => 'Admin User']);
+        $order = PurchasedOrder::factory()->ordered()->create([
+            'grand_total' => '100.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('purchased-orders.payments.store', $order), [
+                'method' => PurchasedOrderPaymentMethod::Cash->value,
+                'amount' => '40.00',
+                'notes' => 'Partial cash',
+            ])
+            ->assertRedirect(route('purchased-orders.index'));
+
+        $this->assertDatabaseHas('purchased_order_payments', [
+            'purchased_order_id' => $order->id,
+            'method' => PurchasedOrderPaymentMethod::Cash->value,
+            'amount' => '40.00',
+            'recorded_by' => 'Admin User',
+            'notes' => 'Partial cash',
+        ]);
+    }
+
+    public function test_ordered_can_record_online_payment_prepayment(): void
+    {
+        $admin = User::factory()->create();
+        $order = PurchasedOrder::factory()->ordered()->create([
+            'grand_total' => '100.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('purchased-orders.payments.store', $order), [
+                'method' => PurchasedOrderPaymentMethod::OnlinePayment->value,
+                'amount' => '25.00',
+                'platform' => 'GCash',
+                'reference_number' => 'GC-123',
+            ])
+            ->assertRedirect(route('purchased-orders.index'));
+
+        $this->assertDatabaseHas('purchased_order_payments', [
+            'purchased_order_id' => $order->id,
+            'method' => PurchasedOrderPaymentMethod::OnlinePayment->value,
+            'platform' => 'GCash',
+            'reference_number' => 'GC-123',
+            'amount' => '25.00',
+        ]);
+    }
+
+    public function test_ordered_can_record_bank_deposit_prepayment(): void
+    {
+        $admin = User::factory()->create();
+        $order = PurchasedOrder::factory()->ordered()->create([
+            'grand_total' => '100.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('purchased-orders.payments.store', $order), [
+                'method' => PurchasedOrderPaymentMethod::BankDeposit->value,
+                'amount' => '30.00',
+                'bank_name' => 'BDO',
+                'reference_number' => 'DEP-999',
+            ])
+            ->assertRedirect(route('purchased-orders.index'));
+
+        $this->assertDatabaseHas('purchased_order_payments', [
+            'purchased_order_id' => $order->id,
+            'method' => PurchasedOrderPaymentMethod::BankDeposit->value,
+            'bank_name' => 'BDO',
+            'reference_number' => 'DEP-999',
+            'amount' => '30.00',
+        ]);
+    }
+
+    public function test_ordered_can_record_pdc_prepayment_creating_bank_check(): void
+    {
+        $admin = User::factory()->create(['name' => 'Check Issuer']);
+        $bankAccount = BankAccount::factory()->active()->create(['name' => 'BPI']);
+        $order = PurchasedOrder::factory()->ordered()->create([
+            'grand_total' => '100.00',
+        ]);
+        $dueDate = now()->addDays(14)->toDateString();
+
+        $this->actingAs($admin)
+            ->post(route('purchased-orders.payments.store', $order), [
+                'method' => PurchasedOrderPaymentMethod::PostDatedCheck->value,
+                'amount' => '50.00',
+                'bank_account_id' => $bankAccount->id,
+                'check_number' => 'CHK-1001',
+                'due_date' => $dueDate,
+                'notes' => 'PDC for supplier',
+            ])
+            ->assertRedirect(route('purchased-orders.index'));
+
+        $check = BankCheck::query()->where('check_number', 'CHK-1001')->first();
+        $this->assertNotNull($check);
+        $this->assertSame($bankAccount->id, $check->bank_account_id);
+        $this->assertSame('50.00', $check->amount);
+        $this->assertSame($dueDate, $check->due_date?->toDateString());
+        $this->assertSame('Check Issuer', $check->issued_by);
+
+        $this->assertDatabaseHas('purchased_order_payments', [
+            'purchased_order_id' => $order->id,
+            'method' => PurchasedOrderPaymentMethod::PostDatedCheck->value,
+            'amount' => '50.00',
+            'bank_check_id' => $check->id,
+            'recorded_by' => 'Check Issuer',
+        ]);
+    }
+
+    public function test_prepayment_rejected_for_draft_orders(): void
+    {
+        $admin = User::factory()->create();
+        $order = PurchasedOrder::factory()->draft()->create([
+            'grand_total' => '100.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('purchased-orders.payments.store', $order), [
+                'method' => PurchasedOrderPaymentMethod::Cash->value,
+                'amount' => '10.00',
+            ])
+            ->assertRedirect(route('purchased-orders.index'));
+
+        $this->assertDatabaseCount('purchased_order_payments', 0);
+    }
+
+    public function test_prepayment_amount_cannot_exceed_balance(): void
+    {
+        $admin = User::factory()->create();
+        $order = PurchasedOrder::factory()->ordered()->create([
+            'grand_total' => '100.00',
+        ]);
+        PurchasedOrderPayment::factory()->cash()->create([
+            'purchased_order_id' => $order->id,
+            'amount' => '80.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('purchased-orders.payments.store', $order), [
+                'method' => PurchasedOrderPaymentMethod::Cash->value,
+                'amount' => '30.00',
+            ])
+            ->assertSessionHasErrors('amount');
+
+        $this->assertDatabaseCount('purchased_order_payments', 1);
+    }
+
+    public function test_index_includes_bank_accounts_and_payment_methods(): void
+    {
+        $admin = User::factory()->create();
+        BankAccount::factory()->active()->create(['name' => 'Metrobank']);
+        BankAccount::factory()->inactive()->create(['name' => 'Hidden Bank']);
+
+        $this->actingAs($admin)
+            ->get(route('purchased-orders.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('purchased-orders/index')
+                ->has('paymentMethods', 4)
+                ->has('bankAccounts', 1)
+                ->where('bankAccounts.0.name', 'Metrobank')
             );
     }
 }

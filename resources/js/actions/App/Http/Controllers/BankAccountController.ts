@@ -1,0 +1,266 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
+/**
+* @see \App\Http\Controllers\BankAccountController::restore
+* @see app/Http/Controllers/BankAccountController.php:104
+* @route '/bank-accounts/{bank_account}/restore'
+*/
+export const restore = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: restore.url(args, options),
+    method: 'post',
+})
+
+restore.definition = {
+    methods: ["post"],
+    url: '/bank-accounts/{bank_account}/restore',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\BankAccountController::restore
+* @see app/Http/Controllers/BankAccountController.php:104
+* @route '/bank-accounts/{bank_account}/restore'
+*/
+restore.url = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { bank_account: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { bank_account: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            bank_account: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        bank_account: typeof args.bank_account === 'object'
+        ? args.bank_account.id
+        : args.bank_account,
+    }
+
+    return restore.definition.url
+            .replace('{bank_account}', parsedArgs.bank_account.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BankAccountController::restore
+* @see app/Http/Controllers/BankAccountController.php:104
+* @route '/bank-accounts/{bank_account}/restore'
+*/
+restore.post = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: restore.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\BankAccountController::index
+* @see app/Http/Controllers/BankAccountController.php:20
+* @route '/bank-accounts'
+*/
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/bank-accounts',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\BankAccountController::index
+* @see app/Http/Controllers/BankAccountController.php:20
+* @route '/bank-accounts'
+*/
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BankAccountController::index
+* @see app/Http/Controllers/BankAccountController.php:20
+* @route '/bank-accounts'
+*/
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\BankAccountController::index
+* @see app/Http/Controllers/BankAccountController.php:20
+* @route '/bank-accounts'
+*/
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\BankAccountController::store
+* @see app/Http/Controllers/BankAccountController.php:59
+* @route '/bank-accounts'
+*/
+export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+store.definition = {
+    methods: ["post"],
+    url: '/bank-accounts',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\BankAccountController::store
+* @see app/Http/Controllers/BankAccountController.php:59
+* @route '/bank-accounts'
+*/
+store.url = (options?: RouteQueryOptions) => {
+    return store.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BankAccountController::store
+* @see app/Http/Controllers/BankAccountController.php:59
+* @route '/bank-accounts'
+*/
+store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\BankAccountController::update
+* @see app/Http/Controllers/BankAccountController.php:74
+* @route '/bank-accounts/{bank_account}'
+*/
+export const update = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: update.url(args, options),
+    method: 'put',
+})
+
+update.definition = {
+    methods: ["put","patch"],
+    url: '/bank-accounts/{bank_account}',
+} satisfies RouteDefinition<["put","patch"]>
+
+/**
+* @see \App\Http\Controllers\BankAccountController::update
+* @see app/Http/Controllers/BankAccountController.php:74
+* @route '/bank-accounts/{bank_account}'
+*/
+update.url = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { bank_account: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { bank_account: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            bank_account: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        bank_account: typeof args.bank_account === 'object'
+        ? args.bank_account.id
+        : args.bank_account,
+    }
+
+    return update.definition.url
+            .replace('{bank_account}', parsedArgs.bank_account.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BankAccountController::update
+* @see app/Http/Controllers/BankAccountController.php:74
+* @route '/bank-accounts/{bank_account}'
+*/
+update.put = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: update.url(args, options),
+    method: 'put',
+})
+
+/**
+* @see \App\Http\Controllers\BankAccountController::update
+* @see app/Http/Controllers/BankAccountController.php:74
+* @route '/bank-accounts/{bank_account}'
+*/
+update.patch = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: update.url(args, options),
+    method: 'patch',
+})
+
+/**
+* @see \App\Http\Controllers\BankAccountController::destroy
+* @see app/Http/Controllers/BankAccountController.php:89
+* @route '/bank-accounts/{bank_account}'
+*/
+export const destroy = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroy.url(args, options),
+    method: 'delete',
+})
+
+destroy.definition = {
+    methods: ["delete"],
+    url: '/bank-accounts/{bank_account}',
+} satisfies RouteDefinition<["delete"]>
+
+/**
+* @see \App\Http\Controllers\BankAccountController::destroy
+* @see app/Http/Controllers/BankAccountController.php:89
+* @route '/bank-accounts/{bank_account}'
+*/
+destroy.url = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { bank_account: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { bank_account: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            bank_account: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        bank_account: typeof args.bank_account === 'object'
+        ? args.bank_account.id
+        : args.bank_account,
+    }
+
+    return destroy.definition.url
+            .replace('{bank_account}', parsedArgs.bank_account.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BankAccountController::destroy
+* @see app/Http/Controllers/BankAccountController.php:89
+* @route '/bank-accounts/{bank_account}'
+*/
+destroy.delete = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroy.url(args, options),
+    method: 'delete',
+})
+
+const BankAccountController = { restore, index, store, update, destroy }
+
+export default BankAccountController
