@@ -3,8 +3,9 @@ import { store } from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionC
 import SiteHeader from '@/components/site-header';
 
 export default function Login() {
-    const { name } = usePage().props;
-    const brand = name || 'PriceWatch';
+    // const { name } = usePage().props;
+    // const brand = name || 'JMC Accounting';
+    const brand = 'JMC Pundasyon';
     const form = useForm({
         email: 'admin@example.com',
         password: 'password',
@@ -29,7 +30,7 @@ export default function Login() {
                     className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(16,36,31,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(16,36,31,0.05)_1px,transparent_1px)] [background-size:48px_48px] opacity-[0.3]"
                 />
 
-                <SiteHeader />
+                {/* <SiteHeader /> */}
 
                 <main className="relative z-10 mx-auto flex min-h-[calc(100vh-5.5rem)] w-full max-w-lg flex-col justify-center px-5 pb-16 sm:px-8">
                     <div className="opacity-0 motion-safe:animate-[fade-up_0.7s_ease_forwards]">
@@ -40,8 +41,7 @@ export default function Login() {
                             {brand}
                         </h1>
                         <p className="mt-3 max-w-md text-sm leading-relaxed text-muted sm:text-base">
-                            Sign in to manage products, categories, and purchase
-                            prices.
+                            Sign in to manage accounting business process from products, suppliers, customers, inventory, and more.
                         </p>
                     </div>
 

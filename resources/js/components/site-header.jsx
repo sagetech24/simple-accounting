@@ -5,7 +5,8 @@ import { index as adminProducts } from '@/routes/admin/products';
 
 export default function SiteHeader() {
     const { auth, name } = usePage().props;
-    const brand = name || 'PriceWatch';
+    // const brand = name || 'PriceWatch';
+    const brand = 'JMC Pundasyon';
 
     return (
         <header className="relative z-20 flex items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-12">
