@@ -90,10 +90,10 @@ export default function PurchasedOrderDetailModal({
                             id="purchased-order-detail-title"
                             className="text-xl font-semibold tracking-tight text-ink"
                         >
-                            Purchase order
+                            Purchase Order
                         </h2>
                         <p className="mt-1 font-mono text-sm break-all text-ink-soft">
-                            {order.reference}
+                            Reference #: {order.reference}
                         </p>
                     </div>
                     <button
@@ -223,7 +223,7 @@ export default function PurchasedOrderDetailModal({
                         order.meta.delivery_date ||
                         order.meta.received_by) && (
                         <div className="mt-6">
-                            <p className="mb-2 text-xs tracking-wide text-muted uppercase">
+                            <p className="mb-2 border-b border-line pb-2 text-xs tracking-wide text-muted uppercase">
                                 Receipt details
                             </p>
                             <div className="grid gap-4 sm:grid-cols-2">

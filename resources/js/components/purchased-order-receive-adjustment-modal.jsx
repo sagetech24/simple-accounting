@@ -146,10 +146,10 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                 id="purchased-order-receive-adjustment-title"
                                 className="text-xl font-semibold tracking-tight text-ink"
                             >
-                                Receive with adjustment
+                                Receive Request Quotation
                             </h2>
                             <p className="mt-1 font-mono text-sm break-all text-ink-soft">
-                                {order.reference}
+                                Reference #: {order.reference}
                             </p>
                             <p className="mt-2 text-sm text-muted">
                                 Update quantity or purchase price, remove
@@ -219,7 +219,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                         </div>
                         <div>
                             <p className="text-xs tracking-wide text-muted uppercase">
-                                Adjusted grand total
+                                Grand total
                             </p>
                             <p className="mt-1 text-lg font-semibold text-ink">
                                 {formatMoney(grandTotal)}
@@ -239,8 +239,11 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                     )}
 
                     <div className="mt-6">
-                        <p className="mb-2 text-xs tracking-wide text-muted uppercase">
-                            Receipt details (optional)
+                        <p className="text-sm tracking-wide text-muted font-semibold uppercase">
+                            Receipt details
+                        </p>
+                        <p className="mb-4 text-sm text-muted">
+                            Additional details as reference to the receipt of purchase request from the supplier.
                         </p>
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div>
@@ -248,7 +251,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                     htmlFor="receive-invoice-number"
                                     className="mb-1.5 block text-sm font-medium text-ink-soft"
                                 >
-                                    Invoice number
+                                    Invoice number (optional)
                                 </label>
                                 <input
                                     id="receive-invoice-number"
@@ -276,7 +279,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                     htmlFor="receive-delivery-number"
                                     className="mb-1.5 block text-sm font-medium text-ink-soft"
                                 >
-                                    Delivery number
+                                    Delivery number (optional)
                                 </label>
                                 <input
                                     id="receive-delivery-number"
@@ -304,7 +307,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                     htmlFor="receive-delivery-person"
                                     className="mb-1.5 block text-sm font-medium text-ink-soft"
                                 >
-                                    Delivery person
+                                    Delivery person (optional)
                                 </label>
                                 <input
                                     id="receive-delivery-person"
@@ -332,7 +335,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                     htmlFor="receive-delivery-date"
                                     className="mb-1.5 block text-sm font-medium text-ink-soft"
                                 >
-                                    Delivery date
+                                    Delivery date (optional)
                                 </label>
                                 <input
                                     id="receive-delivery-date"
@@ -355,21 +358,11 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                     </p>
                                 )}
                             </div>
-                            <div className="sm:col-span-2">
-                                <label
-                                    htmlFor="receive-received-by"
-                                    className="mb-1.5 block text-sm font-medium text-ink-soft"
-                                >
-                                    Received by
-                                </label>
-                                <input
-                                    id="receive-received-by"
-                                    type="text"
-                                    value={form.data.received_by}
-                                    readOnly
-                                    className="min-h-11 w-full border border-line bg-mist px-3 text-ink-soft"
-                                />
-                            </div>
+                            <p
+                                className="mb-1.5 block text-sm font-medium text-ink-soft"
+                            >
+                                Recorded by : {receivedBy}
+                            </p>
                         </div>
                     </div>
 
@@ -422,7 +415,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                             key={item.product_id}
                                             className="border-b border-line/80 last:border-b-0"
                                         >
-                                            <td className="px-3 py-3 font-medium text-ink">
+                                            <td className="px-3 py-3 font-medium text-ink line-clamp-1">
                                                 {formatProductLabel(
                                                     item.product_name,
                                                     item.product_unit,
@@ -455,7 +448,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                                             event.target.value,
                                                         )
                                                     }
-                                                    className="min-h-11 w-full min-w-28 border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                                    className="min-h-11 max-w-24 border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                                                     aria-label={`Purchase price for ${formatProductLabel(item.product_name, item.product_unit)}`}
                                                 />
                                                 {form.errors[
@@ -491,7 +484,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                                             event.target.value,
                                                         )
                                                     }
-                                                    className="min-h-11 w-full min-w-20 border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                                    className="min-h-11 max-w-22 border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                                                     aria-label={`Quantity for ${formatProductLabel(item.product_name, item.product_unit)}`}
                                                 />
                                                 {form.errors[
@@ -562,7 +555,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                         >
                             {form.processing
                                 ? 'Saving…'
-                                : 'Confirm Received With Adjustment'}
+                                : 'Confirm & Receive Orders'}
                         </button>
                         <button
                             type="button"

@@ -517,21 +517,11 @@ export default function PurchasedOrderPrepaymentModal({
                         </div>
 
                         {method === 'cash' && (
-                            <div>
-                                <label
-                                    htmlFor="prepayment-recorded-by"
+                                <p
                                     className="mb-1.5 block text-sm font-medium text-ink-soft"
                                 >
-                                    Recorded by
-                                </label>
-                                <input
-                                    id="prepayment-recorded-by"
-                                    type="text"
-                                    value={recordedBy}
-                                    readOnly
-                                    className={`${FIELD_CLASS} bg-mist/60 text-ink-soft`}
-                                />
-                            </div>
+                                    Recorded by : {recordedBy}
+                                </p>
                         )}
                     </div>
 

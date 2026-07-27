@@ -557,7 +557,7 @@ export default function RequestQuotationsIndex({
                                                         )
                                                     }
                                                     title={quotation.reference}
-                                                    className={`block max-w-full truncate text-left font-mono text-[10px] break-all underline-offset-2 transition hover:underline focus:underline focus:outline-none ${
+                                                    className={`block max-w-full truncate text-left font-mono font-semibold text-[10px] break-all underline-offset-2 transition hover:underline focus:underline focus:outline-none ${
                                                         isDeleted
                                                             ? 'text-muted line-through'
                                                             : 'cursor-pointer text-teal-800'
