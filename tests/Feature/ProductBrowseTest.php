@@ -25,6 +25,7 @@ class ProductBrowseTest extends TestCase
         $admin = User::factory()->create();
         Product::factory()->available()->create([
             'name' => 'Cedar Notebook',
+            'unit' => 'pcs',
             'quantity' => 12,
             'selling_price' => 18.5,
             'purchase_price' => 7.25,
@@ -40,6 +41,7 @@ class ProductBrowseTest extends TestCase
                 ->has('statuses')
                 ->has('filters')
                 ->where('products.data.0.name', 'Cedar Notebook')
+                ->where('products.data.0.unit', 'pcs')
                 ->where('products.data.0.selling_price', '18.50')
                 ->where('products.data.0.purchase_price', '7.25')
                 ->where('products.data.0.availability', 'in_stock')

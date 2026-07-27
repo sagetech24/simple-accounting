@@ -280,6 +280,9 @@ export default function ProductsIndex({
                                 Product
                             </th>
                             <th className="px-4 py-3 font-medium text-muted">
+                                Unit
+                            </th>
+                            <th className="px-4 py-3 font-medium text-muted">
                                 Price
                             </th>
                             <th className="px-4 py-3 font-medium text-muted">
@@ -300,7 +303,7 @@ export default function ProductsIndex({
                         {products.data.length === 0 && (
                             <tr>
                                 <td
-                                    colSpan={6}
+                                    colSpan={7}
                                     className="py-10 text-center text-muted"
                                 >
                                     No products match these filters.
@@ -317,10 +320,13 @@ export default function ProductsIndex({
                                         {product.name}
                                     </p>
                                     {product.description && (
-                                        <p className="mt-1 line-clamp-2 text-xs text-muted">
+                                        <p className="mt-1 line-clamp-2 max-w-lg text-xs text-muted">
                                             {product.description}
                                         </p>
                                     )}
+                                </td>
+                                <td className="px-4 py-4 text-ink-soft">
+                                    {product.unit?.trim() || '—'}
                                 </td>
                                 <td className="px-4 py-4 font-medium text-price tabular-nums">
                                     {formatMoney(product.selling_price)}

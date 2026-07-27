@@ -3,6 +3,7 @@ import { useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { markReceivedWithAdjustment } from '@/actions/App/Http/Controllers/PurchasedOrderController';
 import { formatDecimal, formatMoney } from '@/lib/format-money';
+import { formatProductLabel } from '@/lib/format-product-label';
 
 function formatDate(value) {
     if (!value) {
@@ -34,6 +35,7 @@ function initialItems(order) {
     return (order?.items ?? []).map((item) => ({
         product_id: item.product_id,
         product_name: item.product_name,
+        product_unit: item.product_unit ?? null,
         buying_price: formatDecimal(item.buying_price),
         quantity: item.quantity,
     }));
@@ -150,7 +152,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                 {order.reference}
                             </p>
                             <p className="mt-2 text-sm text-muted">
-                                Update quantity or buying price, remove
+                                Update quantity or purchase price, remove
                                 unavailable items, and optionally record
                                 delivery details.
                             </p>
@@ -388,7 +390,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                             Product
                                         </th>
                                         <th className="px-3 py-2.5 font-medium text-muted">
-                                            Buying price
+                                            Purchase price
                                         </th>
                                         <th className="px-3 py-2.5 font-medium text-muted">
                                             Qty
@@ -421,7 +423,10 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                             className="border-b border-line/80 last:border-b-0"
                                         >
                                             <td className="px-3 py-3 font-medium text-ink">
-                                                {item.product_name || '—'}
+                                                {formatProductLabel(
+                                                    item.product_name,
+                                                    item.product_unit,
+                                                )}
                                                 {form.errors[
                                                     `items.${index}.product_id`
                                                 ] && (
@@ -451,7 +456,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                                         )
                                                     }
                                                     className="min-h-11 w-full min-w-28 border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-                                                    aria-label={`Buying price for ${item.product_name || 'product'}`}
+                                                    aria-label={`Purchase price for ${formatProductLabel(item.product_name, item.product_unit)}`}
                                                 />
                                                 {form.errors[
                                                     `items.${index}.buying_price`
@@ -466,6 +471,11 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                                             ]
                                                         }
                                                     </p>
+                                                )}
+                                                {item.product_unit && (
+                                                    <span className="mt-1 ml-1 text-sm text-muted">
+                                                        /{item.product_unit}
+                                                    </span>
                                                 )}
                                             </td>
                                             <td className="px-3 py-3">
@@ -482,7 +492,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                                         )
                                                     }
                                                     className="min-h-11 w-full min-w-20 border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-                                                    aria-label={`Quantity for ${item.product_name || 'product'}`}
+                                                    aria-label={`Quantity for ${formatProductLabel(item.product_name, item.product_unit)}`}
                                                 />
                                                 {form.errors[
                                                     `items.${index}.quantity`
@@ -515,7 +525,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                                                         removeItem(index)
                                                     }
                                                     className="inline-flex size-11 items-center justify-center rounded-md text-warn transition hover:bg-mist disabled:opacity-50"
-                                                    aria-label={`Remove ${item.product_name || 'product'}`}
+                                                    aria-label={`Remove ${formatProductLabel(item.product_name, item.product_unit)}`}
                                                     title="Remove item"
                                                 >
                                                     <svg

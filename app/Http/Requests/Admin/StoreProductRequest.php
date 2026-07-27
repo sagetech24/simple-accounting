@@ -20,6 +20,7 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'unit' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
             'quantity' => ['required', 'integer', 'min:0'],
             'purchase_price' => ['required', 'numeric', 'min:0'],
@@ -35,7 +36,13 @@ class StoreProductRequest extends FormRequest
      */
     public function productAttributes(): array
     {
-        return $this->safe()->except('category_ids');
+        $attributes = $this->safe()->except('category_ids');
+
+        if (blank($attributes['unit'] ?? null)) {
+            $attributes['unit'] = null;
+        }
+
+        return $attributes;
     }
 
     /**

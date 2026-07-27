@@ -10,6 +10,7 @@ export default function ProductForm({
 }) {
     const form = useForm({
         name: initialValues?.name ?? '',
+        unit: initialValues?.unit ?? '',
         description: initialValues?.description ?? '',
         quantity: initialValues?.quantity ?? 0,
         purchase_price: initialValues?.purchase_price ?? '',
@@ -79,7 +80,7 @@ export default function ProductForm({
                 )}
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid gap-5 sm:grid-cols-3">
                 <div>
                     <label
                         htmlFor="quantity"
@@ -106,6 +107,30 @@ export default function ProductForm({
                     {form.errors.quantity && (
                         <p className="mt-1.5 text-sm text-warn">
                             {form.errors.quantity}
+                        </p>
+                    )}
+                </div>
+
+                <div>
+                    <label
+                        htmlFor="unit"
+                        className="mb-1.5 block text-sm font-medium text-ink-soft"
+                    >
+                        Unit
+                    </label>
+                    <input
+                        id="unit"
+                        type="text"
+                        value={form.data.unit ?? ''}
+                        onChange={(event) =>
+                            form.setData('unit', event.target.value)
+                        }
+                        placeholder="pcs, box, kg…"
+                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                    />
+                    {form.errors.unit && (
+                        <p className="mt-1.5 text-sm text-warn">
+                            {form.errors.unit}
                         </p>
                     )}
                 </div>
@@ -162,6 +187,11 @@ export default function ProductForm({
                         <p className="mt-1.5 text-sm text-warn">
                             {form.errors.purchase_price}
                         </p>
+                    )}
+                    {form.data.unit && (
+                        <span className="mt-1 ml-1 text-sm text-muted">
+                            /{form.data.unit}
+                        </span>
                     )}
                 </div>
 

@@ -76,6 +76,7 @@ class PurchasedOrderController extends Controller
                 ->map(fn (Product $product) => [
                     'id' => $product->id,
                     'name' => $product->name,
+                    'unit' => $product->unit,
                     'purchase_price' => $product->purchase_price,
                     'status' => $product->status->value,
                     'status_label' => $product->status->label(),

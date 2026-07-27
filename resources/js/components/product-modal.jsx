@@ -5,6 +5,7 @@ import {
     update,
 } from '@/actions/App/Http/Controllers/Admin/ProductController';
 import ProductForm from '@/components/product-form';
+import { formatProductLabel } from '@/lib/format-product-label';
 
 export default function ProductModal({
     open,
@@ -46,7 +47,7 @@ export default function ProductModal({
         return null;
     }
 
-    const title = isEdit ? 'Edit product' : 'New product';
+    const title = isEdit ? `${product.name} (edit)` : 'New product';
     const submitLabel = isEdit ? 'Save changes' : 'Create product';
 
     return createPortal(
@@ -72,11 +73,6 @@ export default function ProductModal({
                         >
                             {title}
                         </h2>
-                        {isEdit && (
-                            <p className="mt-1 text-sm text-muted">
-                                {product.name}
-                            </p>
-                        )}
                     </div>
                     <button
                         type="button"

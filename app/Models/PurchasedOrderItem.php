@@ -57,6 +57,7 @@ class PurchasedOrderItem extends Model
             'id' => $this->id,
             'product_id' => $this->product_id,
             'product_name' => $this->product?->name,
+            'product_unit' => $this->product?->unit,
             'buying_price' => $this->buying_price,
             'quantity' => $this->quantity,
             'subtotal' => $this->subtotal,

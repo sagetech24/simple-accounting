@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { formatMoney } from '@/lib/format-money';
+import { formatProductLabel } from '@/lib/format-product-label';
 
 function formatDate(value) {
     if (!value) {
@@ -292,7 +293,7 @@ export default function PurchasedOrderDetailModal({
                                         Product
                                     </th>
                                     <th className="px-3 py-2.5 font-medium text-muted">
-                                        Buying price
+                                        Purchase price
                                     </th>
                                     <th className="px-3 py-2.5 font-medium text-muted">
                                         Qty
@@ -319,10 +320,13 @@ export default function PurchasedOrderDetailModal({
                                         className="border-b border-line/80 last:border-b-0"
                                     >
                                         <td className="px-3 py-3 font-medium text-ink">
-                                            {item.product_name || '—'}
+                                            {formatProductLabel(
+                                                item.product_name,
+                                                item.product_unit,
+                                            )}
                                         </td>
                                         <td className="px-3 py-3 text-ink-soft">
-                                            {formatMoney(item.buying_price)}
+                                            {formatMoney(item.buying_price)} {item.product_unit ? ` / ${item.product_unit}` : ''}
                                         </td>
                                         <td className="px-3 py-3 text-ink-soft">
                                             {item.quantity}

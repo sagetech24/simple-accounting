@@ -32,6 +32,7 @@ class ProductTest extends TestCase
                 ->component('admin/products/index')
                 ->has('products.data', 1)
                 ->where('products.data.0.name', 'Walnut Desk')
+                ->where('products.data.0.unit', $product->unit)
                 ->where('products.data.0.purchase_price', $product->purchase_price)
             );
     }
@@ -44,6 +45,7 @@ class ProductTest extends TestCase
         $this->actingAs($admin)
             ->post(route('admin.products.store'), [
                 'name' => 'Oak Chair',
+                'unit' => 'pcs',
                 'description' => 'Solid oak.',
                 'quantity' => 12,
                 'purchase_price' => 40.5,
@@ -55,12 +57,36 @@ class ProductTest extends TestCase
 
         $this->assertDatabaseHas('products', [
             'name' => 'Oak Chair',
+            'unit' => 'pcs',
             'purchase_price' => 40.5,
             'selling_price' => 79.99,
         ]);
 
         $product = Product::query()->where('name', 'Oak Chair')->first();
         $this->assertTrue($product->categories->contains($category));
+    }
+
+    public function test_admin_can_create_a_product_with_null_unit(): void
+    {
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)
+            ->post(route('admin.products.store'), [
+                'name' => 'No Unit Item',
+                'unit' => '',
+                'description' => null,
+                'quantity' => 1,
+                'purchase_price' => 5,
+                'selling_price' => 10,
+                'status' => ProductStatus::Available->value,
+                'category_ids' => [],
+            ])
+            ->assertRedirect(route('admin.products.index'));
+
+        $this->assertDatabaseHas('products', [
+            'name' => 'No Unit Item',
+            'unit' => null,
+        ]);
     }
 
     public function test_admin_can_update_a_product(): void
@@ -72,6 +98,7 @@ class ProductTest extends TestCase
         $this->actingAs($admin)
             ->put(route('admin.products.update', $product), [
                 'name' => 'New Name',
+                'unit' => 'box',
                 'description' => $product->description,
                 'quantity' => 5,
                 'purchase_price' => 10,
@@ -84,6 +111,7 @@ class ProductTest extends TestCase
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
             'name' => 'New Name',
+            'unit' => 'box',
             'quantity' => 5,
             'status' => ProductStatus::Unavailable->value,
         ]);

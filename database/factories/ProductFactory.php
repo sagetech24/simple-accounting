@@ -22,6 +22,7 @@ class ProductFactory extends Factory
 
         return [
             'name' => fake()->unique()->words(3, true),
+            'unit' => fake()->optional(0.7)->randomElement(['pcs', 'box', 'pack', 'kg', 'set', 'ream']),
             'description' => fake()->optional(0.85)->paragraph(),
             'quantity' => fake()->numberBetween(0, 200),
             'purchase_price' => $purchasePrice,

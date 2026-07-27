@@ -256,6 +256,7 @@ class ProductSeeder extends Seeder
         foreach ($catalog as $item) {
             $categorySlugs = $item['categories'];
             unset($item['categories']);
+            $item['unit'] = $item['unit'] ?? 'pcs';
 
             $product = Product::query()->updateOrCreate(
                 ['name' => $item['name']],
@@ -296,6 +297,7 @@ class ProductSeeder extends Seeder
         foreach ($trashed as $item) {
             $categorySlugs = $item['categories'];
             unset($item['categories']);
+            $item['unit'] = $item['unit'] ?? 'pcs';
 
             $product = Product::withTrashed()->updateOrCreate(
                 ['name' => $item['name']],

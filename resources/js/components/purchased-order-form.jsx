@@ -6,6 +6,7 @@ import {
 } from '@/actions/App/Http/Controllers/PurchasedOrderController';
 import SearchableSelect from '@/components/searchable-select';
 import { formatDecimal, formatMoney } from '@/lib/format-money';
+import { formatProductLabel } from '@/lib/format-product-label';
 
 function lineSubtotal(buyingPrice, quantity) {
     const price = Number(buyingPrice);
@@ -38,6 +39,7 @@ export default function PurchasedOrderForm({
         items: (order?.items ?? []).map((item) => ({
             product_id: item.product_id,
             product_name: item.product_name,
+            product_unit: item.product_unit ?? null,
             buying_price: formatDecimal(item.buying_price),
             quantity: item.quantity,
         })),
@@ -83,6 +85,7 @@ export default function PurchasedOrderForm({
             {
                 product_id: product.id,
                 product_name: product.name,
+                product_unit: product.unit ?? null,
                 buying_price: formatDecimal(product.purchase_price),
                 quantity: 1,
             },
@@ -270,7 +273,10 @@ export default function PurchasedOrderForm({
                                         className="block w-full px-3 py-2.5 text-left transition hover:bg-mist"
                                     >
                                         <span className="block text-sm font-medium text-ink">
-                                            {product.name}
+                                            {formatProductLabel(
+                                                product.name,
+                                                product.unit,
+                                            )}
                                         </span>
                                         <span className="mt-0.5 block text-xs text-muted">
                                             Buy{' '}
@@ -301,7 +307,7 @@ export default function PurchasedOrderForm({
                                 Product
                             </th>
                             <th className="px-4 py-3 font-medium text-muted">
-                                Buying price
+                                Purchase price
                             </th>
                             <th className="px-4 py-3 font-medium text-muted">
                                 Qty
@@ -345,7 +351,10 @@ export default function PurchasedOrderForm({
                                 >
                                     <td className="px-4 py-3">
                                         <p className="font-medium text-ink">
-                                            {item.product_name}
+                                            {formatProductLabel(
+                                                item.product_name,
+                                                item.product_unit,
+                                            )}
                                         </p>
                                         {productError && (
                                             <p className="mt-1 text-sm text-warn">
@@ -354,21 +363,28 @@ export default function PurchasedOrderForm({
                                         )}
                                     </td>
                                     <td className="px-4 py-3">
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={item.buying_price}
-                                            disabled={form.processing}
-                                            onChange={(event) =>
-                                                updateItem(
-                                                    index,
-                                                    'buying_price',
-                                                    event.target.value,
-                                                )
-                                            }
-                                            className="min-h-11 w-full max-w-36 border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-                                        />
+                                        <div className="flex min-h-11 max-w-48 items-center gap-1.5">
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                value={item.buying_price}
+                                                disabled={form.processing}
+                                                onChange={(event) =>
+                                                    updateItem(
+                                                        index,
+                                                        'buying_price',
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                className="min-h-11 w-full max-w-28 border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                            />
+                                            {item.product_unit?.trim() && (
+                                                <span className="shrink-0 text-sm text-muted">
+                                                    /{item.product_unit.trim()}
+                                                </span>
+                                            )}
+                                        </div>
                                         {priceError && (
                                             <p className="mt-1 text-sm text-warn">
                                                 {priceError}

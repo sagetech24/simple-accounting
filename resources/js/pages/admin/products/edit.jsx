@@ -2,12 +2,13 @@ import { Head, Link } from '@inertiajs/react';
 import { update } from '@/actions/App/Http/Controllers/Admin/ProductController';
 import ProductForm from '@/components/product-form';
 import SiteHeader from '@/components/site-header';
+import { formatProductLabel } from '@/lib/format-product-label';
 import { index } from '@/routes/admin/products';
 
 export default function EditProduct({ product, categories, statuses }) {
     return (
         <>
-            <Head title={`Edit · ${product.name}`} />
+            <Head title={`Edit · ${formatProductLabel(product.name, product.unit)}`} />
             <div className="relative min-h-screen overflow-hidden bg-paper text-ink">
                 <div
                     aria-hidden="true"
@@ -37,7 +38,7 @@ export default function EditProduct({ product, categories, statuses }) {
                             </Link>
                         </div>
                         <p className="mt-2 text-sm text-muted">
-                            {product.name}
+                            {formatProductLabel(product.name, product.unit)}
                         </p>
                     </div>
 

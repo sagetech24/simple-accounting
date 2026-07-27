@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'name',
+    'unit',
     'description',
     'quantity',
     'purchase_price',
@@ -77,6 +78,7 @@ class Product extends Model
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'unit' => $this->unit,
             'description' => $this->description,
             'quantity' => $this->quantity,
             'selling_price' => $this->selling_price,

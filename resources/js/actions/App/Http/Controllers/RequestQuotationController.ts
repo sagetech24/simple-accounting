@@ -1,10 +1,10 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\RequestQuotationController::submit
-* @see app/Http/Controllers/RequestQuotationController.php:192
+* @see app/Http/Controllers/RequestQuotationController.php:193
 * @route '/request-quotations/{request_quotation}/submit'
 */
-export const submit = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const submit = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: submit.url(args, options),
     method: 'post',
 })
@@ -16,10 +16,10 @@ submit.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::submit
-* @see app/Http/Controllers/RequestQuotationController.php:192
+* @see app/Http/Controllers/RequestQuotationController.php:193
 * @route '/request-quotations/{request_quotation}/submit'
 */
-submit.url = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+submit.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { request_quotation: args }
     }
@@ -49,20 +49,42 @@ submit.url = (args: { request_quotation: string | number | { id: string | number
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::submit
-* @see app/Http/Controllers/RequestQuotationController.php:192
+* @see app/Http/Controllers/RequestQuotationController.php:193
 * @route '/request-quotations/{request_quotation}/submit'
 */
-submit.post = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+submit.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: submit.url(args, options),
     method: 'post',
 })
 
 /**
+* @see \App\Http\Controllers\RequestQuotationController::submit
+* @see app/Http/Controllers/RequestQuotationController.php:193
+* @route '/request-quotations/{request_quotation}/submit'
+*/
+const submitForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: submit.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::submit
+* @see app/Http/Controllers/RequestQuotationController.php:193
+* @route '/request-quotations/{request_quotation}/submit'
+*/
+submitForm.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: submit.url(args, options),
+    method: 'post',
+})
+
+submit.form = submitForm
+
+/**
 * @see \App\Http\Controllers\RequestQuotationController::approve
-* @see app/Http/Controllers/RequestQuotationController.php:218
+* @see app/Http/Controllers/RequestQuotationController.php:219
 * @route '/request-quotations/{request_quotation}/approve'
 */
-export const approve = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const approve = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: approve.url(args, options),
     method: 'post',
 })
@@ -74,10 +96,10 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::approve
-* @see app/Http/Controllers/RequestQuotationController.php:218
+* @see app/Http/Controllers/RequestQuotationController.php:219
 * @route '/request-quotations/{request_quotation}/approve'
 */
-approve.url = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+approve.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { request_quotation: args }
     }
@@ -107,20 +129,42 @@ approve.url = (args: { request_quotation: string | number | { id: string | numbe
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::approve
-* @see app/Http/Controllers/RequestQuotationController.php:218
+* @see app/Http/Controllers/RequestQuotationController.php:219
 * @route '/request-quotations/{request_quotation}/approve'
 */
-approve.post = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+approve.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: approve.url(args, options),
     method: 'post',
 })
 
 /**
+* @see \App\Http\Controllers\RequestQuotationController::approve
+* @see app/Http/Controllers/RequestQuotationController.php:219
+* @route '/request-quotations/{request_quotation}/approve'
+*/
+const approveForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: approve.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::approve
+* @see app/Http/Controllers/RequestQuotationController.php:219
+* @route '/request-quotations/{request_quotation}/approve'
+*/
+approveForm.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: approve.url(args, options),
+    method: 'post',
+})
+
+approve.form = approveForm
+
+/**
 * @see \App\Http\Controllers\RequestQuotationController::createPurchaseOrder
-* @see app/Http/Controllers/RequestQuotationController.php:244
+* @see app/Http/Controllers/RequestQuotationController.php:245
 * @route '/request-quotations/{request_quotation}/create-purchase-order'
 */
-export const createPurchaseOrder = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const createPurchaseOrder = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: createPurchaseOrder.url(args, options),
     method: 'post',
 })
@@ -132,10 +176,10 @@ createPurchaseOrder.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::createPurchaseOrder
-* @see app/Http/Controllers/RequestQuotationController.php:244
+* @see app/Http/Controllers/RequestQuotationController.php:245
 * @route '/request-quotations/{request_quotation}/create-purchase-order'
 */
-createPurchaseOrder.url = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+createPurchaseOrder.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { request_quotation: args }
     }
@@ -165,20 +209,42 @@ createPurchaseOrder.url = (args: { request_quotation: string | number | { id: st
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::createPurchaseOrder
-* @see app/Http/Controllers/RequestQuotationController.php:244
+* @see app/Http/Controllers/RequestQuotationController.php:245
 * @route '/request-quotations/{request_quotation}/create-purchase-order'
 */
-createPurchaseOrder.post = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+createPurchaseOrder.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: createPurchaseOrder.url(args, options),
     method: 'post',
 })
 
 /**
+* @see \App\Http\Controllers\RequestQuotationController::createPurchaseOrder
+* @see app/Http/Controllers/RequestQuotationController.php:245
+* @route '/request-quotations/{request_quotation}/create-purchase-order'
+*/
+const createPurchaseOrderForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: createPurchaseOrder.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::createPurchaseOrder
+* @see app/Http/Controllers/RequestQuotationController.php:245
+* @route '/request-quotations/{request_quotation}/create-purchase-order'
+*/
+createPurchaseOrderForm.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: createPurchaseOrder.url(args, options),
+    method: 'post',
+})
+
+createPurchaseOrder.form = createPurchaseOrderForm
+
+/**
 * @see \App\Http\Controllers\RequestQuotationController::restore
-* @see app/Http/Controllers/RequestQuotationController.php:177
+* @see app/Http/Controllers/RequestQuotationController.php:178
 * @route '/request-quotations/{request_quotation}/restore'
 */
-export const restore = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const restore = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: restore.url(args, options),
     method: 'post',
 })
@@ -190,10 +256,10 @@ restore.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::restore
-* @see app/Http/Controllers/RequestQuotationController.php:177
+* @see app/Http/Controllers/RequestQuotationController.php:178
 * @route '/request-quotations/{request_quotation}/restore'
 */
-restore.url = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+restore.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { request_quotation: args }
     }
@@ -223,13 +289,35 @@ restore.url = (args: { request_quotation: string | number | { id: string | numbe
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::restore
-* @see app/Http/Controllers/RequestQuotationController.php:177
+* @see app/Http/Controllers/RequestQuotationController.php:178
 * @route '/request-quotations/{request_quotation}/restore'
 */
-restore.post = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+restore.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: restore.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::restore
+* @see app/Http/Controllers/RequestQuotationController.php:178
+* @route '/request-quotations/{request_quotation}/restore'
+*/
+const restoreForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: restore.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::restore
+* @see app/Http/Controllers/RequestQuotationController.php:178
+* @route '/request-quotations/{request_quotation}/restore'
+*/
+restoreForm.post = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: restore.url(args, options),
+    method: 'post',
+})
+
+restore.form = restoreForm
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::index
@@ -276,8 +364,45 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\RequestQuotationController::index
+* @see app/Http/Controllers/RequestQuotationController.php:27
+* @route '/request-quotations'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::index
+* @see app/Http/Controllers/RequestQuotationController.php:27
+* @route '/request-quotations'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::index
+* @see app/Http/Controllers/RequestQuotationController.php:27
+* @route '/request-quotations'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
 * @see \App\Http\Controllers\RequestQuotationController::store
-* @see app/Http/Controllers/RequestQuotationController.php:80
+* @see app/Http/Controllers/RequestQuotationController.php:81
 * @route '/request-quotations'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -292,7 +417,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::store
-* @see app/Http/Controllers/RequestQuotationController.php:80
+* @see app/Http/Controllers/RequestQuotationController.php:81
 * @route '/request-quotations'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -301,7 +426,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::store
-* @see app/Http/Controllers/RequestQuotationController.php:80
+* @see app/Http/Controllers/RequestQuotationController.php:81
 * @route '/request-quotations'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -310,11 +435,33 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\RequestQuotationController::store
+* @see app/Http/Controllers/RequestQuotationController.php:81
+* @route '/request-quotations'
+*/
+const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::store
+* @see app/Http/Controllers/RequestQuotationController.php:81
+* @route '/request-quotations'
+*/
+storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+store.form = storeForm
+
+/**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:114
+* @see app/Http/Controllers/RequestQuotationController.php:115
 * @route '/request-quotations/{request_quotation}'
 */
-export const update = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+export const update = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -326,10 +473,10 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:114
+* @see app/Http/Controllers/RequestQuotationController.php:115
 * @route '/request-quotations/{request_quotation}'
 */
-update.url = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+update.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { request_quotation: args }
     }
@@ -359,30 +506,77 @@ update.url = (args: { request_quotation: string | number | { id: string | number
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:114
+* @see app/Http/Controllers/RequestQuotationController.php:115
 * @route '/request-quotations/{request_quotation}'
 */
-update.put = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+update.put = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::update
-* @see app/Http/Controllers/RequestQuotationController.php:114
+* @see app/Http/Controllers/RequestQuotationController.php:115
 * @route '/request-quotations/{request_quotation}'
 */
-update.patch = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+update.patch = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: update.url(args, options),
     method: 'patch',
 })
 
 /**
-* @see \App\Http\Controllers\RequestQuotationController::destroy
-* @see app/Http/Controllers/RequestQuotationController.php:162
+* @see \App\Http\Controllers\RequestQuotationController::update
+* @see app/Http/Controllers/RequestQuotationController.php:115
 * @route '/request-quotations/{request_quotation}'
 */
-export const destroy = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+const updateForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::update
+* @see app/Http/Controllers/RequestQuotationController.php:115
+* @route '/request-quotations/{request_quotation}'
+*/
+updateForm.put = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::update
+* @see app/Http/Controllers/RequestQuotationController.php:115
+* @route '/request-quotations/{request_quotation}'
+*/
+updateForm.patch = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+update.form = updateForm
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::destroy
+* @see app/Http/Controllers/RequestQuotationController.php:163
+* @route '/request-quotations/{request_quotation}'
+*/
+export const destroy = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -394,10 +588,10 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::destroy
-* @see app/Http/Controllers/RequestQuotationController.php:162
+* @see app/Http/Controllers/RequestQuotationController.php:163
 * @route '/request-quotations/{request_quotation}'
 */
-destroy.url = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { request_quotation: args }
     }
@@ -427,13 +621,45 @@ destroy.url = (args: { request_quotation: string | number | { id: string | numbe
 
 /**
 * @see \App\Http\Controllers\RequestQuotationController::destroy
-* @see app/Http/Controllers/RequestQuotationController.php:162
+* @see app/Http/Controllers/RequestQuotationController.php:163
 * @route '/request-quotations/{request_quotation}'
 */
-destroy.delete = (args: { request_quotation: string | number | { id: string | number } } | [request_quotation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::destroy
+* @see app/Http/Controllers/RequestQuotationController.php:163
+* @route '/request-quotations/{request_quotation}'
+*/
+const destroyForm = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\RequestQuotationController::destroy
+* @see app/Http/Controllers/RequestQuotationController.php:163
+* @route '/request-quotations/{request_quotation}'
+*/
+destroyForm.delete = (args: { request_quotation: number | { id: number } } | [request_quotation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
 
 const RequestQuotationController = { submit, approve, createPurchaseOrder, restore, index, store, update, destroy }
 

@@ -4,6 +4,7 @@ import { storePayment } from '@/actions/App/Http/Controllers/AccountsPayableCont
 import PurchasedOrderPrepaymentModal from '@/components/purchased-order-prepayment-modal';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
+import { formatProductLabel } from '@/lib/format-product-label';
 import {
     index as accountsPayableIndex,
     supplier as supplierRoute,
@@ -195,7 +196,7 @@ export default function AccountsPayableShow({
                                         Product
                                     </th>
                                     <th className="px-3 py-2.5 font-medium text-muted">
-                                        Buying price
+                                        Purchase price
                                     </th>
                                     <th className="px-3 py-2.5 font-medium text-muted">
                                         Qty
@@ -212,10 +213,13 @@ export default function AccountsPayableShow({
                                         className="border-b border-line/70 last:border-0"
                                     >
                                         <td className="px-3 py-2.5 text-ink">
-                                            {item.product_name}
+                                            {formatProductLabel(
+                                                item.product_name,
+                                                item.product_unit,
+                                            )}
                                         </td>
                                         <td className="px-3 py-2.5 text-ink-soft">
-                                            {formatMoney(item.buying_price)}
+                                            {formatMoney(item.buying_price)}{item.product_unit ? ` / ${item.product_unit}` : ''}
                                         </td>
                                         <td className="px-3 py-2.5 text-ink-soft">
                                             {item.quantity}

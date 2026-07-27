@@ -6,6 +6,10 @@ import {
 } from '@/actions/App/Http/Controllers/Admin/ProductController';
 import SiteHeader from '@/components/site-header';
 import { formatMoney } from '@/lib/format-money';
+import {
+    formatProductLabel,
+    formatQuantityWithUnit,
+} from '@/lib/format-product-label';
 import { create, edit, index } from '@/routes/admin/products';
 
 export default function AdminProductsIndex({ products, filters }) {
@@ -198,7 +202,10 @@ export default function AdminProductsIndex({ products, filters }) {
                                                             : 'font-medium text-ink'
                                                     }
                                                 >
-                                                    {product.name}
+                                                    {formatProductLabel(
+                                                        product.name,
+                                                        product.unit,
+                                                    )}
                                                 </p>
                                                 <p className="mt-1 text-xs text-muted">
                                                     {product.categories
@@ -211,7 +218,10 @@ export default function AdminProductsIndex({ products, filters }) {
                                                 {product.status_label}
                                             </td>
                                             <td className="py-4 pr-4 text-ink-soft">
-                                                {product.quantity}
+                                                {formatQuantityWithUnit(
+                                                    product.quantity,
+                                                    product.unit,
+                                                )}
                                             </td>
                                             <td className="py-4 pr-4 text-ink-soft">
                                                 {formatMoney(
