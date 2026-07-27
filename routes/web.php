@@ -8,6 +8,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PurchasedOrderController;
 use App\Http\Controllers\RequestQuotationController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
@@ -74,6 +75,8 @@ Route::middleware('auth')->group(function () {
         ->withTrashed()
         ->name('bank-accounts.restore');
     Route::resource('bank-accounts', BankAccountController::class)->except(['show', 'create', 'edit']);
+
+    Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 

@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import SiteHeader from '@/components/site-header';
+import { configureMoneyFormat } from '@/lib/format-money';
 import { products, receivedOrders } from '@/routes';
 import { index as accountsPayable } from '@/routes/accounts-payable';
 import { index as bankAccounts } from '@/routes/bank-accounts';
@@ -27,7 +28,11 @@ function isActive(url, href) {
 }
 
 export default function AppLayout({ title, children }) {
-    const { url } = usePage();
+    const { url, props } = usePage();
+
+    if (props.settings) {
+        configureMoneyFormat(props.settings);
+    }
 
     return (
         <>

@@ -1,12 +1,30 @@
+let currency = 'PHP';
+let locale = 'en-PH';
+
 /**
- * Format a numeric amount as USD currency: $1,234.56
+ * Sync the global money formatter with application settings.
+ *
+ * @param {{ default_currency?: string, currency_locale?: string }} settings
+ */
+export function configureMoneyFormat(settings = {}) {
+    if (settings.default_currency) {
+        currency = settings.default_currency;
+    }
+
+    if (settings.currency_locale) {
+        locale = settings.currency_locale;
+    }
+}
+
+/**
+ * Format a numeric amount using the configured application currency.
  */
 export function formatMoney(value) {
     const amount = Number(value);
 
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(locale, {
         style: 'currency',
-        currency: 'USD',
+        currency,
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     }).format(Number.isNaN(amount) ? 0 : amount);

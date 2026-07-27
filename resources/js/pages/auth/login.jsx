@@ -3,9 +3,11 @@ import { store } from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionC
 import SiteHeader from '@/components/site-header';
 
 export default function Login() {
-    // const { name } = usePage().props;
-    // const brand = name || 'JMC Accounting';
-    const brand = 'JMC Pundasyon';
+    const { settings } = usePage().props;
+    const brand = settings?.brand_name || 'JMC Pundasyon';
+    const tagline =
+        settings?.tagline ||
+        'Sign in to manage accounting business process from products, suppliers, customers, inventory, and more.';
     const form = useForm({
         email: 'admin@example.com',
         password: 'password',
@@ -41,7 +43,7 @@ export default function Login() {
                             {brand}
                         </h1>
                         <p className="mt-3 max-w-md text-sm leading-relaxed text-muted sm:text-base">
-                            Sign in to manage accounting business process from products, suppliers, customers, inventory, and more.
+                            {tagline}
                         </p>
                     </div>
 
