@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountsPayableController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BankAccountController;
@@ -49,11 +50,25 @@ Route::middleware('auth')->group(function () {
         ->name('purchased-orders.mark-received-with-adjustment');
     Route::post('purchased-orders/{purchased_order}/payments', [PurchasedOrderController::class, 'storePayment'])
         ->name('purchased-orders.payments.store');
+    Route::post('purchased-orders/{purchased_order}/post-to-accounts-payable', [PurchasedOrderController::class, 'postToAccountsPayable'])
+        ->name('purchased-orders.post-to-accounts-payable');
     Route::post('purchased-orders/{purchased_order}/restore', [PurchasedOrderController::class, 'restore'])
         ->withTrashed()
         ->name('purchased-orders.restore');
     Route::resource('purchased-orders', PurchasedOrderController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::get('accounts-payable', [AccountsPayableController::class, 'index'])
+        ->name('accounts-payable.index');
+    Route::get('accounts-payable/{supplier}', [AccountsPayableController::class, 'supplier'])
+        ->withTrashed()
+        ->name('accounts-payable.supplier');
+    Route::get('accounts-payable/{supplier}/{purchased_order:reference}', [AccountsPayableController::class, 'show'])
+        ->withTrashed()
+        ->name('accounts-payable.show');
+    Route::post('accounts-payable/{supplier}/{purchased_order:reference}/payments', [AccountsPayableController::class, 'storePayment'])
+        ->withTrashed()
+        ->name('accounts-payable.payments.store');
 
     Route::post('bank-accounts/{bank_account}/restore', [BankAccountController::class, 'restore'])
         ->withTrashed()

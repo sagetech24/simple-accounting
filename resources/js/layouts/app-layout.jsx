@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import SiteHeader from '@/components/site-header';
 import { products, receivedOrders } from '@/routes';
+import { index as accountsPayable } from '@/routes/accounts-payable';
 import { index as bankAccounts } from '@/routes/bank-accounts';
 import { index as customers } from '@/routes/customers';
 import { index as purchasedOrders } from '@/routes/purchased-orders';
@@ -14,6 +15,7 @@ const navItems = [
     { label: 'Request Quotations', route: requestQuotations },
     { label: 'Purchased Orders', route: purchasedOrders },
     { label: 'Received Orders', route: receivedOrders },
+    { label: 'Accounts Payable', route: accountsPayable },
     { label: 'Bank Accounts', route: bankAccounts },
 ];
 

@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import {
     destroy,
     markOrdered,
+    postToAccountsPayable,
     restore,
 } from '@/actions/App/Http/Controllers/PurchasedOrderController';
 import PurchasedOrderDetailModal from '@/components/purchased-order-detail-modal';
@@ -13,6 +14,7 @@ import RequestQuotationDetailModal from '@/components/request-quotation-detail-m
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
 import { index } from '@/routes/purchased-orders';
+import { show as accountsPayableShow } from '@/routes/accounts-payable';
 
 function formatDate(value) {
     if (!value) {
@@ -50,6 +52,7 @@ function RowActionsMenu({
     onMarkOrdered,
     onMarkReceivedWithAdjustment,
     onAddPrepayment,
+    onPostToAccountsPayable,
 }) {
     const menuId = useId();
     const rootRef = useRef(null);
@@ -160,6 +163,32 @@ function RowActionsMenu({
                         >
                             Add Pre-payment
                         </button>
+                    )}
+                    {!isDeleted && order.can_post_to_ap && (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                                onClose();
+                                onPostToAccountsPayable(order);
+                            }}
+                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                        >
+                            Post to Accounts Payable
+                        </button>
+                    )}
+                    {!isDeleted && order.is_posted_to_ap && (
+                        <Link
+                            role="menuitem"
+                            href={accountsPayableShow.url({
+                                supplier: order.supplier_id,
+                                purchased_order: order.reference,
+                            })}
+                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                            onClick={onClose}
+                        >
+                            View in Accounts Payable
+                        </Link>
                     )}
                     {!isDeleted && (
                         <button
@@ -325,6 +354,18 @@ export default function PurchasedOrdersIndex({
         }
 
         router.post(markOrdered.url(order.id));
+    }
+
+    function postOrderToAccountsPayable(order) {
+        if (
+            !window.confirm(
+                `Post purchase order “${order.reference}” to Accounts Payable for settlement?`,
+            )
+        ) {
+            return;
+        }
+
+        router.post(postToAccountsPayable.url(order.id));
     }
 
     function deleteOrder(order) {
@@ -617,6 +658,9 @@ export default function PurchasedOrdersIndex({
                                                     onAddPrepayment={
                                                         openPrepaymentModal
                                                     }
+                                                    onPostToAccountsPayable={
+                                                        postOrderToAccountsPayable
+                                                    }
                                                 />
                                             </td>
                                         </tr>
@@ -689,6 +733,7 @@ export default function PurchasedOrdersIndex({
                 onDelete={deleteOrder}
                 onViewSourceQuotation={openSourceQuotationDetail}
                 onAddPrepayment={openPrepaymentModal}
+                onPostToAccountsPayable={postOrderToAccountsPayable}
             />
 
             <PurchasedOrderReceiveAdjustmentModal

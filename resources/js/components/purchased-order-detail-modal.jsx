@@ -35,6 +35,7 @@ export default function PurchasedOrderDetailModal({
     onDelete,
     onViewSourceQuotation,
     onAddPrepayment,
+    onPostToAccountsPayable,
 }) {
     useEffect(() => {
         if (!open) {
@@ -471,6 +472,15 @@ export default function PurchasedOrderDetailModal({
                             className="min-h-11 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800"
                         >
                             Add Pre-payment
+                        </button>
+                    )}
+                    {order.can_post_to_ap && onPostToAccountsPayable && (
+                        <button
+                            type="button"
+                            onClick={() => onPostToAccountsPayable(order)}
+                            className="min-h-11 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800"
+                        >
+                            Post to Accounts Payable
                         </button>
                     )}
                     {canDelete && onDelete && (

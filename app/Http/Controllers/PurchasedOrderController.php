@@ -296,6 +296,32 @@ class PurchasedOrderController extends Controller
     }
 
     /**
+     * Forward an ordered/received purchase order to Accounts Payable for settlement.
+     */
+    public function postToAccountsPayable(PurchasedOrder $purchasedOrder): RedirectResponse
+    {
+        if (! $purchasedOrder->canPostToAccountsPayable()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Only ordered or received purchase orders that are not yet posted can be forwarded to Accounts Payable.',
+            ]);
+
+            return redirect()->route('purchased-orders.index');
+        }
+
+        $purchasedOrder->update([
+            'posted_to_ap_at' => now(),
+        ]);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Purchase order posted to Accounts Payable.',
+        ]);
+
+        return redirect()->route('accounts-payable.supplier', $purchasedOrder->supplier_id);
+    }
+
+    /**
      * @param  list<array{product_id: int, buying_price: string, quantity: int}>  $items
      * @return array{0: string, 1: list<array{product_id: int, buying_price: string, quantity: int, subtotal: string}>}
      */

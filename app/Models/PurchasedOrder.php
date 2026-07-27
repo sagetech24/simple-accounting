@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
     'grand_total',
     'notes',
     'meta',
+    'posted_to_ap_at',
 ])]
 class PurchasedOrder extends Model
 {
@@ -49,6 +50,7 @@ class PurchasedOrder extends Model
             'status' => PurchasedOrderStatus::class,
             'grand_total' => 'decimal:2',
             'meta' => 'array',
+            'posted_to_ap_at' => 'datetime',
         ];
     }
 
@@ -115,6 +117,30 @@ class PurchasedOrder extends Model
             && (float) $this->balanceDue() > 0;
     }
 
+    public function isPostedToAccountsPayable(): bool
+    {
+        return $this->posted_to_ap_at !== null;
+    }
+
+    public function canPostToAccountsPayable(): bool
+    {
+        return in_array($this->status, [
+            PurchasedOrderStatus::Ordered,
+            PurchasedOrderStatus::Received,
+        ], true)
+            && $this->deleted_at === null
+            && ! $this->isPostedToAccountsPayable();
+    }
+
+    /**
+     * @param  Builder<PurchasedOrder>  $query
+     * @return Builder<PurchasedOrder>
+     */
+    public function scopePostedToAccountsPayable(Builder $query): Builder
+    {
+        return $query->whereNotNull('posted_to_ap_at');
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -166,6 +192,10 @@ class PurchasedOrder extends Model
             },
             'can_edit' => $this->isEditable() && $this->deleted_at === null,
             'can_add_prepayment' => $this->canAddPrepayment(),
+            'can_post_to_ap' => $this->canPostToAccountsPayable(),
+            'posted_to_ap_at' => $this->posted_to_ap_at?->toIso8601String(),
+            'is_posted_to_ap' => $this->isPostedToAccountsPayable(),
+            'is_settled' => (float) $balanceDue <= 0 && $this->isPostedToAccountsPayable(),
             'deleted_at' => $this->deleted_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

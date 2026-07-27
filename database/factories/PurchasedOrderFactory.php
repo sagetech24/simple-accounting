@@ -50,4 +50,11 @@ class PurchasedOrderFactory extends Factory
             'status' => PurchasedOrderStatus::Received,
         ]);
     }
+
+    public function postedToAccountsPayable(): static
+    {
+        return $this->state(fn () => [
+            'posted_to_ap_at' => now(),
+        ]);
+    }
 }

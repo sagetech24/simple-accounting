@@ -33,6 +33,9 @@ export default function PurchasedOrderPrepaymentModal({
     paymentMethods = [],
     bankAccounts = [],
     onClose,
+    submitUrl,
+    title = 'Add pre-payment',
+    submitLabel = 'Record pre-payment',
 }) {
     const { auth } = usePage().props;
     const recordedBy = auth?.user?.name ?? '';
@@ -112,7 +115,7 @@ export default function PurchasedOrderPrepaymentModal({
             return payload;
         });
 
-        form.post(storePayment.url(order.id), {
+        form.post(submitUrl ?? storePayment.url(order.id), {
             preserveScroll: true,
             onSuccess: () => onClose(),
             onFinish: () => {
@@ -149,7 +152,7 @@ export default function PurchasedOrderPrepaymentModal({
                                 id="purchased-order-prepayment-title"
                                 className="text-xl font-semibold tracking-tight text-ink"
                             >
-                                Add pre-payment
+                                {title}
                             </h2>
                             <p className="mt-1 font-mono text-sm break-all text-ink-soft">
                                 {order.reference}
@@ -538,9 +541,7 @@ export default function PurchasedOrderPrepaymentModal({
                             disabled={form.processing}
                             className="min-h-11 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800 disabled:opacity-60"
                         >
-                            {form.processing
-                                ? 'Saving…'
-                                : 'Record pre-payment'}
+                            {form.processing ? 'Saving…' : submitLabel}
                         </button>
                         <button
                             type="button"
