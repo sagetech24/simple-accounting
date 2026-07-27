@@ -16,7 +16,7 @@ const navItems = [
     { label: 'Request Quotations', route: requestQuotations },
     { label: 'Purchased Orders', route: purchasedOrders },
     { label: 'Received Orders', route: receivedOrders },
-    { label: 'Accounts Payable', route: accountsPayable },
+    { label: 'Accounts', route: accountsPayable },
     { label: 'Bank Accounts', route: bankAccounts },
 ];
 

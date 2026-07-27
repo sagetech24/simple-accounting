@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::supplier
-* @see app/Http/Controllers/AccountsPayableController.php:83
+* @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
 export const supplier = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -97,7 +97,7 @@ supplier.definition = {
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::supplier
-* @see app/Http/Controllers/AccountsPayableController.php:83
+* @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
 supplier.url = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -130,7 +130,7 @@ supplier.url = (args: { supplier: number | { id: number } } | [supplier: number 
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::supplier
-* @see app/Http/Controllers/AccountsPayableController.php:83
+* @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
 supplier.get = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -140,7 +140,7 @@ supplier.get = (args: { supplier: number | { id: number } } | [supplier: number 
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::supplier
-* @see app/Http/Controllers/AccountsPayableController.php:83
+* @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
 supplier.head = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -150,7 +150,7 @@ supplier.head = (args: { supplier: number | { id: number } } | [supplier: number
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::supplier
-* @see app/Http/Controllers/AccountsPayableController.php:83
+* @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
 const supplierForm = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -160,7 +160,7 @@ const supplierForm = (args: { supplier: number | { id: number } } | [supplier: n
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::supplier
-* @see app/Http/Controllers/AccountsPayableController.php:83
+* @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
 supplierForm.get = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -170,7 +170,7 @@ supplierForm.get = (args: { supplier: number | { id: number } } | [supplier: num
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::supplier
-* @see app/Http/Controllers/AccountsPayableController.php:83
+* @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
 supplierForm.head = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -187,7 +187,7 @@ supplier.form = supplierForm
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::show
-* @see app/Http/Controllers/AccountsPayableController.php:130
+* @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
 export const show = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -202,7 +202,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::show
-* @see app/Http/Controllers/AccountsPayableController.php:130
+* @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
 show.url = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions) => {
@@ -232,7 +232,7 @@ show.url = (args: { supplier: number | { id: number }, purchased_order: string |
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::show
-* @see app/Http/Controllers/AccountsPayableController.php:130
+* @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
 show.get = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -242,7 +242,7 @@ show.get = (args: { supplier: number | { id: number }, purchased_order: string |
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::show
-* @see app/Http/Controllers/AccountsPayableController.php:130
+* @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
 show.head = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -252,7 +252,7 @@ show.head = (args: { supplier: number | { id: number }, purchased_order: string 
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::show
-* @see app/Http/Controllers/AccountsPayableController.php:130
+* @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
 const showForm = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -262,7 +262,7 @@ const showForm = (args: { supplier: number | { id: number }, purchased_order: st
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::show
-* @see app/Http/Controllers/AccountsPayableController.php:130
+* @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
 showForm.get = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -272,7 +272,7 @@ showForm.get = (args: { supplier: number | { id: number }, purchased_order: stri
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::show
-* @see app/Http/Controllers/AccountsPayableController.php:130
+* @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
 showForm.head = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::storePayment
-* @see app/Http/Controllers/AccountsPayableController.php:166
+* @see app/Http/Controllers/AccountsPayableController.php:192
 * @route '/accounts-payable/{supplier}/{purchased_order}/payments'
 */
 export const storePayment = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -304,7 +304,7 @@ storePayment.definition = {
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::storePayment
-* @see app/Http/Controllers/AccountsPayableController.php:166
+* @see app/Http/Controllers/AccountsPayableController.php:192
 * @route '/accounts-payable/{supplier}/{purchased_order}/payments'
 */
 storePayment.url = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions) => {
@@ -334,7 +334,7 @@ storePayment.url = (args: { supplier: number | { id: number }, purchased_order: 
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::storePayment
-* @see app/Http/Controllers/AccountsPayableController.php:166
+* @see app/Http/Controllers/AccountsPayableController.php:192
 * @route '/accounts-payable/{supplier}/{purchased_order}/payments'
 */
 storePayment.post = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -344,7 +344,7 @@ storePayment.post = (args: { supplier: number | { id: number }, purchased_order:
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::storePayment
-* @see app/Http/Controllers/AccountsPayableController.php:166
+* @see app/Http/Controllers/AccountsPayableController.php:192
 * @route '/accounts-payable/{supplier}/{purchased_order}/payments'
 */
 const storePaymentForm = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -354,7 +354,7 @@ const storePaymentForm = (args: { supplier: number | { id: number }, purchased_o
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::storePayment
-* @see app/Http/Controllers/AccountsPayableController.php:166
+* @see app/Http/Controllers/AccountsPayableController.php:192
 * @route '/accounts-payable/{supplier}/{purchased_order}/payments'
 */
 storePaymentForm.post = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

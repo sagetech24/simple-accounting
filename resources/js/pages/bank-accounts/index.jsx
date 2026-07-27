@@ -5,7 +5,9 @@ import {
     restore,
 } from '@/actions/App/Http/Controllers/BankAccountController';
 import BankAccountModal from '@/components/bank-account-modal';
+import RouteNavTabs from '@/components/route-nav-tabs';
 import AppLayout from '@/layouts/app-layout';
+import { accountsDomainTabs } from '@/config/accounts-domain-tabs';
 import { index } from '@/routes/bank-accounts';
 
 const sortableColumns = [
@@ -293,6 +295,12 @@ export default function BankAccountsIndex({ bankAccounts, filters, statuses }) {
                     </svg>
                 </button>
             </div>
+
+            <RouteNavTabs
+                tabs={accountsDomainTabs}
+                activeKey="bank-accounts"
+                ariaLabel="Accounts domain"
+            />
 
             <form
                 onSubmit={submitSearch}

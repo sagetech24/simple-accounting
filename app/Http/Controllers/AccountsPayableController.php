@@ -26,9 +26,20 @@ class AccountsPayableController extends Controller
     {
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:255'],
+            'sort' => ['nullable', 'string', Rule::in([
+                'name',
+                'posted_order_count',
+                'open_order_count',
+                'total_payable',
+                'total_paid',
+                'balance_due',
+            ])],
+            'direction' => ['nullable', 'string', Rule::in(['asc', 'desc'])],
         ]);
 
         $search = $filters['q'] ?? null;
+        $sort = $filters['sort'] ?? 'name';
+        $direction = $filters['direction'] ?? 'asc';
 
         $suppliers = Supplier::query()
             ->withTrashed()
@@ -66,6 +77,19 @@ class AccountsPayableController extends Controller
                     'balance_due' => number_format($balanceDue, 2, '.', ''),
                 ];
             })
+            ->values();
+
+        $suppliers = ($direction === 'desc'
+            ? $suppliers->sortByDesc(fn (array $row) => match ($sort) {
+                'name' => $row['name'],
+                'posted_order_count', 'open_order_count' => (int) $row[$sort],
+                default => (float) $row[$sort],
+            })
+            : $suppliers->sortBy(fn (array $row) => match ($sort) {
+                'name' => $row['name'],
+                'posted_order_count', 'open_order_count' => (int) $row[$sort],
+                default => (float) $row[$sort],
+            }))
             ->values()
             ->all();
 
@@ -73,6 +97,8 @@ class AccountsPayableController extends Controller
             'suppliers' => $suppliers,
             'filters' => [
                 'q' => $search ?? '',
+                'sort' => $sort,
+                'direction' => $direction,
             ],
         ]);
     }
