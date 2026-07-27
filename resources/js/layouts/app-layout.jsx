@@ -1,4 +1,13 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import {
+    AccountsNavIcon,
+    CustomersNavIcon,
+    InventoryNavIcon,
+    ProductsNavIcon,
+    PurchasedOrdersNavIcon,
+    RequestQuotationsNavIcon,
+    SuppliersNavIcon,
+} from '@/components/nav-icons';
 import SiteHeader from '@/components/site-header';
 import { configureMoneyFormat } from '@/lib/format-money';
 import { products, receivedOrders } from '@/routes';
@@ -9,13 +18,21 @@ import { index as requestQuotations } from '@/routes/request-quotations';
 import { index as suppliers } from '@/routes/suppliers';
 
 const navItems = [
-    { label: 'Products', route: products },
-    { label: 'Suppliers', route: suppliers },
-    { label: 'Customers', route: customers },
-    { label: 'Request Quotations', route: requestQuotations },
-    { label: 'Purchased Orders', route: purchasedOrders },
-    { label: 'Received Orders', route: receivedOrders },
-    { label: 'Accounts', route: accountsPayable },
+    { label: 'Products', route: products, icon: ProductsNavIcon },
+    { label: 'Suppliers', route: suppliers, icon: SuppliersNavIcon },
+    { label: 'Customers', route: customers, icon: CustomersNavIcon },
+    {
+        label: 'Request Quotations',
+        route: requestQuotations,
+        icon: RequestQuotationsNavIcon,
+    },
+    {
+        label: 'Purchased Orders',
+        route: purchasedOrders,
+        icon: PurchasedOrdersNavIcon,
+    },
+    { label: 'Inventory', route: receivedOrders, icon: InventoryNavIcon },
+    { label: 'Accounts', route: accountsPayable, icon: AccountsNavIcon },
 ];
 
 function isActive(url, href) {
@@ -57,12 +74,13 @@ export default function AppLayout({ title, children }) {
                                 {navItems.map((item) => {
                                     const href = item.route.url();
                                     const active = isActive(url, href);
+                                    const Icon = item.icon;
 
                                     return (
                                         <Link
                                             key={item.label}
                                             href={href}
-                                            className={`flex h-24 items-center justify-center rounded-md border-2 px-4 py-2 text-center text-sm font-semibold transition duration-300 ${
+                                            className={`flex h-24 flex-col items-center justify-center gap-2 rounded-md border-2 px-3 py-2 text-center text-sm font-semibold transition duration-300 ${
                                                 active
                                                     ? 'cursor-default border-teal-800 bg-teal-700 text-zinc-100'
                                                     : 'cursor-pointer border-teal-700 bg-teal-600 text-zinc-100 hover:bg-teal-600/80'
@@ -71,7 +89,8 @@ export default function AppLayout({ title, children }) {
                                                 active ? 'page' : undefined
                                             }
                                         >
-                                            {item.label}
+                                            <Icon />
+                                            <span>{item.label}</span>
                                         </Link>
                                     );
                                 })}
