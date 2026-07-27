@@ -484,9 +484,9 @@ export default function RequestQuotationsIndex({
                         <table className="w-full border-collapse text-left text-sm">
                             <thead className="sticky top-0 bg-teal-500/10">
                                 <tr className="border-b border-line text-xs tracking-wide uppercase">
-                                    <th className="px-4 py-3 font-medium text-muted">
+                                    {/* <th className="px-4 py-3 font-medium text-muted">
                                         Reference
-                                    </th>
+                                    </th> */}
                                     <th className="px-4 py-3 font-medium text-muted">
                                         Supplier
                                     </th>
@@ -529,7 +529,7 @@ export default function RequestQuotationsIndex({
                                             key={quotation.id}
                                             className="border-b border-line/80 align-top"
                                         >
-                                            <td className="max-w-48 px-4 py-4">
+                                            {/* <td className="max-w-48 px-4 py-4">
                                                 <button
                                                     type="button"
                                                     onClick={() =>
@@ -546,9 +546,25 @@ export default function RequestQuotationsIndex({
                                                 >
                                                     {quotation.reference}
                                                 </button>
-                                            </td>
-                                            <td className="px-4 py-4 text-ink-soft">
+                                            </td> */}
+                                            <td className="px-4 py-4 text-ink-soft flex gap-1 items-center">
                                                 {quotation.supplier_name || '—'}
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        openDetailModal(
+                                                            quotation,
+                                                        )
+                                                    }
+                                                    title={quotation.reference}
+                                                    className={`block max-w-full truncate text-left font-mono text-[10px] break-all underline-offset-2 transition hover:underline focus:underline focus:outline-none ${
+                                                        isDeleted
+                                                            ? 'text-muted line-through'
+                                                            : 'cursor-pointer text-teal-800'
+                                                    }`}
+                                                >
+                                                    (View)
+                                                </button>
                                             </td>
                                             <td className="px-4 py-4 text-ink-soft">
                                                 {quotation.item_count}

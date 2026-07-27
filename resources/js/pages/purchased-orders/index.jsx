@@ -148,7 +148,7 @@ function RowActionsMenu({
                             }}
                             className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
                         >
-                            Receive Adjustment
+                            Receive Orders
                         </button>
                     )}
                     {!isDeleted && order.can_add_prepayment && (
@@ -174,7 +174,7 @@ function RowActionsMenu({
                             }}
                             className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
                         >
-                            Post to Accounts Payable
+                            Post to AP
                         </button>
                     )}
                     {!isDeleted && order.is_posted_to_ap && (
@@ -187,7 +187,7 @@ function RowActionsMenu({
                             className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
                             onClick={onClose}
                         >
-                            View in Accounts Payable
+                            View in AP
                         </Link>
                     )}
                     {!isDeleted && (
@@ -524,9 +524,9 @@ export default function PurchasedOrdersIndex({
                         <table className="w-full border-collapse text-left text-sm">
                             <thead className="sticky top-0 bg-teal-500/10">
                                 <tr className="border-b border-line text-xs tracking-wide uppercase">
-                                    <th className="px-4 py-3 font-medium text-muted">
+                                    {/* <th className="px-4 py-3 font-medium text-muted">
                                         Reference
-                                    </th>
+                                    </th> */}
                                     <th className="px-4 py-3 font-medium text-muted">
                                         Supplier
                                     </th>
@@ -570,7 +570,7 @@ export default function PurchasedOrdersIndex({
                                             key={order.id}
                                             className="border-b border-line/80 align-top"
                                         >
-                                            <td className="max-w-48 px-4 py-4">
+                                            {/* <td className="max-w-48 px-4 py-4">
                                                 <button
                                                     type="button"
                                                     onClick={() =>
@@ -585,9 +585,23 @@ export default function PurchasedOrdersIndex({
                                                 >
                                                     {order.reference}
                                                 </button>
-                                            </td>
-                                            <td className="px-4 py-4 text-ink-soft">
+                                            </td> */}
+                                            <td className="px-4 py-4 text-ink-soft flex gap-1 items-center">
                                                 {order.supplier_name || '—'}
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        openDetailModal(order)
+                                                    }
+                                                    title={order.reference}
+                                                    className={`block max-w-full truncate text-left font-mono text-[10px] break-all underline-offset-2 transition hover:underline focus:underline focus:outline-none ${
+                                                        isDeleted
+                                                            ? 'text-muted line-through'
+                                                            : 'cursor-pointer text-teal-800'
+                                                    }`}
+                                                >
+                                                    (View)
+                                                </button>
                                             </td>
                                             <td className="max-w-40 px-4 py-4 font-mono text-xs break-all text-ink-soft">
                                                 {order.request_quotation_id &&
@@ -619,11 +633,28 @@ export default function PurchasedOrdersIndex({
                                                 {formatMoney(order.grand_total)}
                                             </td>
                                             <td className="px-4 py-4">
-                                                <span
-                                                    className={`rounded-full border px-3 py-1 text-xs ${statusBadgeClass(order.status)}`}
-                                                >
-                                                    {order.status_label}
-                                                </span>
+                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                    <span
+                                                        className={`rounded-full border px-3 py-1 text-xs ${statusBadgeClass(order.status)}`}
+                                                    >
+                                                        {order.status_label}
+                                                    </span>
+                                                    {order.is_posted_to_ap && (
+                                                        <Link
+                                                            href={accountsPayableShow.url(
+                                                                {
+                                                                    supplier:
+                                                                        order.supplier_id,
+                                                                    purchased_order:
+                                                                        order.reference,
+                                                                },
+                                                            )}
+                                                            className="rounded-full border border-teal-700/30 bg-teal-500/10 px-3 py-1 text-xs font-medium text-teal-800 underline-offset-2 transition hover:bg-teal-500/20 hover:underline focus:underline focus:outline-none"
+                                                        >
+                                                            Posted to AP
+                                                        </Link>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="px-4 py-4 text-ink-soft">
                                                 {formatDate(order.created_at)}
