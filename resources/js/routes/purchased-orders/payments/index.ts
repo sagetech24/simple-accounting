@@ -1,10 +1,10 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::store
-* @see app/Http/Controllers/PurchasedOrderController.php:265
+* @see app/Http/Controllers/PurchasedOrderController.php:271
 * @route '/purchased-orders/{purchased_order}/payments'
 */
-export const store = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const store = (args: { purchased_order: string | number | { id: string | number } } | [purchased_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(args, options),
     method: 'post',
 })
@@ -16,10 +16,10 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::store
-* @see app/Http/Controllers/PurchasedOrderController.php:265
+* @see app/Http/Controllers/PurchasedOrderController.php:271
 * @route '/purchased-orders/{purchased_order}/payments'
 */
-store.url = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+store.url = (args: { purchased_order: string | number | { id: string | number } } | [purchased_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { purchased_order: args }
     }
@@ -49,35 +49,13 @@ store.url = (args: { purchased_order: number | { id: number } } | [purchased_ord
 
 /**
 * @see \App\Http\Controllers\PurchasedOrderController::store
-* @see app/Http/Controllers/PurchasedOrderController.php:265
+* @see app/Http/Controllers/PurchasedOrderController.php:271
 * @route '/purchased-orders/{purchased_order}/payments'
 */
-store.post = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+store.post = (args: { purchased_order: string | number | { id: string | number } } | [purchased_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\PurchasedOrderController::store
-* @see app/Http/Controllers/PurchasedOrderController.php:265
-* @route '/purchased-orders/{purchased_order}/payments'
-*/
-const storeForm = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\PurchasedOrderController::store
-* @see app/Http/Controllers/PurchasedOrderController.php:265
-* @route '/purchased-orders/{purchased_order}/payments'
-*/
-storeForm.post = (args: { purchased_order: number | { id: number } } | [purchased_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(args, options),
-    method: 'post',
-})
-
-store.form = storeForm
 
 const payments = {
     store: Object.assign(store, store),

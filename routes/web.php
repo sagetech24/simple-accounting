@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PurchasedOrderController;
 use App\Http\Controllers\RequestQuotationController;
 use App\Http\Controllers\SettingController;
@@ -21,7 +22,12 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/', '/products')->name('home');
 
     Route::get('products', [HomeController::class, 'index'])->name('products');
-    Route::inertia('received-orders', 'received-orders/index')->name('received-orders');
+    Route::redirect('received-orders', '/inventory');
+    Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::post('inventory/{product}/adjust', [InventoryController::class, 'adjust'])
+        ->name('inventory.adjust');
+    Route::post('inventory/{product}/settings', [InventoryController::class, 'updateSettings'])
+        ->name('inventory.settings');
 
     Route::post('suppliers/{supplier}/restore', [SupplierController::class, 'restore'])
         ->withTrashed()

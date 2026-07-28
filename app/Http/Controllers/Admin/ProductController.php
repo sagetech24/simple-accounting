@@ -8,8 +8,10 @@ use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -62,10 +64,15 @@ class ProductController extends Controller
     /**
      * Store a new product.
      */
-    public function store(StoreProductRequest $request): RedirectResponse
+    public function store(StoreProductRequest $request, StockService $stock): RedirectResponse
     {
-        $product = Product::query()->create($request->productAttributes());
-        $product->categories()->sync($request->categoryIds());
+        $createdBy = $request->user()?->name ?? 'Unknown';
+
+        DB::transaction(function () use ($request, $stock, $createdBy): void {
+            $product = Product::query()->create($request->productAttributes());
+            $product->categories()->sync($request->categoryIds());
+            $stock->recordOpeningBalance($product, $createdBy);
+        });
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -92,10 +99,23 @@ class ProductController extends Controller
     /**
      * Update an existing product.
      */
-    public function update(UpdateProductRequest $request, Product $product): RedirectResponse
+    public function update(UpdateProductRequest $request, Product $product, StockService $stock): RedirectResponse
     {
-        $product->update($request->productAttributes());
-        $product->categories()->sync($request->categoryIds());
+        $createdBy = $request->user()?->name ?? 'Unknown';
+        $attributes = $request->productAttributes();
+        $newQuantity = (int) $attributes['quantity'];
+        unset($attributes['quantity']);
+
+        DB::transaction(function () use ($product, $request, $stock, $attributes, $newQuantity, $createdBy): void {
+            $product->update($attributes);
+            $product->categories()->sync($request->categoryIds());
+            $stock->setQuantity(
+                product: $product->fresh(),
+                newQuantity: $newQuantity,
+                createdBy: $createdBy,
+                notes: 'Admin quantity update',
+            );
+        });
 
         Inertia::flash('toast', [
             'type' => 'success',

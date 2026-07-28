@@ -28,14 +28,15 @@ Internal ops app for catalog pricing and early procurement workflow. Ignore the 
 
 | Module | Route | Status |
 |--------|-------|--------|
-| Products | `/products` | Shipped — search/browse panel (no `purchase_price`) |
+| Products | `/products` | Shipped — search/browse panel (includes stock; cost via admin edit) |
 | Suppliers | `/suppliers` | Shipped — full CRUD |
 | Customers | `/customers` | Shipped — full CRUD |
 | Request Quotations | `/request-quotations` | Shipped — list + create/edit tabs, soft delete, draft → pending → approved |
-| Purchased Orders | `/purchased-orders` | Stub empty panel |
-| Received Orders | `/received-orders` | Stub empty panel |
+| Purchased Orders | `/purchased-orders` | Shipped — RFQ→PO, draft → ordered → received, prepayments, post to AP |
+| Inventory | `/inventory` | Shipped — on-hand stock + movement ledger; receive posts stock from PO |
+| Accounts | `/accounts-payable` | Shipped — settle posted POs by supplier |
 
-Admin product management lives under `/admin/products` (also auth-gated).
+Admin product management lives under `/admin/products` (also auth-gated). `/received-orders` redirects to `/inventory`.
 
 ---
 
@@ -130,14 +131,35 @@ Admin product management lives under `/admin/products` (also auth-gated).
 
 ---
 
+## Domain — Inventory
+
+| Field / concept | Rules |
+|-----------------|-------|
+| `products.quantity` | Cached on-hand balance; ≥ 0 |
+| `stock_movements` | Append-only ledger: `receipt` \| `adjustment` \| `sale` (sale reserved) |
+| `quantity_delta` | Signed int; receipts from PO receive are positive |
+| `quantity_after` | Snapshot after apply |
+| `unit_cost` | Set on receipts from PO line buying price |
+| `reference` | Polymorphic; PO receipts reference `purchased_order` |
+
+### Inventory UX
+
+- Single index page (`/inventory`) with tabs: **On hand** (default) and **Movements**
+- On hand: search, category filter, sortable name/qty; row action **Adjust stock** (modal)
+- Movements: search, type filter; shows delta, after, unit cost, PO reference, created by
+- Receiving remains on Purchased Orders (`mark-received-with-adjustment`); posts receipt movements and increments on-hand in the same transaction
+- Admin product create/update quantity writes adjustment / opening-balance movements
+- Routes: `inventory.index`, `inventory.adjust`
+
+---
+
 ## Out of scope (v1)
 
-Multi-user roles, public registration, public/guest catalog, payments, multi-tenant, mobile API, full Purchased Orders / Received Orders transaction ledgers (stubs only until scoped).
+Multi-user roles, public registration, public/guest catalog, multi-tenant, mobile API, warehouses/lots/serials, partial multi-receipt receiving, sales/COGS outbound.
 
 ## Recommended next (v1.x)
 
-- Convert Approved RFQs into Purchased Orders → Received Orders
-- Link suppliers to products / purchase flow
-- Product polish: margin, low-stock, price history, admin filters
+- Sales / outbound stock (`sale` movements)
+- Low-stock alerts and price history polish
 - Policies/gates even with one admin
 - Pagination/empty-state polish across modules

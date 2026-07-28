@@ -34,14 +34,14 @@ class ExampleTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->component('products/index'));
     }
 
-    public function test_authenticated_users_can_view_stub_sections(): void
+    public function test_authenticated_users_can_view_inventory(): void
     {
         $admin = User::factory()->create();
 
         $this->actingAs($admin)
-            ->get(route('received-orders'))
+            ->get(route('inventory.index'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('received-orders/index'));
+            ->assertInertia(fn (Assert $page) => $page->component('inventory/index'));
     }
 
     public function test_authenticated_users_can_view_purchased_orders(): void

@@ -10,9 +10,10 @@ import {
 } from '@/components/nav-icons';
 import SiteHeader from '@/components/site-header';
 import { configureMoneyFormat } from '@/lib/format-money';
-import { products, receivedOrders } from '@/routes';
+import { products } from '@/routes';
 import { index as accountsPayable } from '@/routes/accounts-payable';
 import { index as customers } from '@/routes/customers';
+import { index as inventory } from '@/routes/inventory';
 import { index as purchasedOrders } from '@/routes/purchased-orders';
 import { index as requestQuotations } from '@/routes/request-quotations';
 import { index as suppliers } from '@/routes/suppliers';
@@ -31,7 +32,7 @@ const navItems = [
         route: purchasedOrders,
         icon: PurchasedOrdersNavIcon,
     },
-    { label: 'Inventory', route: receivedOrders, icon: InventoryNavIcon },
+    { label: 'Inventory', route: inventory, icon: InventoryNavIcon },
     { label: 'Accounts', route: accountsPayable, icon: AccountsNavIcon },
 ];
 

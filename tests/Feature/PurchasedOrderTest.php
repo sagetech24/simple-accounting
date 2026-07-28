@@ -408,6 +408,29 @@ class PurchasedOrderTest extends TestCase
             'quantity' => 3,
             'subtotal' => '12.00',
         ]);
+
+        $this->assertSame(
+            $productA->quantity + 1,
+            $productA->fresh()->quantity,
+        );
+        $this->assertSame(
+            $productB->quantity + 3,
+            $productB->fresh()->quantity,
+        );
+        $this->assertDatabaseHas('stock_movements', [
+            'product_id' => $productA->id,
+            'type' => 'receipt',
+            'quantity_delta' => 1,
+            'reference_type' => 'purchased_order',
+            'reference_id' => $order->id,
+        ]);
+        $this->assertDatabaseHas('stock_movements', [
+            'product_id' => $productB->id,
+            'type' => 'receipt',
+            'quantity_delta' => 3,
+            'reference_type' => 'purchased_order',
+            'reference_id' => $order->id,
+        ]);
     }
 
     public function test_receive_with_adjustment_can_drop_unavailable_lines(): void

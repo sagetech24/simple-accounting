@@ -1,5 +1,6 @@
 import Auth from './Auth'
 import HomeController from './HomeController'
+import InventoryController from './InventoryController'
 import SupplierController from './SupplierController'
 import CustomerController from './CustomerController'
 import RequestQuotationController from './RequestQuotationController'
@@ -12,6 +13,7 @@ import Admin from './Admin'
 const Controllers = {
     Auth: Object.assign(Auth, Auth),
     HomeController: Object.assign(HomeController, HomeController),
+    InventoryController: Object.assign(InventoryController, InventoryController),
     SupplierController: Object.assign(SupplierController, SupplierController),
     CustomerController: Object.assign(CustomerController, CustomerController),
     RequestQuotationController: Object.assign(RequestQuotationController, RequestQuotationController),

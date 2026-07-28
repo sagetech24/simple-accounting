@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'unit',
     'description',
     'quantity',
+    'low_stock_threshold',
     'purchase_price',
     'selling_price',
     'status',
@@ -32,6 +34,7 @@ class Product extends Model
     {
         return [
             'quantity' => 'integer',
+            'low_stock_threshold' => 'integer',
             'purchase_price' => 'decimal:2',
             'selling_price' => 'decimal:2',
             'status' => ProductStatus::class,
@@ -44,6 +47,42 @@ class Product extends Model
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class)->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<StockMovement, $this>
+     */
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    /**
+     * @return HasMany<ProductSellingPriceHistory, $this>
+     */
+    public function sellingPriceHistories(): HasMany
+    {
+        return $this->hasMany(ProductSellingPriceHistory::class)->latest();
+    }
+
+    /**
+     * True when on-hand is at or below the configured minimum desired stock.
+     */
+    public function isLowStock(): bool
+    {
+        if ($this->low_stock_threshold === null) {
+            return false;
+        }
+
+        return $this->quantity <= $this->low_stock_threshold;
+    }
+
+    /**
+     * Suggested default threshold: current on-hand plus reorder buffer of 4.
+     */
+    public function suggestedLowStockThreshold(): int
+    {
+        return $this->quantity + 4;
     }
 
     /**
@@ -106,6 +145,28 @@ class Product extends Model
             'purchase_price' => $this->purchase_price,
             'category_ids' => $this->categories->pluck('id')->values()->all(),
             'deleted_at' => $this->deleted_at?->toIso8601String(),
+        ];
+    }
+
+    /**
+     * Inventory on-hand payload — includes cost, threshold, and price history.
+     *
+     * @return array<string, mixed>
+     */
+    public function toInventoryArray(): array
+    {
+        return [
+            ...$this->toPublicArray(),
+            'purchase_price' => $this->purchase_price,
+            'low_stock_threshold' => $this->low_stock_threshold,
+            'suggested_low_stock_threshold' => $this->suggestedLowStockThreshold(),
+            'is_low_stock' => $this->isLowStock(),
+            'selling_price_histories' => $this->relationLoaded('sellingPriceHistories')
+                ? $this->sellingPriceHistories
+                    ->map(fn (ProductSellingPriceHistory $history) => $history->toInventoryArray())
+                    ->values()
+                    ->all()
+                : [],
         ];
     }
 

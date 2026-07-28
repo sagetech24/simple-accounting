@@ -16,6 +16,7 @@ use App\Models\Product;
 use App\Models\PurchasedOrder;
 use App\Models\PurchasedOrderItem;
 use App\Models\Supplier;
+use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -225,6 +226,7 @@ class PurchasedOrderController extends Controller
     public function markReceivedWithAdjustment(
         MarkReceivedWithAdjustmentRequest $request,
         PurchasedOrder $purchasedOrder,
+        StockService $stock,
     ): RedirectResponse {
         if ($purchasedOrder->status !== PurchasedOrderStatus::Ordered) {
             Inertia::flash('toast', [
@@ -237,8 +239,9 @@ class PurchasedOrderController extends Controller
 
         $items = $request->itemAttributes();
         $meta = $request->metaAttributes();
+        $createdBy = $request->user()?->name ?? 'Unknown';
 
-        DB::transaction(function () use ($purchasedOrder, $items, $meta): void {
+        DB::transaction(function () use ($purchasedOrder, $items, $meta, $stock, $createdBy): void {
             [$grandTotal, $lineRows] = $this->buildLineRows($items);
 
             $purchasedOrder->update([
@@ -249,6 +252,9 @@ class PurchasedOrderController extends Controller
 
             $purchasedOrder->items()->delete();
             $purchasedOrder->items()->createMany($lineRows);
+            $purchasedOrder->load('items.product');
+
+            $stock->receiveFromPurchasedOrder($purchasedOrder, $createdBy);
         });
 
         Inertia::flash('toast', [
