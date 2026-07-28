@@ -399,7 +399,7 @@ export default function InventoryIndex({
                     </form>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+                        <table className="w-full min-w-[720px] border-collapse text-left text-sm">
                             <thead className="sticky top-0 bg-teal-500/10">
                                 <tr className="border-b border-line text-xs tracking-wide">
                                     <SortableHeader
@@ -420,6 +420,9 @@ export default function InventoryIndex({
                                         onSort={sortBy}
                                     />
                                     <th className="px-4 py-3 font-medium text-muted uppercase">
+                                        Selling price
+                                    </th>
+                                    <th className="px-4 py-3 font-medium text-muted uppercase">
                                         Status
                                     </th>
                                     <th className="px-4 py-3 font-medium text-muted uppercase">
@@ -434,7 +437,7 @@ export default function InventoryIndex({
                                 {products.data.length === 0 && (
                                     <tr>
                                         <td
-                                            colSpan={6}
+                                            colSpan={7}
                                             className="py-10 text-center text-muted"
                                         >
                                             No products match these filters.
@@ -471,6 +474,9 @@ export default function InventoryIndex({
                                             }`}
                                         >
                                             {product.quantity}
+                                        </td>
+                                        <td className="px-4 py-4 font-medium text-price tabular-nums">
+                                            {formatMoney(product.selling_price)}
                                         </td>
                                         <td className="px-4 py-4 text-ink-soft">
                                             {product.status_label}
