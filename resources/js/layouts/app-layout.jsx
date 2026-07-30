@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import {
     AccountsNavIcon,
     CustomersNavIcon,
+    DashboardNavIcon,
     InventoryNavIcon,
     ProductsNavIcon,
     PurchasedOrdersNavIcon,
@@ -10,7 +11,7 @@ import {
 } from '@/components/nav-icons';
 import SiteHeader from '@/components/site-header';
 import { configureMoneyFormat } from '@/lib/format-money';
-import { products } from '@/routes';
+import { home, products } from '@/routes';
 import { index as accountsPayable } from '@/routes/accounts-payable';
 import { index as customers } from '@/routes/customers';
 import { index as inventory } from '@/routes/inventory';
@@ -19,6 +20,7 @@ import { index as requestQuotations } from '@/routes/request-quotations';
 import { index as suppliers } from '@/routes/suppliers';
 
 const navItems = [
+    { label: 'Dashboard', route: home, icon: DashboardNavIcon },
     { label: 'Products', route: products, icon: ProductsNavIcon },
     { label: 'Suppliers', route: suppliers, icon: SuppliersNavIcon },
     { label: 'Customers', route: customers, icon: CustomersNavIcon },
@@ -39,6 +41,10 @@ const navItems = [
 function isActive(url, href) {
     const path = href.replace(/\/$/, '') || '/';
     const current = url.split('?')[0].replace(/\/$/, '') || '/';
+
+    if (path === '/') {
+        return current === '/';
+    }
 
     return current === path || current.startsWith(`${path}/`);
 }
