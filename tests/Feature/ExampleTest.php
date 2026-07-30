@@ -17,11 +17,16 @@ class ExampleTest extends TestCase
             ->assertRedirect(route('login'));
     }
 
-    public function test_authenticated_users_are_redirected_from_home_to_products(): void
+    public function test_authenticated_users_see_dashboard_at_home(): void
     {
         $this->actingAs(User::factory()->create())
             ->get('/')
-            ->assertRedirect('/products');
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('dashboard/index')
+                ->has('kpis')
+                ->has('attention')
+            );
     }
 
     public function test_authenticated_users_can_view_products(): void
@@ -60,13 +65,13 @@ class ExampleTest extends TestCase
             ->assertOk();
     }
 
-    public function test_login_redirects_to_products(): void
+    public function test_login_redirects_to_home(): void
     {
         $this->seed();
 
         $this->post(route('login.store'), [
             'email' => 'admin@example.com',
             'password' => 'password',
-        ])->assertRedirect(route('products'));
+        ])->assertRedirect(route('home'));
     }
 }

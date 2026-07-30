@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PurchasedOrderController;
@@ -19,7 +20,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::redirect('/', '/products')->name('home');
+    Route::get('/', [DashboardController::class, 'index'])->name('home');
 
     Route::get('products', [HomeController::class, 'index'])->name('products');
     Route::redirect('received-orders', '/inventory');
