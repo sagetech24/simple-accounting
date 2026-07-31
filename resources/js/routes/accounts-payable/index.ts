@@ -86,7 +86,7 @@ index.form = indexForm
 * @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
-export const supplier = (args: { supplier: string | number | { id: string | number } } | [supplier: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const supplier = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: supplier.url(args, options),
     method: 'get',
 })
@@ -101,7 +101,7 @@ supplier.definition = {
 * @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
-supplier.url = (args: { supplier: string | number | { id: string | number } } | [supplier: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+supplier.url = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { supplier: args }
     }
@@ -134,7 +134,7 @@ supplier.url = (args: { supplier: string | number | { id: string | number } } | 
 * @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
-supplier.get = (args: { supplier: string | number | { id: string | number } } | [supplier: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+supplier.get = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: supplier.url(args, options),
     method: 'get',
 })
@@ -144,7 +144,7 @@ supplier.get = (args: { supplier: string | number | { id: string | number } } | 
 * @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
-supplier.head = (args: { supplier: string | number | { id: string | number } } | [supplier: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+supplier.head = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: supplier.url(args, options),
     method: 'head',
 })
@@ -154,7 +154,7 @@ supplier.head = (args: { supplier: string | number | { id: string | number } } |
 * @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
-const supplierForm = (args: { supplier: string | number | { id: string | number } } | [supplier: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+const supplierForm = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: supplier.url(args, options),
     method: 'get',
 })
@@ -164,7 +164,7 @@ const supplierForm = (args: { supplier: string | number | { id: string | number 
 * @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
-supplierForm.get = (args: { supplier: string | number | { id: string | number } } | [supplier: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+supplierForm.get = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: supplier.url(args, options),
     method: 'get',
 })
@@ -174,7 +174,7 @@ supplierForm.get = (args: { supplier: string | number | { id: string | number } 
 * @see app/Http/Controllers/AccountsPayableController.php:109
 * @route '/accounts-payable/{supplier}'
 */
-supplierForm.head = (args: { supplier: string | number | { id: string | number } } | [supplier: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+supplierForm.head = (args: { supplier: number | { id: number } } | [supplier: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: supplier.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
@@ -191,7 +191,7 @@ supplier.form = supplierForm
 * @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
-export const show = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const show = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -206,7 +206,7 @@ show.definition = {
 * @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
-show.url = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions) => {
+show.url = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions) => {
     if (Array.isArray(args)) {
         args = {
             supplier: args[0],
@@ -236,7 +236,7 @@ show.url = (args: { supplier: string | number | { id: string | number }, purchas
 * @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
-show.get = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+show.get = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -246,7 +246,7 @@ show.get = (args: { supplier: string | number | { id: string | number }, purchas
 * @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
-show.head = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+show.head = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
@@ -256,7 +256,7 @@ show.head = (args: { supplier: string | number | { id: string | number }, purcha
 * @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
-const showForm = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+const showForm = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: show.url(args, options),
     method: 'get',
 })
@@ -266,7 +266,7 @@ const showForm = (args: { supplier: string | number | { id: string | number }, p
 * @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
-showForm.get = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+showForm.get = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: show.url(args, options),
     method: 'get',
 })
@@ -276,7 +276,7 @@ showForm.get = (args: { supplier: string | number | { id: string | number }, pur
 * @see app/Http/Controllers/AccountsPayableController.php:156
 * @route '/accounts-payable/{supplier}/{purchased_order}'
 */
-showForm.head = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+showForm.head = (args: { supplier: number | { id: number }, purchased_order: string | { reference: string } } | [supplier: number | { id: number }, purchased_order: string | { reference: string } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: show.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
