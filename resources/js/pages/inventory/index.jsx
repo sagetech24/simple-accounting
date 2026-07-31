@@ -143,7 +143,7 @@ function RowActionsMenu({ product, open, onToggle, onClose, onAdjust, onSettings
                 <div
                     id={menuId}
                     role="menu"
-                    className="absolute top-0 right-6 z-20 min-w-44 rounded-md border border-line bg-white py-1 shadow-md"
+                    className="absolute top-0 right-6 z-20 min-w-44 rounded-md border border-line bg-white py-1"
                 >
                     <button
                         type="button"
@@ -353,7 +353,7 @@ export default function InventoryIndex({
                                 value={q}
                                 onChange={(event) => setQ(event.target.value)}
                                 placeholder="Search by name or description"
-                                className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                             />
                         </div>
                         <div className="sm:w-48">
@@ -369,7 +369,7 @@ export default function InventoryIndex({
                                 onChange={(event) =>
                                     setCategory(event.target.value)
                                 }
-                                className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                             >
                                 <option value="">All categories</option>
                                 {categories.map((item) => (
@@ -390,7 +390,7 @@ export default function InventoryIndex({
                                 <button
                                     type="button"
                                     onClick={clearFilters}
-                                    className="min-h-11 border border-line bg-white/70 px-4 text-sm text-ink-soft transition hover:border-ink/30"
+                                    className="min-h-11 border border-line bg-white px-4 text-sm text-ink-soft transition hover:border-ink/30"
                                 >
                                     Clear
                                 </button>
@@ -525,7 +525,7 @@ export default function InventoryIndex({
                                         link.active
                                             ? 'border-teal-700 bg-teal-700 text-paper'
                                             : link.url
-                                              ? 'border-line bg-white/80 text-ink-soft hover:border-ink/30'
+                                              ? 'border-line bg-white text-ink-soft hover:border-ink/30'
                                               : 'pointer-events-none border-line/50 text-muted'
                                     }`}
                                     dangerouslySetInnerHTML={{
@@ -567,7 +567,7 @@ export default function InventoryIndex({
                                 value={q}
                                 onChange={(event) => setQ(event.target.value)}
                                 placeholder="Search product, notes, or user"
-                                className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                             />
                         </div>
                         <div className="sm:w-48">
@@ -583,7 +583,7 @@ export default function InventoryIndex({
                                 onChange={(event) =>
                                     setType(event.target.value)
                                 }
-                                className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                             >
                                 <option value="">All types</option>
                                 {movementTypes.map((item) => (
@@ -604,7 +604,7 @@ export default function InventoryIndex({
                                 <button
                                     type="button"
                                     onClick={clearFilters}
-                                    className="min-h-11 border border-line bg-white/70 px-4 text-sm text-ink-soft transition hover:border-ink/30"
+                                    className="min-h-11 border border-line bg-white px-4 text-sm text-ink-soft transition hover:border-ink/30"
                                 >
                                     Clear
                                 </button>
@@ -741,7 +741,7 @@ export default function InventoryIndex({
                                         link.active
                                             ? 'border-teal-700 bg-teal-700 text-paper'
                                             : link.url
-                                              ? 'border-line bg-white/80 text-ink-soft hover:border-ink/30'
+                                              ? 'border-line bg-white text-ink-soft hover:border-ink/30'
                                               : 'pointer-events-none border-line/50 text-muted'
                                     }`}
                                     dangerouslySetInnerHTML={{

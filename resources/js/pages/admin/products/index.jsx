@@ -52,16 +52,7 @@ export default function AdminProductsIndex({ products, filters }) {
     return (
         <>
             <Head title="Manage products" />
-            <div className="relative min-h-screen overflow-hidden bg-paper text-ink">
-                <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(20,122,110,0.14),_transparent_55%),linear-gradient(180deg,#f4f8f6_0%,#eef4f1_45%,#e6efe9_100%)]"
-                />
-                <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(16,36,31,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(16,36,31,0.05)_1px,transparent_1px)] [background-size:48px_48px] opacity-[0.35]"
-                />
-
+            <div className="relative min-h-screen bg-paper text-ink">
                 <SiteHeader />
 
                 <main className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8 lg:px-12">
@@ -104,7 +95,7 @@ export default function AdminProductsIndex({ products, filters }) {
                                 value={q}
                                 onChange={(event) => setQ(event.target.value)}
                                 placeholder="Name or description"
-                                className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                             />
                         </div>
                         <div className="sm:w-48">
@@ -120,7 +111,7 @@ export default function AdminProductsIndex({ products, filters }) {
                                 onChange={(event) =>
                                     setTrashed(event.target.value)
                                 }
-                                className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                             >
                                 <option value="">Active only</option>
                                 <option value="with">Include deleted</option>
@@ -138,7 +129,7 @@ export default function AdminProductsIndex({ products, filters }) {
                                 <button
                                     type="button"
                                     onClick={clearFilters}
-                                    className="min-h-11 border border-line bg-white/70 px-4 text-sm text-ink-soft transition hover:border-ink/30"
+                                    className="min-h-11 border border-line bg-white px-4 text-sm text-ink-soft transition hover:border-ink/30"
                                 >
                                     Clear
                                 </button>
@@ -302,7 +293,7 @@ export default function AdminProductsIndex({ products, filters }) {
                                         className={
                                             link.active
                                                 ? 'bg-ink px-3 py-1.5 text-paper'
-                                                : 'border border-line bg-white/70 px-3 py-1.5 text-ink-soft hover:border-ink/30'
+                                                : 'border border-line bg-white px-3 py-1.5 text-ink-soft hover:border-ink/30'
                                         }
                                         preserveState
                                         dangerouslySetInnerHTML={{

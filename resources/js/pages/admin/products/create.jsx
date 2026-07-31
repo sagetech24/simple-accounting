@@ -8,16 +8,7 @@ export default function CreateProduct({ categories, statuses }) {
     return (
         <>
             <Head title="New product" />
-            <div className="relative min-h-screen overflow-hidden bg-paper text-ink">
-                <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(20,122,110,0.14),_transparent_50%),linear-gradient(165deg,#f4f8f6_0%,#e7f0eb_100%)]"
-                />
-                <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(16,36,31,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(16,36,31,0.05)_1px,transparent_1px)] [background-size:48px_48px] opacity-[0.3]"
-                />
-
+            <div className="relative min-h-screen bg-paper text-ink">
                 <SiteHeader />
 
                 <main className="relative z-10 mx-auto w-full max-w-2xl px-5 pb-16 sm:px-8">

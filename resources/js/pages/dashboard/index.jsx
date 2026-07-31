@@ -74,7 +74,7 @@ export default function Dashboard({ kpis, attention }) {
                             <Link
                                 key={card.label}
                                 href={card.href}
-                                className="flex min-h-24 cursor-pointer flex-col justify-between rounded-md border border-line bg-white/80 p-4 transition duration-200 hover:border-teal-600 hover:bg-teal-50/70 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
+                                className="flex min-h-24 cursor-pointer flex-col justify-between rounded-md border border-line bg-white p-4 transition duration-200 hover:border-teal-600 hover:bg-mist focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
                             >
                                 <span className="text-sm font-medium text-muted">
                                     {card.label}
@@ -89,7 +89,7 @@ export default function Dashboard({ kpis, attention }) {
 
                 <section
                     aria-labelledby="attention-heading"
-                    className="overflow-hidden rounded-md border border-line bg-white/80"
+                    className="overflow-hidden rounded-md border border-line bg-white"
                 >
                     <div className="border-b border-line px-4 py-3">
                         <h3
@@ -115,7 +115,7 @@ export default function Dashboard({ kpis, attention }) {
                                     <Link
                                         key={`${item.type}-${item.title}-${index}`}
                                         href={item.href}
-                                        className="grid min-h-16 cursor-pointer gap-2 px-4 py-3 transition duration-200 hover:bg-teal-50/70 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none focus-visible:ring-inset sm:grid-cols-[minmax(9rem,auto)_minmax(0,1fr)_minmax(8rem,auto)] sm:items-center sm:gap-4"
+                                        className="grid min-h-16 cursor-pointer gap-2 px-4 py-3 transition duration-200 hover:bg-mist focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none focus-visible:ring-inset sm:grid-cols-[minmax(9rem,auto)_minmax(0,1fr)_minmax(8rem,auto)] sm:items-center sm:gap-4"
                                     >
                                         <span
                                             className={`w-fit rounded-full border px-2.5 py-1 text-xs font-semibold ${type.className}`}

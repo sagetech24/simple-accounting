@@ -22,16 +22,7 @@ export default function Login() {
     return (
         <>
             <Head title="Admin login" />
-            <div className="relative min-h-screen overflow-hidden bg-paper text-ink">
-                <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(20,122,110,0.16),_transparent_50%),linear-gradient(165deg,#f4f8f6_0%,#e7f0eb_100%)]"
-                />
-                <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(16,36,31,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(16,36,31,0.05)_1px,transparent_1px)] [background-size:48px_48px] opacity-[0.3]"
-                />
-
+            <div className="relative min-h-screen bg-paper text-ink">
                 {/* <SiteHeader /> */}
 
                 <main className="relative z-10 mx-auto flex min-h-[calc(100vh-5.5rem)] w-full max-w-lg flex-col justify-center px-5 pb-16 sm:px-8">
@@ -67,7 +58,7 @@ export default function Login() {
                                 onChange={(event) =>
                                     form.setData('email', event.target.value)
                                 }
-                                className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                             />
                             {form.errors.email && (
                                 <p className="mt-1.5 text-sm text-warn">
@@ -91,7 +82,7 @@ export default function Login() {
                                 onChange={(event) =>
                                     form.setData('password', event.target.value)
                                 }
-                                className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                             />
                             {form.errors.password && (
                                 <p className="mt-1.5 text-sm text-warn">

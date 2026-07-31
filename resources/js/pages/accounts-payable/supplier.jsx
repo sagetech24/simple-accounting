@@ -112,7 +112,7 @@ export default function AccountsPayableSupplier({
                             onChange={(event) =>
                                 setSettlement(event.target.value)
                             }
-                            className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                            className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                         >
                             <option value="">All</option>
                             <option value="open">Open</option>

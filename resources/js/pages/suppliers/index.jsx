@@ -128,7 +128,7 @@ function RowActionsMenu({
                 <div
                     id={menuId}
                     role="menu"
-                    className="absolute top-0 right-6 z-20 min-w-28 rounded-md border border-line bg-white py-1 shadow-md"
+                    className="absolute top-0 right-6 z-20 min-w-28 rounded-md border border-line bg-white py-1"
                 >
                     {!isDeleted && (
                         <>
@@ -268,7 +268,7 @@ export default function SuppliersIndex({ suppliers, filters, statuses }) {
                 <button
                     type="button"
                     onClick={openCreateModal}
-                    className="flex size-14 items-center justify-center gap-1 rounded-full bg-teal-700 text-paper shadow-lg transition hover:bg-teal-800"
+                    className="flex size-14 items-center justify-center gap-1 rounded-md bg-teal-700 text-paper transition hover:bg-teal-800"
                     aria-label="New supplier"
                 >
                     <svg
@@ -299,7 +299,7 @@ export default function SuppliersIndex({ suppliers, filters, statuses }) {
                         value={q}
                         onChange={(event) => setQ(event.target.value)}
                         placeholder="Name, contact, email, or phone"
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
                 </div>
                 <div className="sm:w-48">
@@ -307,7 +307,7 @@ export default function SuppliersIndex({ suppliers, filters, statuses }) {
                         id="trashed"
                         value={trashed}
                         onChange={(event) => setTrashed(event.target.value)}
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     >
                         <option value="">Active only</option>
                         <option value="with">Include deleted</option>
@@ -325,7 +325,7 @@ export default function SuppliersIndex({ suppliers, filters, statuses }) {
                         <button
                             type="button"
                             onClick={clearFilters}
-                            className="min-h-11 border border-line bg-white/70 px-4 text-sm text-ink-soft transition hover:border-ink/30"
+                            className="min-h-11 border border-line bg-white px-4 text-sm text-ink-soft transition hover:border-ink/30"
                         >
                             Clear
                         </button>
@@ -454,7 +454,7 @@ export default function SuppliersIndex({ suppliers, filters, statuses }) {
                                 className={
                                     link.active
                                         ? 'bg-ink px-3 py-1.5 text-paper'
-                                        : 'border border-line bg-white/70 px-3 py-1.5 text-ink-soft hover:border-ink/30'
+                                        : 'border border-line bg-white px-3 py-1.5 text-ink-soft hover:border-ink/30'
                                 }
                                 preserveState
                                 dangerouslySetInnerHTML={{

@@ -142,7 +142,7 @@ export default function AccountsPayableIndex({ suppliers = [], filters }) {
                         value={q}
                         onChange={(event) => setQ(event.target.value)}
                         placeholder="Name, contact, email, phone…"
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
                 </div>
                 <div className="flex gap-2">
@@ -156,7 +156,7 @@ export default function AccountsPayableIndex({ suppliers = [], filters }) {
                         <button
                             type="button"
                             onClick={clearFilters}
-                            className="min-h-11 border border-line bg-white/70 px-4 text-sm text-ink-soft transition hover:border-ink/30"
+                            className="min-h-11 border border-line bg-white px-4 text-sm text-ink-soft transition hover:border-ink/30"
                         >
                             Clear
                         </button>
