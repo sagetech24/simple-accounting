@@ -64,7 +64,7 @@ function UserMenu({ userName, onSystemPreference }) {
             <button
                 type="button"
                 onClick={() => setOpen((current) => !current)}
-                className="inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-teal-700 transition hover:bg-gray-100 hover:text-ink"
+                className="inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-teal-700 transition hover:bg-mist hover:text-ink"
                 aria-label="Account settings"
                 aria-haspopup="menu"
                 aria-expanded={open}
@@ -85,7 +85,7 @@ function UserMenu({ userName, onSystemPreference }) {
                 <div
                     id={menuId}
                     role="menu"
-                    className="absolute top-full right-0 z-30 mt-1 min-w-44 rounded-md border border-line bg-white py-1 shadow-md"
+                    className="absolute top-full right-0 z-30 mt-1 min-w-44 rounded-md border border-line bg-white py-1"
                 >
                     {menuItems.map((item) => (
                         <button
@@ -132,7 +132,7 @@ export default function SiteHeader() {
                             <button
                                 type="button"
                                 onClick={() => router.post(destroy.url())}
-                                className="rounded-sm border border-line bg-white/70 px-3 py-1.5 text-ink-soft transition hover:border-ink/30 hover:bg-white"
+                                className="rounded-md border border-line bg-white px-3 py-1.5 text-ink-soft transition hover:border-ink/30 hover:bg-mist"
                             >
                                 Log out
                             </button>
@@ -140,7 +140,7 @@ export default function SiteHeader() {
                     ) : (
                         <Link
                             href={login.url()}
-                            className="rounded-sm border border-line bg-white/70 px-3 py-1.5 text-ink-soft transition hover:border-ink/30 hover:bg-white"
+                            className="rounded-md border border-line bg-white px-3 py-1.5 text-ink-soft transition hover:border-ink/30 hover:bg-mist"
                         >
                             Admin login
                         </Link>
