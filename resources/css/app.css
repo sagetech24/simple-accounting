@@ -7,6 +7,7 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
+    /* Soft Flat — solid teal brand; hierarchy via color + borders; no shadows/gradients */
     --color-ink: #10241f;
     --color-ink-soft: #243530;
     --color-mist: #e8f0ec;
@@ -16,6 +17,8 @@
     --color-accent: #147a6e;
     --color-warn: #9a5b1a;
     --color-muted: #5c6f68;
+
+    --radius-md: 0.25rem;
 }
 
 @keyframes supplier-modal-slide-down {
