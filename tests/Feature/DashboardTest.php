@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Product;
 use App\Models\PurchasedOrder;
+use App\Models\PurchasedOrderItem;
 use App\Models\PurchasedOrderPayment;
 use App\Models\RequestQuotation;
+use App\Models\RequestQuotationItem;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -120,6 +122,13 @@ class DashboardTest extends TestCase
         $rfq = RequestQuotation::factory()->pending()->create([
             'supplier_id' => $supplier->id,
             'reference' => '11111111-1111-1111-1111-111111111111',
+            'grand_total' => '12500.00',
+        ]);
+        RequestQuotationItem::factory()->create([
+            'request_quotation_id' => $rfq->id,
+            'buying_price' => '100.00',
+            'quantity' => 1,
+            'subtotal' => '100.00',
         ]);
         RequestQuotation::factory()->draft()->create(['supplier_id' => $supplier->id]);
 
@@ -127,6 +136,12 @@ class DashboardTest extends TestCase
             'supplier_id' => $supplier->id,
             'reference' => '22222222-2222-2222-2222-222222222222',
             'grand_total' => '30.00',
+        ]);
+        PurchasedOrderItem::factory()->create([
+            'purchased_order_id' => $ordered->id,
+            'buying_price' => '15.00',
+            'quantity' => 2,
+            'subtotal' => '30.00',
         ]);
 
         $posted = PurchasedOrder::factory()
@@ -168,14 +183,17 @@ class DashboardTest extends TestCase
                 ->has('attention', 4)
                 ->where('attention.0.type', 'pending_rfq')
                 ->where('attention.0.title', $rfq->reference)
+                ->where('attention.0.subtitle', 'Acme · ₱12,500.00 · 1 item')
                 ->where('attention.0.reason', 'Approve quotation')
                 ->where('attention.0.href', route('request-quotations.index', absolute: false))
                 ->where('attention.1.type', 'ordered_po')
                 ->where('attention.1.title', $ordered->reference)
+                ->where('attention.1.subtitle', 'Acme · ₱30.00 · 1 item')
                 ->where('attention.1.reason', 'Mark received')
                 ->where('attention.1.href', route('purchased-orders.index', absolute: false))
                 ->where('attention.2.type', 'ap_balance')
                 ->where('attention.2.title', $posted->reference)
+                ->where('attention.2.subtitle', 'Acme · Balance ₱80.00')
                 ->where('attention.2.reason', 'Settle payment')
                 ->where(
                     'attention.2.href',
@@ -183,6 +201,7 @@ class DashboardTest extends TestCase
                 )
                 ->where('attention.3.type', 'low_stock')
                 ->where('attention.3.title', 'Bolt Pack')
+                ->where('attention.3.subtitle', '1 on hand · threshold 4')
                 ->where('attention.3.reason', 'Review stock')
                 ->where('attention.3.href', route('inventory.index', absolute: false))
             );
