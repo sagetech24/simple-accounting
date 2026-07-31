@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://res.cloudinary.com/djgvfl1tv/image/upload/v1780666791/logo_mqnqn4.png" alt="Ghost Compiler Logo" width="180">
+  <img src="https://res.cloudinary.com/djgvfl1tv/image/upload/v1780666791/logo_mqnqn4.png" alt="Simple Accounting" width="180">
 </p>
 
 <p align="center">
@@ -8,55 +8,90 @@
   <img src="https://img.shields.io/badge/Inertia.js-3-9553E9?style=for-the-badge" alt="Inertia.js">
   <img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">
   <img src="https://img.shields.io/badge/Tailwind-4-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
-  <img src="https://img.shields.io/badge/Built%20By-Ghost%20Compiler-0F172A?style=for-the-badge" alt="Ghost Compiler">
 </p>
 
-# Laravel React JSX Boilerplate
+# Simple Accounting
 
-A blank, production-ready **boilerplate** for building modern Laravel apps with **React and JSX** — not TypeScript.
+Internal ops app for **catalog pricing** and early **procurement** workflow. Guests can search a public product catalog at `/`. All other modules require login.
 
-Laravel’s official starter kits ship with React + TSX. This boilerplate gives you the same modern stack (Inertia, Vite, Tailwind, Wayfinder) in plain **JavaScript/JSX**, so you can move fast without TypeScript tooling if that is not your preference.
+Built on Laravel + React **JSX** (Inertia, Vite, Tailwind, Wayfinder) with a Soft Flat teal UI. Primary targets: tablet (~768px+) and desktop.
+
+Canonical product rules live in `.cursor/rules/PRD.mdc` (PRD v1).
 
 ---
 
-## What is in this project
+## Actors
 
-### Backend
+| Actor | Access |
+|-------|--------|
+| **Guest** | Public catalog at `/` — search selling price, availability, unit, description, and categories. No write access; no `purchase_price` or stock quantities. Admin login at `/login`. |
+| **Admin** | Single seeded account (`DatabaseSeeder`). Full access to ops modules after session login. No public registration. |
 
-| Piece | Details |
+**Seeded admin:** `admin@example.com` / `password`
+
+---
+
+## Modules
+
+| Module | Route | Notes |
+|--------|-------|--------|
+| Catalog (public) | `/` (guest) | Search price & availability; Soft Flat landing + detail modal |
+| Dashboard | `/` (auth) | Procurement KPIs + needs-attention list |
+| Products | `/products` | Auth browse (includes stock; cost via admin edit) |
+| Admin products | `/admin/products` | Full CRUD, soft delete / restore, `purchase_price` |
+| Suppliers | `/suppliers` | Index-only CRUD in slide-down modal |
+| Customers | `/customers` | Index-only CRUD in slide-down modal |
+| Request Quotations | `/request-quotations` | List + create/edit tabs; draft → pending → approved |
+| Purchased Orders | `/purchased-orders` | RFQ→PO; draft → ordered → received; prepayments; post to AP |
+| Inventory | `/inventory` | On-hand stock + movement ledger; receive posts stock from PO |
+| Accounts payable | `/accounts-payable` | Settle posted POs by supplier |
+
+`/received-orders` redirects to `/inventory`.
+
+### App shell
+
+- **Authenticated:** `AppLayout` — site header, tile sidebar nav, main panel
+- **Public catalog:** `PublicLayout` — header only (brand + Admin login)
+- **Feedback:** `Inertia::flash('toast', …)` → Sonner via `FlashToaster`
+
+---
+
+## Domain summary
+
+### Product
+
+- Fields: name, description, quantity, categories (M2M), selling price, purchase price (**admin-only**), status (`available` \| `unavailable` \| `discontinued`), soft delete
+- **Public landing:** `toCatalogArray()` — no quantity, no purchase price; only `available` products
+- **Auth browse / admin:** stock and cost rules as in the PRD
+
+### Supplier & Customer
+
+- Contact fields + status (`active` \| `inactive`), soft delete
+- Single index page each; create/edit in modal; search, trash filter, sortable columns
+
+### Request Quotation
+
+- UUID reference, supplier, status workflow, server-calculated grand total, soft delete
+- Workflow: Draft → Submit (pending) → Approve
+
+### Inventory
+
+- Cached on-hand on `products.quantity`
+- Append-only `stock_movements` (`receipt` \| `adjustment` \| `sale` reserved)
+- Receiving on Purchased Orders posts receipt movements and increments stock in one transaction
+
+---
+
+## Stack
+
+| Layer | Details |
 |-------|---------|
-| **Laravel 13** | Latest framework with streamlined routing, middleware, and config |
-| **Inertia Laravel** | Server-driven SPA responses — no separate API layer required for page loads |
-| **Wayfinder** | Type-safe route and action helpers generated from your Laravel routes |
-| **SQLite by default** | Ready for local dev; swap to MySQL/PostgreSQL in `.env` |
-| **Queue & jobs tables** | Migrations included for background work when you need it |
-| **PHPUnit** | Feature and unit test scaffolding |
-
-### Frontend
-
-| Piece | Details |
-|-------|---------|
-| **React 19 + JSX** | Components in `.jsx` — no `.tsx` required |
-| **Inertia React** | Page navigation without full client-side routing setup |
-| **Vite 8** | Fast HMR in dev, optimized builds for production |
-| **Tailwind CSS 4** | Utility-first styling via the Vite plugin |
-| **React Compiler** | Enabled through Babel for optimized React rendering |
-| **Instrument Sans** | Loaded via Laravel Vite font plugin (Bunny Fonts) |
-
-### App features (included out of the box)
-
-- **Welcome page** — Laravel-style landing page at `/`, built as an Inertia React page
-- **Dark / light / system theme** — `use-appearance` hook + cookie-backed preference, no flash on load
-- **Shared Inertia props** — App name, auth user, and layout state wired in `HandleInertiaRequests`
-- **Single root Blade view** — `resources/views/app.blade.php` mounts the React app
-- **Wayfinder-generated helpers** — Route/action modules under `resources/js/routes` and `resources/js/actions`
-
-### Developer experience
-
-- **`composer dev`** — Runs PHP server, queue worker, log tail (Pail), and Vite together
-- **`composer setup`** — One-shot install: Composer, `.env`, key, migrations, npm, build
-- **Linting & formatting** — Laravel Pint (PHP), ESLint + Prettier (JS/JSX)
-- **GitHub Actions** — CI tests (PHP 8.3–8.5) and quality checks on push/PR
+| Backend | Laravel 13, PHP 8.3+, Eloquent, Form Requests, soft deletes |
+| SPA bridge | Inertia.js v3 — no separate REST API for page loads |
+| Frontend | React 19 + **JSX only** (`.jsx` pages under `resources/js/pages`) |
+| Styling | Tailwind CSS v4, Soft Flat tokens, Instrument Sans |
+| Build | Vite 8, React Compiler, Wayfinder (`@/routes`, `@/actions`) |
+| Quality | Pint, ESLint + Prettier, PHPUnit |
 
 ---
 
@@ -64,21 +99,20 @@ Laravel’s official starter kits ship with React + TSX. This boilerplate gives 
 
 ```
 app/
-  Http/Middleware/
-    HandleAppearance.php      # Theme cookie → Blade
-    HandleInertiaRequests.php # Shared Inertia props
+  Http/Controllers/          # Thin Inertia controllers
+  Http/Requests/             # Form requests for writes
+  Models/                    # Domain models + scopes
 resources/
   js/
-    app.jsx                   # Inertia bootstrapping
-    pages/welcome.jsx         # Example page
-    hooks/use-appearance.js   # Theme toggle logic
-    routes/                   # Wayfinder-generated routes
-    actions/                  # Wayfinder-generated actions
-  css/app.css                 # Tailwind entry
-  views/app.blade.php         # Root HTML shell
-routes/web.php                # Route::inertia('/', 'welcome')
-tests/                        # PHPUnit feature & unit tests
-.github/workflows/            # tests.yml + lint.yml
+    pages/                   # Inertia pages (landing, dashboard, …)
+    layouts/                 # AppLayout, PublicLayout
+    components/              # Modals, forms, shared UI
+    routes/ / actions/       # Wayfinder-generated (do not hand-edit)
+  css/app.css                # Soft Flat theme tokens
+  views/app.blade.php        # Root HTML shell
+routes/web.php
+tests/Feature/               # PHPUnit feature tests
+.cursor/rules/PRD.mdc        # Product requirements (source of truth)
 ```
 
 ---
@@ -93,66 +127,35 @@ tests/                        # PHPUnit feature & unit tests
 
 ## Getting started
 
-### Create a new project
-
-**Option A — Laravel installer**
+### Clone and set up
 
 ```bash
-laravel new my-app --using=ghostcompiler/laravel-react-jsx-boilerplate.git
-cd my-app
-composer install && npm install
+git clone https://github.com/sagetech24/simple-accounting.git
+cd simple-accounting
+composer setup
 composer run dev
 ```
 
-**Option B — Composer**
-
-```bash
-composer create-project ghostcompiler/laravel-react-jsx-boilerplate.git my-app
-cd my-app
-composer install && npm install
-composer run dev
-```
-
-**Option C — Clone the repository**
-
-```bash
-git clone https://github.com/ghostcompiler/laravel-react-jsx-boilerplate.git
-cd laravel-react-jsx-boilerplate
-composer install && npm install
-composer run dev
-```
-
-### Start development
-
-```bash
-composer run dev
-```
+`composer setup` installs Composer/npm deps, creates `.env`, generates the app key, runs migrations, and builds assets.
 
 Visit [http://localhost:8000](http://localhost:8000).
 
-### Manual setup (alternative)
-
-If you skipped `composer setup`, run:
+### Manual setup
 
 ```bash
 composer install
 cp .env.example .env
 php artisan key:generate
-php artisan migrate
+php artisan migrate --seed
 npm install
 npm run build
 ```
 
-For local development with HMR:
+Then either `composer run dev`, or:
 
 ```bash
-npm run dev
-```
-
-In a second terminal:
-
-```bash
-php artisan serve
+php artisan serve   # terminal 1
+npm run dev         # terminal 2
 ```
 
 ---
@@ -182,95 +185,51 @@ php artisan serve
 
 ---
 
-## Adding a new page
+## Out of scope (v1)
 
-1. Create a React page, e.g. `resources/js/pages/dashboard.jsx`
-2. Register a route in `routes/web.php`:
+From the PRD:
 
-```php
-Route::inertia('/dashboard', 'dashboard')->name('dashboard');
-```
+- Multi-user roles / policies beyond a single admin
+- Public registration
+- Multi-tenant
+- Mobile API
+- Warehouses / lots / serials
+- Partial multi-receipt receiving
+- Sales / COGS outbound (`sale` movements reserved)
 
-3. Use Wayfinder helpers (regenerated on build) for type-safe links from JSX
+### Recommended next (v1.x)
 
----
-
-## What you can build from this
-
-This is intentionally **minimal** — a blank boilerplate, not a full auth dashboard or starter kit. That makes it a strong base for:
-
-| Use case | How this boilerplate helps |
-|----------|-------------------|
-| **SaaS dashboards** | Add auth (Fortify/Breeze), layouts, and Inertia pages on top of the existing middleware stack |
-| **Internal tools** | Laravel for data, permissions, and queues; React for interactive UI without a separate SPA repo |
-| **CRUD admin panels** | Models, migrations, controllers, and Inertia forms — Wayfinder keeps routes in sync |
-| **Marketing sites + app** | Blade or Inertia landing pages, shared Tailwind theme, dark mode already wired |
-| **API-backed products** | Start Inertia-first; add API routes later if mobile or third-party clients are needed |
-| **Learning Laravel + React** | Official Laravel docs apply; frontend examples use JSX instead of TSX |
-
-Typical next steps:
-
-- Add **authentication** (Laravel Fortify or Breeze adapted for JSX)
-- Create a **layout component** and shared navigation
-- Add **form components** with Inertia `useForm`
-- Connect **Eloquent models** and policies for your domain
-- Enable **queues** for emails, imports, or webhooks (tables already migrated)
+- Sales / outbound stock
+- Low-stock alerts and price history polish
+- Policies/gates even with one admin
+- Pagination / empty-state polish across modules
 
 ---
 
 ## CI / quality
 
-GitHub Actions run on pushes and pull requests to `main`, `master`, `develop`, and `workos`:
+GitHub Actions on push/PR (see `.github/workflows/`):
 
-- **tests.yml** — PHPUnit across PHP 8.3, 8.4, and 8.5
-- **lint.yml** — Pint, Prettier, and ESLint
+- PHPUnit across supported PHP versions
+- Pint, Prettier, and ESLint
 
-Run the same checks locally:
+Locally:
 
 ```bash
 composer lint:check
 npm run format
 npm run lint
-./vendor/bin/phpunit
-```
-
-Or simulate CI with [act](https://github.com/nektos/act):
-
-```bash
-act -j ci -W .github/workflows/tests.yml
-act -j quality -W .github/workflows/lint.yml
+php artisan test
 ```
 
 ---
 
 ## Repository
 
-https://github.com/ghostcompiler/laravel-react-jsx-boilerplate
-
----
-
-## Development Environment
-
-Built using **ServBay**
-
-<p align="left">
-  <img src="https://res.cloudinary.com/djgvfl1tv/image/upload/v1780667063/servbay_edc7jz.png" alt="ServBay" width="120">
-</p>
-
-- Mac M4 Tested
-- macOS Apple Silicon
-- Powered by ServBay
-
----
-
-## Repository
-
-https://github.com/ghostcompiler/laravel-react-jsx-boilerplate
+https://github.com/sagetech24/simple-accounting
 
 ---
 
 ## License
 
 MIT License
-
----
