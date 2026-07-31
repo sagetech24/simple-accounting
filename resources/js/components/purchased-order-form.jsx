@@ -301,7 +301,7 @@ export default function PurchasedOrderForm({
 
             <div className="overflow-x-auto">
                 <table className="w-full min-w-[720px] border-collapse text-left text-sm">
-                    <thead className="bg-teal-500/10">
+                    <thead className="bg-mist">
                         <tr className="border-b border-line text-xs tracking-wide uppercase">
                             <th className="px-4 py-3 font-medium text-muted">
                                 Product

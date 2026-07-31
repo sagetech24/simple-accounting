@@ -482,7 +482,7 @@ export default function RequestQuotationsIndex({
 
                     <div>
                         <table className="w-full border-collapse text-left text-sm">
-                            <thead className="sticky top-0 bg-teal-500/10">
+                            <thead className="sticky top-0 bg-mist">
                                 <tr className="border-b border-line text-xs tracking-wide uppercase">
                                     {/* <th className="px-4 py-3 font-medium text-muted">
                                         Reference
@@ -593,7 +593,7 @@ export default function RequestQuotationsIndex({
                                                                 quotation.purchased_order_reference ??
                                                                 'View purchase order'
                                                             }
-                                                            className="rounded-full border border-teal-700/30 bg-teal-500/10 px-3 py-1 text-xs text-teal-800 underline-offset-2 transition hover:bg-teal-500/20 hover:underline focus:underline focus:outline-none"
+                                                            className="rounded-full border border-teal-700/30 bg-mist px-3 py-1 text-xs text-teal-800 underline-offset-2 transition hover:bg-mist hover:underline focus:underline focus:outline-none"
                                                         >
                                                             PO Created
                                                         </button>

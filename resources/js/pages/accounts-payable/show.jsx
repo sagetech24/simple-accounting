@@ -190,7 +190,7 @@ export default function AccountsPayableShow({
                     </p>
                     <div className="overflow-x-auto rounded-md border border-line">
                         <table className="w-full min-w-[520px] border-collapse text-left text-sm">
-                            <thead className="bg-teal-500/10">
+                            <thead className="bg-mist">
                                 <tr className="border-b border-line text-xs tracking-wide uppercase">
                                     <th className="px-3 py-2.5 font-medium text-muted">
                                         Product
@@ -256,7 +256,7 @@ export default function AccountsPayableShow({
                     ) : (
                         <div className="overflow-x-auto rounded-md border border-line">
                             <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-                                <thead className="bg-teal-500/10">
+                                <thead className="bg-mist">
                                     <tr className="border-b border-line text-xs tracking-wide uppercase">
                                         <th className="px-3 py-2.5 font-medium text-muted">
                                             Method

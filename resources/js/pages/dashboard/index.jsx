@@ -17,7 +17,7 @@ const attentionTypes = {
     },
     ap_balance: {
         label: 'Accounts Payable',
-        className: 'border-teal-600/30 bg-teal-400/5 text-teal-800',
+        className: 'border-teal-600/30 bg-mist text-teal-800',
     },
     low_stock: {
         label: 'Low stock',

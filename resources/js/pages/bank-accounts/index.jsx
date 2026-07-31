@@ -349,7 +349,7 @@ export default function BankAccountsIndex({ bankAccounts, filters, statuses }) {
 
             <div className="mt-6 px-4">
                 <table className="w-full border-collapse text-left text-sm">
-                    <thead className="sticky top-0 bg-teal-500/10 px-2">
+                    <thead className="sticky top-0 bg-mist px-2">
                         <tr className="border-b border-line text-xs tracking-wide uppercase">
                             {sortableColumns.map((column) => (
                                 <SortableHeader

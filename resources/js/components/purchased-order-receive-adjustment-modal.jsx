@@ -377,7 +377,7 @@ export default function PurchasedOrderReceiveAdjustmentModal({
                         )}
                         <div className="overflow-x-auto rounded-md border border-line">
                             <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
-                                <thead className="bg-teal-500/10">
+                                <thead className="bg-mist">
                                     <tr className="border-b border-line text-xs tracking-wide uppercase">
                                         <th className="px-3 py-2.5 font-medium text-muted">
                                             Product

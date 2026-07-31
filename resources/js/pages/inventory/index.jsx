@@ -400,7 +400,7 @@ export default function InventoryIndex({
 
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[720px] border-collapse text-left text-sm">
-                            <thead className="sticky top-0 bg-teal-500/10">
+                            <thead className="sticky top-0 bg-mist">
                                 <tr className="border-b border-line text-xs tracking-wide">
                                     <SortableHeader
                                         column="name"
@@ -614,7 +614,7 @@ export default function InventoryIndex({
 
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[720px] border-collapse text-left text-sm">
-                            <thead className="sticky top-0 bg-teal-500/10">
+                            <thead className="sticky top-0 bg-mist">
                                 <tr className="border-b border-line text-xs tracking-wide">
                                     <SortableHeader
                                         column="created_at"

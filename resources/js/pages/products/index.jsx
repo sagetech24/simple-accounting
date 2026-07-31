@@ -274,7 +274,7 @@ export default function ProductsIndex({
 
             <div className="mt-6 px-4">
                 <table className="w-full border-collapse text-left text-sm">
-                    <thead className="sticky top-0 bg-teal-500/10">
+                    <thead className="sticky top-0 bg-mist">
                         <tr className="border-b border-line text-xs tracking-wide uppercase">
                             <th className="px-4 py-3 font-medium text-muted">
                                 Product
