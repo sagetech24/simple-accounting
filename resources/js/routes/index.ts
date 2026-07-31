@@ -81,8 +81,8 @@ loginForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 login.form = loginForm
 
 /**
-* @see \App\Http\Controllers\DashboardController::home
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::home
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 export const home = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -96,8 +96,8 @@ home.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\DashboardController::home
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::home
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 home.url = (options?: RouteQueryOptions) => {
@@ -105,8 +105,8 @@ home.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see \App\Http\Controllers\DashboardController::home
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::home
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 home.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -115,8 +115,8 @@ home.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\DashboardController::home
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::home
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -125,8 +125,8 @@ home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\DashboardController::home
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::home
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 const homeForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -135,8 +135,8 @@ const homeForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\DashboardController::home
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::home
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 homeForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -145,8 +145,8 @@ homeForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\DashboardController::home
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::home
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 homeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
-* @see \App\Http\Controllers\DashboardController::index
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::index
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -15,8 +15,8 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\DashboardController::index
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::index
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -24,8 +24,8 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see \App\Http\Controllers\DashboardController::index
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::index
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,8 +34,8 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\DashboardController::index
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::index
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,8 +44,8 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\DashboardController::index
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::index
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,8 +54,8 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see \App\Http\Controllers\DashboardController::index
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::index
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -64,8 +64,8 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\DashboardController::index
-* @see app/Http/Controllers/DashboardController.php:15
+* @see \App\Http\Controllers\LandingController::index
+* @see app/Http/Controllers/LandingController.php:14
 * @route '/'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -80,6 +80,6 @@ indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 index.form = indexForm
 
-const DashboardController = { index }
+const LandingController = { index }
 
-export default DashboardController
+export default LandingController
