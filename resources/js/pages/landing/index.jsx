@@ -49,12 +49,6 @@ export default function LandingIndex({
         visit(currentParams());
     }
 
-    function selectCategory(slug) {
-        const next = category === slug ? '' : slug;
-        setCategory(next);
-        visit(currentParams({ category: next }));
-    }
-
     function clearFilters() {
         setQ('');
         setCategory('');
@@ -68,7 +62,7 @@ export default function LandingIndex({
             title="Catalog"
             description="Search products for price and availability."
         >
-            <section className="mx-auto max-w-3xl text-center">
+            <section className="mx-auto max-w-4xl text-center">
                 <p className="text-xs font-medium tracking-[0.2em] text-muted uppercase">
                     Product catalog
                 </p>
@@ -94,6 +88,28 @@ export default function LandingIndex({
                         placeholder="Search name or description"
                         className="min-h-14 w-full flex-1 rounded-md border border-line bg-white px-4 text-base text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
+                    {categories.length > 0 ? (
+                        <div className="md:w-56">
+                            <label htmlFor="catalog-category" className="sr-only">
+                                Category
+                            </label>
+                            <select
+                                id="catalog-category"
+                                value={category}
+                                onChange={(event) =>
+                                    setCategory(event.target.value)
+                                }
+                                className="min-h-14 w-full cursor-pointer rounded-md border border-line bg-white px-3 text-base text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                            >
+                                <option value="">All categories</option>
+                                {categories.map((item) => (
+                                    <option key={item.id} value={item.slug}>
+                                        {item.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    ) : null}
                     <button
                         type="submit"
                         className="min-h-14 cursor-pointer rounded-md bg-teal-700 px-6 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800"
@@ -110,35 +126,6 @@ export default function LandingIndex({
                 <p className="mx-auto mt-12 max-w-3xl text-center text-sm text-muted">
                     The catalog is being set up.
                 </p>
-            ) : null}
-
-            {categories.length > 0 ? (
-                <section className="mt-12" aria-label="Categories">
-                    <h2 className="text-sm font-medium tracking-wide text-muted uppercase">
-                        Browse by category
-                    </h2>
-                    <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-5">
-                        {categories.map((item) => {
-                            const pressed = category === item.slug;
-
-                            return (
-                                <button
-                                    key={item.id}
-                                    type="button"
-                                    aria-pressed={pressed}
-                                    onClick={() => selectCategory(item.slug)}
-                                    className={`min-h-11 cursor-pointer rounded-md border px-3 py-3 text-sm font-medium transition ${
-                                        pressed
-                                            ? 'border-teal-800 bg-teal-700 text-paper'
-                                            : 'border-line bg-white text-ink-soft hover:border-ink/30 hover:bg-mist'
-                                    }`}
-                                >
-                                    {item.name}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </section>
             ) : null}
 
             {hasSearched ? (
