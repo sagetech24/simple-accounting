@@ -118,19 +118,19 @@ export default function Dashboard({ kpis, attention }) {
                                         className="grid min-h-16 cursor-pointer gap-2 px-4 py-3 transition duration-200 hover:bg-mist focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none focus-visible:ring-inset sm:grid-cols-[minmax(9rem,auto)_minmax(0,1fr)_minmax(8rem,auto)] sm:items-center sm:gap-4"
                                     >
                                         <span
-                                            className={`w-fit rounded-full border px-2.5 py-1 text-xs font-semibold ${type.className}`}
+                                            className={`w-fit rounded-full border px-2.5 py-1 text-md font-bold ${type.className}`}
                                         >
                                             {type.label}
                                         </span>
                                         <span className="min-w-0">
-                                            <span className="block font-medium wrap-break-word text-ink">
-                                                {item.title}
-                                            </span>
                                             {item.subtitle ? (
-                                                <span className="mt-0.5 block text-sm wrap-break-word text-muted">
+                                                <span className="mt-0.5 block text-md font-medium wrap-break-word text-ink">
                                                     {item.subtitle}
                                                 </span>
                                             ) : null}
+                                            <span className="block text-[13px] wrap-break-word text-muted">
+                                                Reference No.: {item.title}
+                                            </span>
                                         </span>
                                         <span className="text-sm text-muted sm:text-right">
                                             {item.reason}
