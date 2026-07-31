@@ -63,7 +63,7 @@ export default function ProductModal({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="product-modal-title"
-                className="relative z-10 w-full max-w-2xl origin-top rounded-lg border border-line bg-white p-6 shadow-xl opacity-0 motion-safe:animate-[product-modal-slide-down_0.35s_ease-out_forwards] motion-reduce:opacity-100"
+                className="relative z-10 w-full max-w-2xl origin-top rounded-md border border-line bg-white p-6 opacity-0 motion-safe:animate-[product-modal-slide-down_0.35s_ease-out_forwards] motion-reduce:opacity-100"
             >
                 <div className="flex items-start justify-between gap-4">
                     <div>

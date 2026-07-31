@@ -79,7 +79,7 @@ export default function RequestQuotationDetailModal({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="request-quotation-detail-title"
-                className="relative z-10 w-full max-w-3xl origin-top rounded-lg border border-line bg-white p-6 opacity-0 shadow-xl motion-safe:animate-[supplier-modal-slide-down_0.35s_ease-out_forwards] motion-reduce:opacity-100"
+                className="relative z-10 w-full max-w-3xl origin-top rounded-md border border-line bg-white p-6 opacity-0 motion-safe:animate-[supplier-modal-slide-down_0.35s_ease-out_forwards] motion-reduce:opacity-100"
             >
                 <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
