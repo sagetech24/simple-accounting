@@ -134,6 +134,29 @@ class Product extends Model
     }
 
     /**
+     * Guest catalog fields — never includes purchase_price or quantity.
+     *
+     * @return array<string, mixed>
+     */
+    public function toCatalogArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'unit' => $this->unit,
+            'description' => $this->description,
+            'selling_price' => $this->selling_price,
+            'availability' => $this->availability(),
+            'availability_label' => $this->availabilityLabel(),
+            'categories' => $this->categories->map(fn (Category $category) => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+            ])->values()->all(),
+        ];
+    }
+
+    /**
      * Admin catalog fields — includes purchase_price and soft-delete state.
      *
      * @return array<string, mixed>
@@ -201,5 +224,14 @@ class Product extends Model
         return $query->whereHas('categories', function (Builder $builder) use ($categorySlug) {
             $builder->where('slug', $categorySlug);
         });
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @return Builder<Product>
+     */
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        return $query->where('status', ProductStatus::Available);
     }
 }
