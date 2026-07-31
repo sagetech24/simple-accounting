@@ -16,10 +16,11 @@ class DashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_guests_cannot_view_dashboard(): void
+    public function test_guests_see_landing_instead_of_dashboard_at_home(): void
     {
         $this->get(route('home'))
-            ->assertRedirect(route('login'));
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('landing/index'));
     }
 
     public function test_authenticated_users_see_zero_kpis_when_empty(): void

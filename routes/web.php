@@ -5,9 +5,9 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PurchasedOrderController;
 use App\Http\Controllers\RequestQuotationController;
 use App\Http\Controllers\SettingController;
@@ -19,9 +19,11 @@ Route::middleware('guest')->group(function () {
     Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('home');
+Route::get('/', [LandingController::class, 'index'])
+    ->middleware('throttle:60,1')
+    ->name('home');
 
+Route::middleware('auth')->group(function () {
     Route::get('products', [HomeController::class, 'index'])->name('products');
     Route::redirect('received-orders', '/inventory');
     Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
