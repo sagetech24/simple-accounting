@@ -252,11 +252,11 @@ export default function PurchasedOrderForm({
                                 150,
                             );
                         }}
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-60"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-60"
                     />
 
                     {productPickerOpen && availableProducts.length > 0 && (
-                        <ul className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md border border-line bg-white py-1 shadow-md">
+                        <ul className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md border border-line bg-white py-1">
                             {filteredProducts.length === 0 && (
                                 <li className="px-3 py-2 text-sm text-muted">
                                     No products match.
@@ -377,7 +377,7 @@ export default function PurchasedOrderForm({
                                                         event.target.value,
                                                     )
                                                 }
-                                                className="min-h-11 w-full max-w-28 border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                                className="min-h-11 w-full max-w-28 border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                                             />
                                             {item.product_unit?.trim() && (
                                                 <span className="shrink-0 text-sm text-muted">
@@ -405,7 +405,7 @@ export default function PurchasedOrderForm({
                                                     event.target.value,
                                                 )
                                             }
-                                            className="min-h-11 w-full max-w-24 border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                            className="min-h-11 w-full max-w-24 border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                                         />
                                         {qtyError && (
                                             <p className="mt-1 text-sm text-warn">
@@ -449,7 +449,7 @@ export default function PurchasedOrderForm({
                         onChange={(event) =>
                             form.setData('notes', event.target.value)
                         }
-                        className="w-full border border-line bg-white/80 px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="w-full border border-line bg-white px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
                     {form.errors.notes && (
                         <p className="mt-1.5 text-sm text-warn">

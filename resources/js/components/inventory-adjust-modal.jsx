@@ -125,7 +125,7 @@ export default function InventoryAdjustModal({ open, product, onClose }) {
                                         : Number(event.target.value),
                                 )
                             }
-                            className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink tabular-nums transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                            className="min-h-11 w-full border border-line bg-white px-3 text-ink tabular-nums transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                             required
                         />
                         {form.errors.quantity && (
@@ -156,7 +156,7 @@ export default function InventoryAdjustModal({ open, product, onClose }) {
                             onChange={(event) =>
                                 form.setData('notes', event.target.value)
                             }
-                            className="w-full border border-line bg-white/80 px-3 py-2 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                            className="w-full border border-line bg-white px-3 py-2 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                         />
                         {form.errors.notes && (
                             <p className="mt-1.5 text-sm text-warn">
@@ -169,7 +169,7 @@ export default function InventoryAdjustModal({ open, product, onClose }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="min-h-11 border border-line bg-white/70 px-4 text-sm text-ink-soft transition hover:border-ink/30"
+                            className="min-h-11 border border-line bg-white px-4 text-sm text-ink-soft transition hover:border-ink/30"
                         >
                             Cancel
                         </button>

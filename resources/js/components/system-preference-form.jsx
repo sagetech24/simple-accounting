@@ -35,7 +35,7 @@ export default function SystemPreferenceForm({
                         form.setData('brand_name', event.target.value)
                     }
                     placeholder="JMC Pundasyon"
-                    className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                    className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
                 {form.errors.brand_name && (
                     <p className="mt-1.5 text-sm text-warn">
@@ -59,7 +59,7 @@ export default function SystemPreferenceForm({
                         form.setData('tagline', event.target.value)
                     }
                     placeholder="A short description shown on the login screen."
-                    className="min-h-24 w-full resize-y border border-line bg-white/80 px-3 py-2 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                    className="min-h-24 w-full resize-y border border-line bg-white px-3 py-2 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
                 {form.errors.tagline && (
                     <p className="mt-1.5 text-sm text-warn">
@@ -81,7 +81,7 @@ export default function SystemPreferenceForm({
                     onChange={(event) =>
                         form.setData('default_currency', event.target.value)
                     }
-                    className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                    className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 >
                     {currencyOptions.map((option) => (
                         <option key={option.value} value={option.value}>

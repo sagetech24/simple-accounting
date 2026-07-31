@@ -93,7 +93,7 @@ export default function SearchableSelect({
 
             {selected ? (
                 <div className="flex min-h-11 items-stretch gap-2">
-                    <div className="flex min-w-0 flex-1 items-center border border-line bg-white/80 px-3">
+                    <div className="flex min-w-0 flex-1 items-center border border-line bg-white px-3">
                         <div className="min-w-0">
                             <p className="truncate font-medium text-ink">
                                 {getOptionLabel(selected)}
@@ -131,14 +131,14 @@ export default function SearchableSelect({
                         aria-expanded={open}
                         aria-controls={listboxId}
                         aria-autocomplete="list"
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-60"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-60"
                     />
 
                     {open && (
                         <ul
                             id={listboxId}
                             role="listbox"
-                            className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md border border-line bg-white py-1 shadow-md"
+                            className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md border border-line bg-white py-1"
                         >
                             {filtered.length === 0 && (
                                 <li className="px-3 py-2 text-sm text-muted">

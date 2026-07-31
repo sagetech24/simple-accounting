@@ -48,7 +48,7 @@ export default function ProductForm({
                     onChange={(event) =>
                         form.setData('name', event.target.value)
                     }
-                    className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                    className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
                 {form.errors.name && (
                     <p className="mt-1.5 text-sm text-warn">
@@ -71,7 +71,7 @@ export default function ProductForm({
                     onChange={(event) =>
                         form.setData('description', event.target.value)
                     }
-                    className="w-full border border-line bg-white/80 px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                    className="w-full border border-line bg-white px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
                 {form.errors.description && (
                     <p className="mt-1.5 text-sm text-warn">
@@ -102,7 +102,7 @@ export default function ProductForm({
                                     : Number(event.target.value),
                             )
                         }
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
                     {form.errors.quantity && (
                         <p className="mt-1.5 text-sm text-warn">
@@ -126,7 +126,7 @@ export default function ProductForm({
                             form.setData('unit', event.target.value)
                         }
                         placeholder="pcs, box, kg…"
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
                     {form.errors.unit && (
                         <p className="mt-1.5 text-sm text-warn">
@@ -148,7 +148,7 @@ export default function ProductForm({
                         onChange={(event) =>
                             form.setData('status', event.target.value)
                         }
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     >
                         {statuses.map((status) => (
                             <option key={status.value} value={status.value}>
@@ -181,7 +181,7 @@ export default function ProductForm({
                         onChange={(event) =>
                             form.setData('purchase_price', event.target.value)
                         }
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
                     {form.errors.purchase_price && (
                         <p className="mt-1.5 text-sm text-warn">
@@ -211,7 +211,7 @@ export default function ProductForm({
                         onChange={(event) =>
                             form.setData('selling_price', event.target.value)
                         }
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
                     {form.errors.selling_price && (
                         <p className="mt-1.5 text-sm text-warn">

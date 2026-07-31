@@ -5,7 +5,7 @@ import { storePayment } from '@/actions/App/Http/Controllers/PurchasedOrderContr
 import { formatMoney } from '@/lib/format-money';
 
 const FIELD_CLASS =
-    'min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20';
+    'min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20';
 
 function todayIsoDate() {
     const now = new Date();
@@ -507,7 +507,7 @@ export default function PurchasedOrderPrepaymentModal({
                                 onChange={(event) =>
                                     form.setData('notes', event.target.value)
                                 }
-                                className="w-full border border-line bg-white/80 px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                className="w-full border border-line bg-white px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                             />
                             {form.errors.notes && (
                                 <p className="mt-1.5 text-sm text-warn">

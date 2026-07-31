@@ -38,7 +38,7 @@ export default function SupplierForm({
                     onChange={(event) =>
                         form.setData('name', event.target.value)
                     }
-                    className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                    className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
                 {form.errors.name && (
                     <p className="mt-1.5 text-sm text-warn">
@@ -62,7 +62,7 @@ export default function SupplierForm({
                         onChange={(event) =>
                             form.setData('contact_name', event.target.value)
                         }
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
                     {form.errors.contact_name && (
                         <p className="mt-1.5 text-sm text-warn">
@@ -84,7 +84,7 @@ export default function SupplierForm({
                         onChange={(event) =>
                             form.setData('status', event.target.value)
                         }
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     >
                         {statuses.map((status) => (
                             <option key={status.value} value={status.value}>
@@ -115,7 +115,7 @@ export default function SupplierForm({
                         onChange={(event) =>
                             form.setData('email', event.target.value)
                         }
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
                     {form.errors.email && (
                         <p className="mt-1.5 text-sm text-warn">
@@ -138,7 +138,7 @@ export default function SupplierForm({
                         onChange={(event) =>
                             form.setData('phone', event.target.value)
                         }
-                        className="min-h-11 w-full border border-line bg-white/80 px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                        className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                     />
                     {form.errors.phone && (
                         <p className="mt-1.5 text-sm text-warn">
@@ -162,7 +162,7 @@ export default function SupplierForm({
                     onChange={(event) =>
                         form.setData('address', event.target.value)
                     }
-                    className="w-full border border-line bg-white/80 px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                    className="w-full border border-line bg-white px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
                 {form.errors.address && (
                     <p className="mt-1.5 text-sm text-warn">
@@ -185,7 +185,7 @@ export default function SupplierForm({
                     onChange={(event) =>
                         form.setData('notes', event.target.value)
                     }
-                    className="w-full border border-line bg-white/80 px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                    className="w-full border border-line bg-white px-3 py-2.5 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
                 {form.errors.notes && (
                     <p className="mt-1.5 text-sm text-warn">
