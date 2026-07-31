@@ -33,3 +33,4 @@ Thumbs.db
 
 composer.lock
 package-lock.json.worktrees/
+__pycache__/
