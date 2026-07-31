@@ -96,7 +96,7 @@ export default function Dashboard({ kpis, attention }) {
                             id="attention-heading"
                             className="text-lg font-semibold text-ink"
                         >
-                            Needs attention
+                            Needs Attention
                         </h3>
                     </div>
 
@@ -122,8 +122,15 @@ export default function Dashboard({ kpis, attention }) {
                                         >
                                             {type.label}
                                         </span>
-                                        <span className="min-w-0 font-medium wrap-break-word text-ink">
-                                            {item.title}
+                                        <span className="min-w-0">
+                                            <span className="block font-medium wrap-break-word text-ink">
+                                                {item.title}
+                                            </span>
+                                            {item.subtitle ? (
+                                                <span className="mt-0.5 block text-sm wrap-break-word text-muted">
+                                                    {item.subtitle}
+                                                </span>
+                                            ) : null}
                                         </span>
                                         <span className="text-sm text-muted sm:text-right">
                                             {item.reason}
