@@ -59,16 +59,7 @@ export default function AppLayout({ title, children }) {
     return (
         <>
             <Head title={title} />
-            <div className="relative min-h-screen overflow-hidden bg-paper text-ink">
-                <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(20,122,110,0.14),_transparent_55%),linear-gradient(180deg,#f4f8f6_0%,#eef4f1_45%,#e6efe9_100%)]"
-                />
-                <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(16,36,31,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(16,36,31,0.05)_1px,transparent_1px)] [background-size:48px_48px] opacity-[0.35]"
-                />
-
+            <div className="relative min-h-screen bg-paper text-ink">
                 <SiteHeader />
 
                 <main className="relative z-10 mx-auto w-full px-4 py-5">
@@ -87,10 +78,10 @@ export default function AppLayout({ title, children }) {
                                         <Link
                                             key={item.label}
                                             href={href}
-                                            className={`flex h-24 flex-col items-center justify-center gap-2 rounded-md border-2 px-3 py-2 text-center text-sm font-semibold transition duration-300 ${
+                                            className={`flex h-24 flex-col items-center justify-center gap-2 rounded-md border-2 px-3 py-2 text-center text-sm font-semibold transition duration-150 ${
                                                 active
-                                                    ? 'cursor-default border-teal-800 bg-teal-700 text-zinc-100'
-                                                    : 'cursor-pointer border-teal-700 bg-teal-600 text-zinc-100 hover:bg-teal-600/80'
+                                                    ? 'cursor-default border-teal-800 bg-teal-800 text-zinc-100'
+                                                    : 'cursor-pointer border-teal-700 bg-teal-600 text-zinc-100 hover:border-teal-800 hover:bg-teal-700'
                                             }`}
                                             aria-current={
                                                 active ? 'page' : undefined
@@ -104,7 +95,7 @@ export default function AppLayout({ title, children }) {
                             </nav>
                         </aside>
 
-                        <div className="min-h-[800px] w-full flex-1 rounded-md border border-line bg-white/80 px-0">
+                        <div className="min-h-[800px] w-full flex-1 rounded-md border border-line bg-white px-0">
                             {children}
                         </div>
                     </div>
