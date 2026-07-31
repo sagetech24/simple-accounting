@@ -1,21 +1,21 @@
 ---
-description: Simple Accounting PRD — auth-gated catalog and procurement shell
+description: Simple Accounting PRD — public catalog landing + auth-gated ops shell
 alwaysApply: true
 ---
 
 # Simple Accounting — PRD v1
 
-Internal ops app for catalog pricing and early procurement workflow. Ignore the historical “public catalog” framing: **all app screens require login**.
+Internal ops app for catalog pricing and early procurement workflow. Guests can search the public catalog landing at `/`. All other modules remain auth-gated.
 
 ## Actors
 
-- **Guest:** Login page only. No catalog or write access.
+- **Guest:** Public catalog landing at `/` — search live products for selling price, availability, unit, description, and categories. No write access; no `purchase_price` or stock quantities. Login page for admin entry.
 - **Admin:** Single seeded account (via `DatabaseSeeder`). Full access to implemented modules after session login. No public registration.
 
 ## App shell
 
-- Layout: `AppLayout` — site header + sidebar nav + main panel
-- Auth: session login/logout; authenticated `/` is the ops dashboard; login lands on `/`; Products remains `/products`
+- Layout: `AppLayout` — site header + sidebar nav + main panel (authenticated); public landing uses slim `PublicLayout` (header only)
+- Auth: session login/logout; guests see catalog landing at `/`; authenticated `/` is the ops dashboard; login lands on `/`; Products remains `/products`
 - Flash feedback: server `Inertia::flash('toast', { type, message })` → Sonner via `FlashToaster`
 
 ### Cross-device UX
@@ -28,7 +28,8 @@ Internal ops app for catalog pricing and early procurement workflow. Ignore the 
 
 | Module | Route | Status |
 |--------|-------|--------|
-| Dashboard | `/` | Shipped — procurement KPIs + needs-attention list |
+| Catalog (public) | `/` (guest) | Shipped — search price & availability; Soft Flat landing |
+| Dashboard | `/` (auth) | Shipped — procurement KPIs + needs-attention list |
 | Products | `/products` | Shipped — search/browse panel (includes stock; cost via admin edit) |
 | Suppliers | `/suppliers` | Shipped — full CRUD |
 | Customers | `/customers` | Shipped — full CRUD |
@@ -56,9 +57,10 @@ Admin product management lives under `/admin/products` (also auth-gated). `/rece
 
 ### Products UX
 
-- **Browse (`/products`):** Search by name/description; optional category filter; list shows public fields only (`toPublicArray`)
+- **Public landing (`/` guest):** Search by name/description; category tiles; results via `toCatalogArray()` (no `quantity`, no `purchase_price`); detail modal; only `available` products
+- **Browse (`/products`):** Auth-gated search/browse; list may include quantity; cost stays in admin edit (`toAdminArray` / admin fields)
 - **Admin (`/admin/products`):** CRUD + soft delete / restore; category assign; full fields including `purchase_price`
-- Soft-deleted products stay out of the browse panel
+- Soft-deleted products stay out of browse and public landing
 
 ---
 
