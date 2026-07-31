@@ -85,7 +85,7 @@ index.form = indexForm
 * @see app/Http/Controllers/InventoryController.php:123
 * @route '/inventory/{product}/adjust'
 */
-export const adjust = (args: { product: string | number | { id: string | number } } | [product: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const adjust = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: adjust.url(args, options),
     method: 'post',
 })
@@ -100,7 +100,7 @@ adjust.definition = {
 * @see app/Http/Controllers/InventoryController.php:123
 * @route '/inventory/{product}/adjust'
 */
-adjust.url = (args: { product: string | number | { id: string | number } } | [product: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+adjust.url = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { product: args }
     }
@@ -133,7 +133,7 @@ adjust.url = (args: { product: string | number | { id: string | number } } | [pr
 * @see app/Http/Controllers/InventoryController.php:123
 * @route '/inventory/{product}/adjust'
 */
-adjust.post = (args: { product: string | number | { id: string | number } } | [product: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+adjust.post = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: adjust.url(args, options),
     method: 'post',
 })
@@ -143,7 +143,7 @@ adjust.post = (args: { product: string | number | { id: string | number } } | [p
 * @see app/Http/Controllers/InventoryController.php:123
 * @route '/inventory/{product}/adjust'
 */
-const adjustForm = (args: { product: string | number | { id: string | number } } | [product: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const adjustForm = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: adjust.url(args, options),
     method: 'post',
 })
@@ -153,7 +153,7 @@ const adjustForm = (args: { product: string | number | { id: string | number } }
 * @see app/Http/Controllers/InventoryController.php:123
 * @route '/inventory/{product}/adjust'
 */
-adjustForm.post = (args: { product: string | number | { id: string | number } } | [product: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+adjustForm.post = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: adjust.url(args, options),
     method: 'post',
 })
@@ -165,7 +165,7 @@ adjust.form = adjustForm
 * @see app/Http/Controllers/InventoryController.php:148
 * @route '/inventory/{product}/settings'
 */
-export const updateSettings = (args: { product: string | number | { id: string | number } } | [product: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const updateSettings = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: updateSettings.url(args, options),
     method: 'post',
 })
@@ -180,7 +180,7 @@ updateSettings.definition = {
 * @see app/Http/Controllers/InventoryController.php:148
 * @route '/inventory/{product}/settings'
 */
-updateSettings.url = (args: { product: string | number | { id: string | number } } | [product: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+updateSettings.url = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { product: args }
     }
@@ -213,7 +213,7 @@ updateSettings.url = (args: { product: string | number | { id: string | number }
 * @see app/Http/Controllers/InventoryController.php:148
 * @route '/inventory/{product}/settings'
 */
-updateSettings.post = (args: { product: string | number | { id: string | number } } | [product: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+updateSettings.post = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: updateSettings.url(args, options),
     method: 'post',
 })
@@ -223,7 +223,7 @@ updateSettings.post = (args: { product: string | number | { id: string | number 
 * @see app/Http/Controllers/InventoryController.php:148
 * @route '/inventory/{product}/settings'
 */
-const updateSettingsForm = (args: { product: string | number | { id: string | number } } | [product: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const updateSettingsForm = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: updateSettings.url(args, options),
     method: 'post',
 })
@@ -233,7 +233,7 @@ const updateSettingsForm = (args: { product: string | number | { id: string | nu
 * @see app/Http/Controllers/InventoryController.php:148
 * @route '/inventory/{product}/settings'
 */
-updateSettingsForm.post = (args: { product: string | number | { id: string | number } } | [product: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+updateSettingsForm.post = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: updateSettings.url(args, options),
     method: 'post',
 })
