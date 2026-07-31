@@ -15,7 +15,7 @@ Internal ops app for catalog pricing and early procurement workflow. Guests can 
 ## App shell
 
 - Layout: `AppLayout` — site header + sidebar nav + main panel (authenticated); public landing uses slim `PublicLayout` (header only)
-- Auth: session login/logout; guests see catalog landing at `/`; authenticated `/` is the ops dashboard; login lands on `/`; Products remains `/products`
+- Auth: session login/logout; `/` is the public catalog for guests and logged-in users; authenticated ops dashboard is `/dashboard`; login lands on `/dashboard`; Products remains `/products`
 - Flash feedback: server `Inertia::flash('toast', { type, message })` → Sonner via `FlashToaster`
 
 ### Cross-device UX
@@ -28,8 +28,8 @@ Internal ops app for catalog pricing and early procurement workflow. Guests can 
 
 | Module | Route | Status |
 |--------|-------|--------|
-| Catalog (public) | `/` (guest) | Shipped — search price & availability; Soft Flat landing |
-| Dashboard | `/` (auth) | Shipped — procurement KPIs + needs-attention list |
+| Catalog (public) | `/` | Shipped — search price & availability; Soft Flat landing (guests and auth) |
+| Dashboard | `/dashboard` | Shipped — procurement KPIs + needs-attention list |
 | Products | `/products` | Shipped — search/browse panel (includes stock; cost via admin edit) |
 | Suppliers | `/suppliers` | Shipped — full CRUD |
 | Customers | `/customers` | Shipped — full CRUD |

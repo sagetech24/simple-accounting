@@ -2,7 +2,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { destroy } from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
 import SystemPreferenceModal from '@/components/system-preference-modal';
-import { home, login } from '@/routes';
+import { dashboard, home, login } from '@/routes';
 
 function UserMenu({ userName, onSystemPreference }) {
     const [open, setOpen] = useState(false);
@@ -122,6 +122,12 @@ export default function SiteHeader() {
                 <nav className="flex items-center gap-3 text-sm">
                     {auth?.user ? (
                         <>
+                            <Link
+                                href={dashboard.url()}
+                                className="rounded-md border border-line bg-white px-3 py-1.5 text-ink-soft transition hover:border-ink/30 hover:bg-mist"
+                            >
+                                Dashboard
+                            </Link>
                             <UserMenu
                                 userName={auth.user.name}
                                 onSystemPreference={() =>

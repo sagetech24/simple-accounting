@@ -11,7 +11,7 @@ import {
 } from '@/components/nav-icons';
 import SiteHeader from '@/components/site-header';
 import { configureMoneyFormat } from '@/lib/format-money';
-import { home, products } from '@/routes';
+import { dashboard, products } from '@/routes';
 import { index as accountsPayable } from '@/routes/accounts-payable';
 import { index as customers } from '@/routes/customers';
 import { index as inventory } from '@/routes/inventory';
@@ -20,7 +20,7 @@ import { index as requestQuotations } from '@/routes/request-quotations';
 import { index as suppliers } from '@/routes/suppliers';
 
 const navItems = [
-    { label: 'Dashboard', route: home, icon: DashboardNavIcon },
+    { label: 'Dashboard', route: dashboard, icon: DashboardNavIcon },
     { label: 'Products', route: products, icon: ProductsNavIcon },
     { label: 'Suppliers', route: suppliers, icon: SuppliersNavIcon },
     { label: 'Customers', route: customers, icon: CustomersNavIcon },

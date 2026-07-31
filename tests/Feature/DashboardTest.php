@@ -16,17 +16,16 @@ class DashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_guests_see_landing_instead_of_dashboard_at_home(): void
+    public function test_guests_cannot_view_dashboard(): void
     {
-        $this->get(route('home'))
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('landing/index'));
+        $this->get(route('dashboard'))
+            ->assertRedirect(route('login'));
     }
 
     public function test_authenticated_users_see_zero_kpis_when_empty(): void
     {
         $this->actingAs(User::factory()->create())
-            ->get(route('home'))
+            ->get(route('dashboard'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('dashboard/index')
@@ -102,7 +101,7 @@ class DashboardTest extends TestCase
         ]);
 
         $this->actingAs($admin)
-            ->get(route('home'))
+            ->get(route('dashboard'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->where('kpis.pending_rfqs', 1)
@@ -163,7 +162,7 @@ class DashboardTest extends TestCase
         ]);
 
         $this->actingAs($admin)
-            ->get(route('home'))
+            ->get(route('dashboard'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->has('attention', 4)

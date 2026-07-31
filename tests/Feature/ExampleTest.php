@@ -18,10 +18,10 @@ class ExampleTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->component('landing/index'));
     }
 
-    public function test_authenticated_users_see_dashboard_at_home(): void
+    public function test_authenticated_users_see_dashboard_at_dashboard_route(): void
     {
         $this->actingAs(User::factory()->create())
-            ->get('/')
+            ->get('/dashboard')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('dashboard/index')
@@ -66,13 +66,13 @@ class ExampleTest extends TestCase
             ->assertOk();
     }
 
-    public function test_login_redirects_to_home(): void
+    public function test_login_redirects_to_dashboard(): void
     {
         $this->seed();
 
         $this->post(route('login.store'), [
             'email' => 'admin@example.com',
             'password' => 'password',
-        ])->assertRedirect(route('home'));
+        ])->assertRedirect(route('dashboard'));
     }
 }

@@ -13,10 +13,6 @@ class LandingController extends Controller
 {
     public function index(CatalogSearchRequest $request): Response
     {
-        if ($request->user()) {
-            return app(DashboardController::class)->index();
-        }
-
         $validated = $request->validated();
         $query = $validated['q'] ?? null;
 

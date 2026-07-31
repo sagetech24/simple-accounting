@@ -86,10 +86,23 @@ class LandingPageTest extends TestCase
             );
     }
 
-    public function test_authenticated_users_still_see_dashboard_at_home(): void
+    public function test_authenticated_users_can_view_landing_at_home(): void
     {
         $this->actingAs(User::factory()->create())
             ->get(route('home'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('landing/index')
+                ->has('products')
+                ->has('categories')
+                ->has('filters')
+            );
+    }
+
+    public function test_authenticated_users_see_dashboard_at_dashboard_route(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get(route('dashboard'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('dashboard/index')

@@ -21,7 +21,7 @@ Canonical product rules live in `.cursor/rules/PRD.mdc` (PRD v1).
 | Actor | Access |
 |-------|--------|
 | **Guest** | Public catalog at `/` — search selling price, availability, unit, description, and categories. No write access; no `purchase_price` or stock quantities. Admin login at `/login`. |
-| **Admin** | Single seeded account (`DatabaseSeeder`). Full access to ops modules after session login. No public registration. |
+| **Admin** | Single seeded account (`DatabaseSeeder`). Full access to ops modules after session login (dashboard at `/dashboard`). Can still open the catalog at `/`. No public registration. |
 
 **Seeded admin:** `admin@example.com` / `password`
 
@@ -31,8 +31,8 @@ Canonical product rules live in `.cursor/rules/PRD.mdc` (PRD v1).
 
 | Module | Route | Notes |
 |--------|-------|--------|
-| Catalog (public) | `/` (guest) | Search price & availability; Soft Flat landing + detail modal |
-| Dashboard | `/` (auth) | Procurement KPIs + needs-attention list |
+| Catalog (public) | `/` | Search price & availability; Soft Flat landing (guests and auth) |
+| Dashboard | `/dashboard` | Procurement KPIs + needs-attention list |
 | Products | `/products` | Auth browse (includes stock; cost via admin edit) |
 | Admin products | `/admin/products` | Full CRUD, soft delete / restore, `purchase_price` |
 | Suppliers | `/suppliers` | Index-only CRUD in slide-down modal |
