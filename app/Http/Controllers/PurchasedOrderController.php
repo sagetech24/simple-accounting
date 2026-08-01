@@ -37,7 +37,27 @@ class PurchasedOrderController extends Controller
 
         $trashed = $filters['trashed'] ?? null;
 
-        $orders = PurchasedOrder::query()
+        $filteredQuery = PurchasedOrder::query()
+            ->when($trashed === 'only', fn ($builder) => $builder->onlyTrashed())
+            ->when($trashed === 'with', fn ($builder) => $builder->withTrashed());
+
+        $summary = [
+            'order_count' => (clone $filteredQuery)->count(),
+            'draft_count' => (clone $filteredQuery)
+                ->where('status', PurchasedOrderStatus::Draft)
+                ->count(),
+            'ordered_count' => (clone $filteredQuery)
+                ->where('status', PurchasedOrderStatus::Ordered)
+                ->count(),
+            'received_count' => (clone $filteredQuery)
+                ->where('status', PurchasedOrderStatus::Received)
+                ->count(),
+            'posted_to_ap_count' => (clone $filteredQuery)
+                ->whereNotNull('posted_to_ap_at')
+                ->count(),
+        ];
+
+        $orders = (clone $filteredQuery)
             ->with([
                 'supplier',
                 'requestQuotation.supplier',
@@ -45,8 +65,6 @@ class PurchasedOrderController extends Controller
                 'items.product',
                 'payments.bankCheck.bankAccount',
             ])
-            ->when($trashed === 'only', fn ($builder) => $builder->onlyTrashed())
-            ->when($trashed === 'with', fn ($builder) => $builder->withTrashed())
             ->orderedByWorkflow()
             ->paginate(8)
             ->withQueryString()
@@ -54,6 +72,7 @@ class PurchasedOrderController extends Controller
 
         return Inertia::render('purchased-orders/index', [
             'orders' => $orders,
+            'summary' => $summary,
             'statuses' => $this->statusOptions(),
             'paymentMethods' => $this->paymentMethodOptions(),
             'filters' => [

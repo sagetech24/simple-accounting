@@ -13,21 +13,40 @@ import PurchasedOrderReceiveAdjustmentModal from '@/components/purchased-order-r
 import RequestQuotationDetailModal from '@/components/request-quotation-detail-modal';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
-import { index } from '@/routes/purchased-orders';
 import { show as accountsPayableShow } from '@/routes/accounts-payable';
+import { index } from '@/routes/purchased-orders';
 
-function formatDate(value) {
+const trashViews = [
+    { value: '', label: 'Active' },
+    { value: 'with', label: 'Include deleted' },
+    { value: 'only', label: 'Deleted only' },
+];
+
+const focusRing =
+    'focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none';
+
+function formatDateParts(value) {
     if (!value) {
-        return '—';
+        return { date: '—', time: null };
+    }
+
+    const parsed = new Date(value);
+
+    if (Number.isNaN(parsed.getTime())) {
+        return { date: value, time: null };
     }
 
     try {
-        return new Intl.DateTimeFormat(undefined, {
-            dateStyle: 'medium',
-            timeStyle: 'short',
-        }).format(new Date(value));
+        return {
+            date: new Intl.DateTimeFormat(undefined, {
+                dateStyle: 'medium',
+            }).format(parsed),
+            time: new Intl.DateTimeFormat(undefined, {
+                timeStyle: 'short',
+            }).format(parsed),
+        };
     } catch {
-        return value;
+        return { date: value, time: null };
     }
 }
 
@@ -38,6 +57,83 @@ function statusBadgeClass(status) {
             received: 'border-green-600/30 bg-green-400/10 text-green-700',
             draft: 'border-slate-500/30 bg-slate-400/10 text-slate-700',
         }[status] ?? 'border-line bg-mist text-ink-soft'
+    );
+}
+
+function Badge({ className, children }) {
+    return (
+        <span
+            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${className}`}
+        >
+            {children}
+        </span>
+    );
+}
+
+function SummaryCard({ label, value, hint, tone = 'text-ink', emphasis }) {
+    return (
+        <div
+            className={`flex min-h-24 flex-col justify-between rounded-md border p-4 ${
+                emphasis ? 'border-teal-700 bg-mist' : 'border-line bg-white'
+            }`}
+        >
+            <p className="text-xs font-medium tracking-wide text-muted uppercase">
+                {label}
+            </p>
+            <p
+                className={`mt-3 text-xl font-semibold tracking-tight tabular-nums ${tone}`}
+            >
+                {value}
+            </p>
+            {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
+        </div>
+    );
+}
+
+function PlusIcon({ className = 'size-5' }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className={className}
+            aria-hidden="true"
+        >
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+            />
+        </svg>
+    );
+}
+
+function OrderStatusBadges({ order }) {
+    return (
+        <div className="flex flex-wrap items-center gap-1.5">
+            <Badge className={statusBadgeClass(order.status)}>
+                {order.status_label}
+            </Badge>
+            {order.is_posted_to_ap ? (
+                <Link
+                    href={accountsPayableShow.url({
+                        supplier: order.supplier_id,
+                        purchased_order: order.reference,
+                    })}
+                    className={`rounded-full border border-teal-700/30 bg-mist px-2.5 py-0.5 text-xs font-medium text-teal-800 underline-offset-2 transition hover:underline ${focusRing}`}
+                    onClick={(event) => event.stopPropagation()}
+                >
+                    Posted to AP
+                </Link>
+            ) : null}
+            {order.deleted_at ? (
+                <Badge className="border-red-600/30 bg-red-400/10 text-red-700">
+                    Deleted
+                </Badge>
+            ) : null}
+        </div>
     );
 }
 
@@ -89,7 +185,7 @@ function RowActionsMenu({
             <button
                 type="button"
                 onClick={onToggle}
-                className="inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-ink-soft transition duration-300 hover:scale-105 hover:bg-gray-100"
+                className={`inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-ink-soft transition duration-150 hover:bg-mist hover:text-ink ${focusRing}`}
                 aria-label={`Actions for ${order.reference}`}
                 aria-haspopup="menu"
                 aria-expanded={open}
@@ -110,7 +206,7 @@ function RowActionsMenu({
                 <div
                     id={menuId}
                     role="menu"
-                    className="absolute top-0 right-12 z-20 min-w-40 rounded-md border border-line bg-white py-1"
+                    className="absolute top-0 right-12 z-20 min-w-44 rounded-md border border-line bg-white py-1"
                 >
                     {!isDeleted && order.can_edit && (
                         <button
@@ -120,7 +216,7 @@ function RowActionsMenu({
                                 onClose();
                                 onEdit(order);
                             }}
-                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                            className="block w-full cursor-pointer px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
                         >
                             Edit
                         </button>
@@ -133,7 +229,7 @@ function RowActionsMenu({
                                 onClose();
                                 onMarkOrdered(order);
                             }}
-                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                            className="block w-full cursor-pointer px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
                         >
                             Mark as Ordered
                         </button>
@@ -146,7 +242,7 @@ function RowActionsMenu({
                                 onClose();
                                 onMarkReceivedWithAdjustment(order);
                             }}
-                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                            className="block w-full cursor-pointer px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
                         >
                             Receive Orders
                         </button>
@@ -159,7 +255,7 @@ function RowActionsMenu({
                                 onClose();
                                 onAddPrepayment(order);
                             }}
-                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                            className="block w-full cursor-pointer px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
                         >
                             Add Pre-payment
                         </button>
@@ -172,7 +268,7 @@ function RowActionsMenu({
                                 onClose();
                                 onPostToAccountsPayable(order);
                             }}
-                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                            className="block w-full cursor-pointer px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
                         >
                             Post to AP
                         </button>
@@ -198,7 +294,7 @@ function RowActionsMenu({
                                 onClose();
                                 onDelete(order);
                             }}
-                            className="block w-full px-3 py-2 text-left text-sm text-warn transition hover:bg-mist"
+                            className="block w-full cursor-pointer px-3 py-2 text-left text-sm text-warn transition hover:bg-mist"
                         >
                             Delete
                         </button>
@@ -211,7 +307,7 @@ function RowActionsMenu({
                                 onClose();
                                 onRestore(order);
                             }}
-                            className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                            className="block w-full cursor-pointer px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
                         >
                             Restore
                         </button>
@@ -224,6 +320,13 @@ function RowActionsMenu({
 
 export default function PurchasedOrdersIndex({
     orders,
+    summary = {
+        order_count: 0,
+        draft_count: 0,
+        ordered_count: 0,
+        received_count: 0,
+        posted_to_ap_count: 0,
+    },
     suppliers,
     products,
     bankAccounts = [],
@@ -238,7 +341,7 @@ export default function PurchasedOrdersIndex({
     const [adjustmentOrder, setAdjustmentOrder] = useState(null);
     const [prepaymentOrder, setPrepaymentOrder] = useState(null);
     const [openMenuId, setOpenMenuId] = useState(null);
-    const [trashed, setTrashed] = useState(filters.trashed ?? '');
+    const trashed = filters.trashed ?? '';
 
     function openCreateTab() {
         setEditingOrder(null);
@@ -329,19 +432,14 @@ export default function PurchasedOrdersIndex({
         router.get(index.url(), params, {
             preserveState: true,
             replace: true,
+            preserveScroll: true,
         });
     }
 
-    function applyTrashFilter(event) {
-        event.preventDefault();
+    function applyTrashFilter(value) {
         visitIndex({
-            trashed: trashed || undefined,
+            trashed: value || undefined,
         });
-    }
-
-    function clearTrashFilter() {
-        setTrashed('');
-        visitIndex({});
     }
 
     function markOrderAsOrdered(order) {
@@ -386,10 +484,37 @@ export default function PurchasedOrdersIndex({
         ? 'Edit Purchase Order'
         : 'Create New Purchase Order';
 
+    const orderedHint =
+        summary.ordered_count > 0
+            ? `${summary.ordered_count} awaiting receive`
+            : 'None awaiting receive';
+
+    function renderRowActions(order) {
+        return (
+            <RowActionsMenu
+                order={order}
+                open={openMenuId === order.id}
+                onToggle={() =>
+                    setOpenMenuId((current) =>
+                        current === order.id ? null : order.id,
+                    )
+                }
+                onClose={() => setOpenMenuId(null)}
+                onEdit={openEditTab}
+                onDelete={deleteOrder}
+                onRestore={restoreOrder}
+                onMarkOrdered={markOrderAsOrdered}
+                onMarkReceivedWithAdjustment={openReceiveAdjustmentModal}
+                onAddPrepayment={openPrepaymentModal}
+                onPostToAccountsPayable={postOrderToAccountsPayable}
+            />
+        );
+    }
+
     return (
         <AppLayout title="Purchased Orders">
-            <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
+            <div className="flex flex-wrap items-start justify-between gap-3 p-4 pb-0">
+                <header>
                     <h2 className="text-2xl font-semibold tracking-tight text-ink">
                         Purchased Orders
                     </h2>
@@ -397,42 +522,25 @@ export default function PurchasedOrdersIndex({
                         Create purchase orders from approved quotations or
                         manually, then mark them ordered and received.
                     </p>
-                    <p className="mt-1 text-sm font-medium text-muted">
-                        Total: {orders.total}{' '}
-                        {orders.total === 1 ? 'order' : 'orders'}
-                    </p>
-                </div>
+                </header>
 
-                {activeTab === 'list' && (
+                {activeTab === 'list' ? (
                     <button
                         type="button"
                         onClick={openCreateTab}
-                        className="flex size-14 shrink-0 items-center justify-center rounded-md bg-teal-700 text-paper transition hover:bg-teal-800"
-                        aria-label="Create new purchase order"
+                        className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-teal-700 px-4 text-sm font-medium tracking-wide text-paper transition duration-150 hover:bg-teal-800 ${focusRing}`}
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth="1.5"
-                            stroke="currentColor"
-                            className="size-6"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 4.5v15m7.5-7.5h-15"
-                            />
-                        </svg>
+                        <PlusIcon />
+                        New order
                     </button>
-                )}
+                ) : null}
             </div>
 
-            <div className="border-b border-line px-4">
+            <div className="mt-4 border-b border-line px-4">
                 <div
                     role="tablist"
                     aria-label="Purchased order views"
-                    className="flex gap-2"
+                    className="flex gap-2 overflow-x-auto"
                 >
                     <button
                         type="button"
@@ -444,7 +552,7 @@ export default function PurchasedOrdersIndex({
                             setEditingOrder(null);
                             setActiveTab('list');
                         }}
-                        className={`min-h-11 border-b-2 px-4 text-sm font-medium transition ${
+                        className={`min-h-11 shrink-0 cursor-pointer border-b-2 px-4 text-sm font-medium transition ${
                             activeTab === 'list'
                                 ? 'border-teal-700 text-teal-800'
                                 : 'border-transparent text-muted hover:text-ink'
@@ -459,7 +567,7 @@ export default function PurchasedOrdersIndex({
                         aria-selected={activeTab === 'create'}
                         aria-controls="panel-create"
                         onClick={openCreateTab}
-                        className={`min-h-11 border-b-2 px-4 text-sm font-medium transition ${
+                        className={`min-h-11 shrink-0 cursor-pointer border-b-2 px-4 text-sm font-medium transition ${
                             activeTab === 'create'
                                 ? 'border-teal-700 text-teal-800'
                                 : 'border-transparent text-muted hover:text-ink'
@@ -475,116 +583,196 @@ export default function PurchasedOrdersIndex({
                     role="tabpanel"
                     id="panel-list"
                     aria-labelledby="tab-list"
-                    className="p-4"
+                    className="space-y-5 p-4"
                 >
-                    <form
-                        onSubmit={applyTrashFilter}
-                        className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end"
+                    <section
+                        aria-label="Purchase order rollup"
+                        className="grid grid-cols-2 gap-3 lg:grid-cols-4"
                     >
-                        <div className="sm:w-48">
-                            <label
-                                htmlFor="trashed"
-                                className="mb-1.5 block text-sm font-medium text-ink-soft"
-                            >
-                                Trash
-                            </label>
-                            <select
-                                id="trashed"
-                                value={trashed}
-                                onChange={(event) =>
-                                    setTrashed(event.target.value)
-                                }
-                                className="min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-                            >
-                                <option value="">Active only</option>
-                                <option value="with">Include deleted</option>
-                                <option value="only">Deleted only</option>
-                            </select>
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                type="submit"
-                                className="min-h-11 rounded-md bg-teal-600 px-4 text-sm font-medium tracking-wider text-paper transition hover:bg-teal-800"
-                            >
-                                Filter
-                            </button>
-                            {filters.trashed && (
+                        <SummaryCard
+                            label="Orders"
+                            value={summary.order_count}
+                            hint={`${summary.posted_to_ap_count} posted to AP`}
+                        />
+                        <SummaryCard
+                            label="Draft"
+                            value={summary.draft_count}
+                            hint="Editable before ordering"
+                        />
+                        <SummaryCard
+                            label="Ordered"
+                            value={summary.ordered_count}
+                            tone={
+                                summary.ordered_count > 0
+                                    ? 'text-warn'
+                                    : 'text-ink'
+                            }
+                            hint={orderedHint}
+                            emphasis={summary.ordered_count > 0}
+                        />
+                        <SummaryCard
+                            label="Received"
+                            value={summary.received_count}
+                            tone={
+                                summary.received_count > 0
+                                    ? 'text-teal-700'
+                                    : 'text-ink'
+                            }
+                            hint="Stock already received"
+                        />
+                    </section>
+
+                    <div
+                        role="group"
+                        aria-label="Filter by trash state"
+                        className="flex flex-wrap gap-2"
+                    >
+                        {trashViews.map((view) => {
+                            const active = trashed === view.value;
+
+                            return (
                                 <button
+                                    key={view.value || 'active'}
                                     type="button"
-                                    onClick={clearTrashFilter}
-                                    className="min-h-11 border border-line bg-white px-4 text-sm text-ink-soft transition hover:border-ink/30"
+                                    onClick={() => applyTrashFilter(view.value)}
+                                    aria-current={active ? 'true' : undefined}
+                                    className={`inline-flex min-h-11 items-center rounded-md border px-4 text-sm font-medium transition duration-150 ${focusRing} ${
+                                        active
+                                            ? 'cursor-default border-teal-700 bg-teal-700 text-paper'
+                                            : 'cursor-pointer border-line bg-white text-ink-soft hover:border-teal-600 hover:text-ink'
+                                    }`}
                                 >
-                                    Clear
+                                    {view.label}
                                 </button>
-                            )}
-                        </div>
-                    </form>
+                            );
+                        })}
+                    </div>
 
-                    <div className="mt-6 px-4">
-                        <table className="w-full border-collapse text-left text-sm">
-                            <thead className="sticky top-0 bg-mist">
-                                <tr className="border-b border-line text-xs tracking-wide uppercase">
-                                    <th className="px-4 py-3 font-medium text-muted">
-                                        Supplier
-                                    </th>
-                                    <th className="px-4 py-3 font-medium text-muted">
-                                        Source Request
-                                    </th>
-                                    <th className="px-4 py-3 font-medium text-muted">
-                                        Items
-                                    </th>
-                                    <th className="px-4 py-3 font-medium text-muted">
-                                        Grand total
-                                    </th>
-                                    <th className="px-4 py-3 font-medium text-muted">
-                                        Status
-                                    </th>
-                                    <th className="px-4 py-3 font-medium text-muted">
-                                        Created
-                                    </th>
-                                    <th className="w-14 px-4 py-3 text-right">
-                                        <span className="sr-only">Actions</span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {orders.data.length === 0 && (
-                                    <tr>
-                                        <td
-                                            colSpan={8}
-                                            className="px-4 py-10 text-center text-muted"
+                    <section
+                        aria-labelledby="po-orders-heading"
+                        className="space-y-3"
+                    >
+                        <h3
+                            id="po-orders-heading"
+                            className="text-lg font-semibold text-ink"
+                        >
+                            Purchase orders
+                        </h3>
+
+                        {orders.data.length === 0 ? (
+                            <div className="rounded-md border border-line bg-white px-4 py-10 text-center">
+                                <p className="text-sm font-semibold text-ink">
+                                    {trashed === 'only'
+                                        ? 'No deleted orders'
+                                        : 'No purchase orders yet'}
+                                </p>
+                                <p className="mx-auto mt-1 max-w-md text-sm text-muted">
+                                    {trashed === 'only'
+                                        ? 'Nothing in the trash for this filter.'
+                                        : 'Create a purchase order from an approved quotation or start one manually.'}
+                                </p>
+                                {trashed !== 'only' ? (
+                                    <div className="mt-4">
+                                        <button
+                                            type="button"
+                                            onClick={openCreateTab}
+                                            className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition duration-150 hover:bg-teal-800 ${focusRing}`}
                                         >
-                                            No purchase orders match these
-                                            filters.
-                                        </td>
-                                    </tr>
+                                            <PlusIcon />
+                                            New order
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="mt-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => applyTrashFilter('')}
+                                            className={`inline-flex min-h-11 cursor-pointer items-center rounded-md border border-line bg-white px-5 text-sm font-medium text-ink-soft transition duration-150 hover:border-ink/30 hover:text-ink ${focusRing}`}
+                                        >
+                                            Show active orders
+                                        </button>
+                                    </div>
                                 )}
-                                {orders.data.map((order) => {
-                                    const isDeleted = Boolean(order.deleted_at);
+                            </div>
+                        ) : (
+                            <>
+                                <div className="grid gap-3 sm:grid-cols-2 lg:hidden">
+                                    {orders.data.map((order) => {
+                                        const created = formatDateParts(
+                                            order.created_at,
+                                        );
+                                        const isDeleted = Boolean(
+                                            order.deleted_at,
+                                        );
 
-                                    return (
-                                        <tr
-                                            key={order.id}
-                                            className="border-b border-line/80 align-top"
-                                        >
-                                            <td className="px-4 py-4 text-ink-soft flex gap-1 items-center">
-                                                {order.supplier_name || '—'}
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        openDetailModal(order)
-                                                    }
-                                                    title={order.reference}
-                                                    className={`block max-w-full truncate text-left font-mono font-semibold text-[10px] break-all underline-offset-2 transition hover:underline focus:underline focus:outline-none ${
-                                                        isDeleted
-                                                            ? 'text-muted line-through'
-                                                            : 'cursor-pointer text-teal-800'
-                                                    }`}
-                                                >
-                                                    (Details)
-                                                </button>
-                                            </td>
-                                            <td className="max-w-40 px-4 py-4 font-mono text-xs break-all text-ink-soft">
+                                        return (
+                                            <div
+                                                key={order.id}
+                                                className="flex flex-col gap-3 rounded-md border border-line bg-white p-4"
+                                            >
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="min-w-0">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                openDetailModal(
+                                                                    order,
+                                                                )
+                                                            }
+                                                            className={`text-left font-medium wrap-break-word underline-offset-2 transition hover:underline ${focusRing} ${
+                                                                isDeleted
+                                                                    ? 'text-muted line-through'
+                                                                    : 'cursor-pointer text-teal-800'
+                                                            }`}
+                                                        >
+                                                            {order.supplier_name ||
+                                                                '—'}
+                                                        </button>
+                                                        <p
+                                                            className="mt-1 max-w-full truncate font-mono text-xs text-muted"
+                                                            title={
+                                                                order.reference
+                                                            }
+                                                        >
+                                                            {order.reference}
+                                                        </p>
+                                                    </div>
+                                                    {renderRowActions(order)}
+                                                </div>
+
+                                                <OrderStatusBadges
+                                                    order={order}
+                                                />
+
+                                                <dl className="grid grid-cols-3 gap-2 border-t border-line pt-3">
+                                                    <div>
+                                                        <dt className="text-xs tracking-wide text-muted uppercase">
+                                                            Items
+                                                        </dt>
+                                                        <dd className="mt-0.5 text-sm text-ink-soft tabular-nums">
+                                                            {order.item_count}
+                                                        </dd>
+                                                    </div>
+                                                    <div>
+                                                        <dt className="text-xs tracking-wide text-muted uppercase">
+                                                            Total
+                                                        </dt>
+                                                        <dd className="mt-0.5 text-sm font-semibold text-ink tabular-nums">
+                                                            {formatMoney(
+                                                                order.grand_total,
+                                                            )}
+                                                        </dd>
+                                                    </div>
+                                                    <div>
+                                                        <dt className="text-xs tracking-wide text-muted uppercase">
+                                                            Created
+                                                        </dt>
+                                                        <dd className="mt-0.5 text-xs text-ink-soft">
+                                                            {created.date}
+                                                        </dd>
+                                                    </div>
+                                                </dl>
+
                                                 {order.request_quotation_id &&
                                                 order.request_quotation_reference ? (
                                                     <button
@@ -594,100 +782,187 @@ export default function PurchasedOrdersIndex({
                                                                 order,
                                                             )
                                                         }
-                                                        title={
-                                                            order.request_quotation_reference
-                                                        }
-                                                        className="block max-w-full truncate font-semibold text-[10px] text-left text-teal-800 underline-offset-2 transition hover:underline focus:underline focus:outline-none"
+                                                        className={`self-start text-xs font-medium text-teal-800 underline-offset-2 transition hover:underline ${focusRing}`}
                                                     >
-                                                        View Request
+                                                        View source RFQ
                                                     </button>
-                                                ) : (
-                                                    '—'
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-4 text-ink-soft">
-                                                {order.item_count}
-                                            </td>
-                                            <td className="px-4 py-4 font-medium text-ink">
-                                                {formatMoney(order.grand_total)}
-                                            </td>
-                                            <td className="px-4 py-4">
-                                                <div className="flex flex-wrap items-center gap-1.5">
-                                                    <span
-                                                        className={`rounded-full border px-3 py-1 text-xs ${statusBadgeClass(order.status)}`}
-                                                    >
-                                                        {order.status_label}
-                                                    </span>
-                                                    {order.is_posted_to_ap && (
-                                                        <Link
-                                                            href={accountsPayableShow.url(
-                                                                {
-                                                                    supplier:
-                                                                        order.supplier_id,
-                                                                    purchased_order:
-                                                                        order.reference,
-                                                                },
-                                                            )}
-                                                            className="rounded-full border border-teal-700/30 bg-mist px-3 py-1 text-xs font-medium text-teal-800 underline-offset-2 transition hover:bg-mist hover:underline focus:underline focus:outline-none"
-                                                        >
-                                                            Posted to AP
-                                                        </Link>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-4 text-ink-soft">
-                                                {formatDate(order.created_at)}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <RowActionsMenu
-                                                    order={order}
-                                                    open={
-                                                        openMenuId === order.id
-                                                    }
-                                                    onToggle={() =>
-                                                        setOpenMenuId(
-                                                            (current) =>
-                                                                current ===
-                                                                order.id
-                                                                    ? null
-                                                                    : order.id,
-                                                        )
-                                                    }
-                                                    onClose={() =>
-                                                        setOpenMenuId(null)
-                                                    }
-                                                    onEdit={openEditTab}
-                                                    onDelete={deleteOrder}
-                                                    onRestore={restoreOrder}
-                                                    onMarkOrdered={
-                                                        markOrderAsOrdered
-                                                    }
-                                                    onMarkReceivedWithAdjustment={
-                                                        openReceiveAdjustmentModal
-                                                    }
-                                                    onAddPrepayment={
-                                                        openPrepaymentModal
-                                                    }
-                                                    onPostToAccountsPayable={
-                                                        postOrderToAccountsPayable
-                                                    }
-                                                />
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+                                                ) : null}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
 
-                    {orders.last_page > 1 && (
-                        <div className="mt-8 flex flex-wrap items-center gap-2 px-4 pb-4 text-sm">
+                                <div className="hidden overflow-x-auto rounded-md border border-line lg:block">
+                                    <table className="w-full min-w-170 border-collapse text-left text-sm">
+                                        <caption className="sr-only">
+                                            Purchase orders ordered by workflow
+                                            status
+                                        </caption>
+                                        <thead className="bg-mist">
+                                            <tr className="border-b border-line text-xs tracking-wide text-muted uppercase">
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-2.5 font-medium"
+                                                >
+                                                    Supplier
+                                                </th>
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-2.5 font-medium"
+                                                >
+                                                    Source
+                                                </th>
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-2.5 text-right font-medium"
+                                                >
+                                                    Items
+                                                </th>
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-2.5 text-right font-medium"
+                                                >
+                                                    Grand total
+                                                </th>
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-2.5 font-medium"
+                                                >
+                                                    Status
+                                                </th>
+                                                <th
+                                                    scope="col"
+                                                    className="px-4 py-2.5 font-medium"
+                                                >
+                                                    Created
+                                                </th>
+                                                <th
+                                                    scope="col"
+                                                    className="w-14 px-4 py-2.5 text-right font-medium"
+                                                >
+                                                    <span className="sr-only">
+                                                        Actions
+                                                    </span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {orders.data.map((order) => {
+                                                const created = formatDateParts(
+                                                    order.created_at,
+                                                );
+                                                const isDeleted = Boolean(
+                                                    order.deleted_at,
+                                                );
+
+                                                return (
+                                                    <tr
+                                                        key={order.id}
+                                                        className="border-b border-line/70 transition duration-150 last:border-0 hover:bg-mist/60"
+                                                    >
+                                                        <td className="px-4 py-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    openDetailModal(
+                                                                        order,
+                                                                    )
+                                                                }
+                                                                className={`block max-w-56 truncate text-left font-medium underline-offset-2 transition hover:underline ${focusRing} ${
+                                                                    isDeleted
+                                                                        ? 'text-muted line-through'
+                                                                        : 'cursor-pointer text-teal-800'
+                                                                }`}
+                                                                title={
+                                                                    order.supplier_name ||
+                                                                    undefined
+                                                                }
+                                                            >
+                                                                {order.supplier_name ||
+                                                                    '—'}
+                                                            </button>
+                                                            <p
+                                                                className="mt-0.5 max-w-56 truncate font-mono text-xs text-muted"
+                                                                title={
+                                                                    order.reference
+                                                                }
+                                                            >
+                                                                {
+                                                                    order.reference
+                                                                }
+                                                            </p>
+                                                        </td>
+                                                        <td className="px-4 py-2">
+                                                            {order.request_quotation_id &&
+                                                            order.request_quotation_reference ? (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        openSourceQuotationDetail(
+                                                                            order,
+                                                                        )
+                                                                    }
+                                                                    className={`text-sm font-medium text-teal-800 underline-offset-2 transition hover:underline ${focusRing}`}
+                                                                >
+                                                                    View RFQ
+                                                                </button>
+                                                            ) : (
+                                                                <span className="text-muted">
+                                                                    —
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-4 py-2 text-right text-ink-soft tabular-nums">
+                                                            {order.item_count}
+                                                        </td>
+                                                        <td className="px-4 py-2 text-right font-semibold text-ink tabular-nums">
+                                                            {formatMoney(
+                                                                order.grand_total,
+                                                            )}
+                                                        </td>
+                                                        <td className="px-4 py-2">
+                                                            <OrderStatusBadges
+                                                                order={order}
+                                                            />
+                                                        </td>
+                                                        <td className="px-4 py-2 text-xs text-ink-soft">
+                                                            <span className="block">
+                                                                {created.date}
+                                                            </span>
+                                                            {created.time ? (
+                                                                <span className="block text-muted">
+                                                                    {
+                                                                        created.time
+                                                                    }
+                                                                </span>
+                                                            ) : null}
+                                                        </td>
+                                                        <td className="px-4 py-2">
+                                                            {renderRowActions(
+                                                                order,
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
+                        )}
+                    </section>
+
+                    {orders.last_page > 1 ? (
+                        <nav
+                            aria-label="Purchase order pagination"
+                            className="flex flex-wrap items-center gap-2"
+                        >
                             {orders.links.map((link, i) => {
                                 if (!link.url) {
                                     return (
                                         <span
                                             key={`${link.label}-${i}`}
-                                            className="px-2 py-1 text-muted"
+                                            className="inline-flex min-h-11 items-center px-3 text-sm text-muted"
                                             dangerouslySetInnerHTML={{
                                                 __html: link.label,
                                             }}
@@ -699,20 +974,21 @@ export default function PurchasedOrdersIndex({
                                     <Link
                                         key={`${link.label}-${i}`}
                                         href={link.url}
-                                        className={
-                                            link.active
-                                                ? 'bg-ink px-3 py-1.5 text-paper'
-                                                : 'border border-line bg-white px-3 py-1.5 text-ink-soft hover:border-ink/30'
-                                        }
                                         preserveState
+                                        preserveScroll
+                                        className={`inline-flex min-h-11 cursor-pointer items-center px-3 text-sm transition duration-150 ${focusRing} ${
+                                            link.active
+                                                ? 'rounded-md bg-teal-700 text-paper'
+                                                : 'rounded-md border border-line bg-white text-ink-soft hover:border-ink/30 hover:text-ink'
+                                        }`}
                                         dangerouslySetInnerHTML={{
                                             __html: link.label,
                                         }}
                                     />
                                 );
                             })}
-                        </div>
-                    )}
+                        </nav>
+                    ) : null}
                 </div>
             )}
 
