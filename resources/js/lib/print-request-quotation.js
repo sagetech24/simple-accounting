@@ -216,11 +216,9 @@ export function buildRequestQuotationPrintHtml(quotation, options = {}) {
  * @returns {{ ok: true } | { ok: false, reason: 'popup_blocked' }}
  */
 export function printRequestQuotation(quotation, options = {}) {
-    const printWindow = window.open(
-        '',
-        '_blank',
-        'noopener,noreferrer,width=900,height=700',
-    );
+    // `noopener` / `noreferrer` would make window.open return null, leaving no
+    // handle to write the document into.
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
 
     if (!printWindow) {
         return { ok: false, reason: 'popup_blocked' };

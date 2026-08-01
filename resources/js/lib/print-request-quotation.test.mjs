@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { after, describe, it } from 'node:test';
 import {
     escapeHtml,
     buildRequestQuotationPrintHtml,
+    printRequestQuotation,
 } from './print-request-quotation.js';
 
 describe('escapeHtml', () => {
@@ -74,5 +75,60 @@ describe('buildRequestQuotationPrintHtml', () => {
             brandName: '  ',
         });
         assert.match(html, /JM Pundasyon/);
+    });
+});
+
+describe('printRequestQuotation', () => {
+    const originalWindow = globalThis.window;
+
+    after(() => {
+        globalThis.window = originalWindow;
+    });
+
+    function fakeWindow(openResult) {
+        const calls = [];
+
+        globalThis.window = {
+            open: (url, target, features) => {
+                calls.push({ url, target, features });
+
+                return openResult;
+            },
+        };
+
+        return calls;
+    }
+
+    function fakePrintWindow() {
+        return {
+            document: {
+                readyState: 'complete',
+                open: () => {},
+                write: () => {},
+                close: () => {},
+            },
+            addEventListener: () => {},
+            focus: () => {},
+            print: () => {},
+            close: () => {},
+        };
+    }
+
+    it('opens the print window without noopener, which would null the reference', () => {
+        const calls = fakeWindow(fakePrintWindow());
+
+        const result = printRequestQuotation({ reference: 'abc-123', items: [] });
+
+        assert.deepEqual(result, { ok: true });
+        assert.equal(calls.length, 1);
+        assert.doesNotMatch(calls[0].features, /noopener|noreferrer/);
+    });
+
+    it('reports popup_blocked when the browser returns no window', () => {
+        fakeWindow(null);
+
+        const result = printRequestQuotation({ reference: 'abc-123', items: [] });
+
+        assert.deepEqual(result, { ok: false, reason: 'popup_blocked' });
     });
 });
