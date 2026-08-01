@@ -99,6 +99,50 @@ class AccountsPayableTest extends TestCase
             );
     }
 
+    public function test_supplier_summary_covers_all_posted_orders_while_filtered(): void
+    {
+        $admin = User::factory()->create();
+        $supplier = Supplier::factory()->active()->create();
+
+        PurchasedOrder::factory()
+            ->ordered()
+            ->postedToAccountsPayable()
+            ->create([
+                'supplier_id' => $supplier->id,
+                'grand_total' => '80.00',
+            ]);
+
+        $settled = PurchasedOrder::factory()
+            ->received()
+            ->postedToAccountsPayable()
+            ->create([
+                'supplier_id' => $supplier->id,
+                'grand_total' => '20.00',
+            ]);
+
+        PurchasedOrderPayment::factory()->create([
+            'purchased_order_id' => $settled->id,
+            'amount' => '20.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('accounts-payable.supplier', [
+                'supplier' => $supplier,
+                'settlement' => 'settled',
+            ]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('orders', 1)
+                ->where('summary.order_count', 2)
+                ->where('summary.open_order_count', 1)
+                ->where('summary.settled_order_count', 1)
+                ->where('summary.visible_order_count', 1)
+                ->where('summary.total_payable', '100.00')
+                ->where('summary.total_paid', '20.00')
+                ->where('summary.balance_due', '80.00')
+            );
+    }
+
     public function test_show_requires_posted_order_belonging_to_supplier(): void
     {
         $admin = User::factory()->create();

@@ -114,32 +114,41 @@ class AccountsPayableController extends Controller
 
         $settlement = $filters['settlement'] ?? null;
 
-        $orders = PurchasedOrder::query()
+        $postedOrders = PurchasedOrder::query()
             ->postedToAccountsPayable()
             ->where('supplier_id', $supplier->id)
             ->with(['supplier', 'items.product', 'payments.bankCheck.bankAccount'])
             ->orderByDesc('posted_to_ap_at')
             ->orderByDesc('id')
             ->get()
-            ->map(fn (PurchasedOrder $order) => $order->toArrayPayload())
-            ->when($settlement === 'open', fn ($collection) => $collection->filter(
-                fn (array $order) => (float) $order['balance_due'] > 0,
-            ))
-            ->when($settlement === 'settled', fn ($collection) => $collection->filter(
-                fn (array $order) => (float) $order['balance_due'] <= 0,
-            ))
-            ->values()
-            ->all();
+            ->map(fn (PurchasedOrder $order) => $order->toArrayPayload());
 
-        $totalPayable = collect($orders)->sum(fn (array $order) => (float) $order['grand_total']);
-        $totalPaid = collect($orders)->sum(fn (array $order) => (float) $order['amount_paid']);
-        $balanceDue = collect($orders)->sum(fn (array $order) => (float) $order['balance_due']);
+        $openOrders = $postedOrders->filter(
+            fn (array $order) => (float) $order['balance_due'] > 0,
+        );
+        $settledOrders = $postedOrders->reject(
+            fn (array $order) => (float) $order['balance_due'] > 0,
+        );
+
+        $orders = match ($settlement) {
+            'open' => $openOrders->values()->all(),
+            'settled' => $settledOrders->values()->all(),
+            default => $postedOrders->values()->all(),
+        };
+
+        // Totals cover every posted order so the rollup stays stable while the table is filtered.
+        $totalPayable = $postedOrders->sum(fn (array $order) => (float) $order['grand_total']);
+        $totalPaid = $postedOrders->sum(fn (array $order) => (float) $order['amount_paid']);
+        $balanceDue = $postedOrders->sum(fn (array $order) => (float) $order['balance_due']);
 
         return Inertia::render('accounts-payable/supplier', [
             'supplier' => $supplier->toArrayPayload(),
             'orders' => $orders,
             'summary' => [
-                'order_count' => count($orders),
+                'order_count' => $postedOrders->count(),
+                'open_order_count' => $openOrders->count(),
+                'settled_order_count' => $settledOrders->count(),
+                'visible_order_count' => count($orders),
                 'total_payable' => number_format($totalPayable, 2, '.', ''),
                 'total_paid' => number_format($totalPaid, 2, '.', ''),
                 'balance_due' => number_format($balanceDue, 2, '.', ''),
