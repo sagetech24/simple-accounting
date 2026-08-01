@@ -68,6 +68,8 @@ export default function PurchasedOrderDetailModal({
     const canEdit = Boolean(order.can_edit);
     const canDelete = !isDeleted;
     const items = order.items ?? [];
+    const balanceDueAmount = Number(order.balance_due ?? order.grand_total);
+    const hasBalanceDue = balanceDueAmount > 0;
 
     return createPortal(
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-4 py-10 sm:px-6">
@@ -92,7 +94,7 @@ export default function PurchasedOrderDetailModal({
                         >
                             Purchase Order
                         </h2>
-                        <p className="mt-1 font-mono text-sm break-all text-ink-soft">
+                        <p className="mt-1 font-mono text-xs break-all text-ink-soft">
                             Reference #: {order.reference}
                         </p>
                     </div>
@@ -148,31 +150,6 @@ export default function PurchasedOrderDetailModal({
                     </div>
                     <div>
                         <p className="text-xs tracking-wide text-muted uppercase">
-                            Source quotation
-                        </p>
-                        <p className="mt-1 font-mono text-sm break-all text-ink-soft">
-                            {order.request_quotation_id &&
-                            order.request_quotation_reference ? (
-                                onViewSourceQuotation ? (
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            onViewSourceQuotation(order)
-                                        }
-                                        className="cursor-pointer text-left text-teal-800 underline-offset-2 transition hover:underline focus:underline focus:outline-none"
-                                    >
-                                        {order.request_quotation_reference}
-                                    </button>
-                                ) : (
-                                    order.request_quotation_reference
-                                )
-                            ) : (
-                                '—'
-                            )}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-xs tracking-wide text-muted uppercase">
                             Created
                         </p>
                         <p className="mt-1 text-sm text-ink-soft">
@@ -180,41 +157,18 @@ export default function PurchasedOrderDetailModal({
                         </p>
                     </div>
                     <div>
-                        <p className="text-xs tracking-wide text-muted uppercase">
-                            Grand total
-                        </p>
-                        <p className="mt-1 text-lg font-semibold text-ink">
-                            {formatMoney(order.grand_total)}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-xs tracking-wide text-muted uppercase">
-                            Amount paid
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-ink">
-                            {formatMoney(order.amount_paid ?? 0)}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-xs tracking-wide text-muted uppercase">
+                        <p
+                            className={`text-xs tracking-wide uppercase ${hasBalanceDue ? 'text-red-800 font-bold' : 'text-muted'}`}
+                        >
                             Balance due
                         </p>
-                        <p className="mt-1 text-sm font-medium text-ink">
+                        <p
+                            className={`mt-1 text-sm ${hasBalanceDue ? 'text-red-800 font-bold' : 'text-ink'}`}
+                        >
                             {formatMoney(order.balance_due ?? order.grand_total)}
                         </p>
                     </div>
                 </div>
-
-                {order.notes && (
-                    <div className="mt-4">
-                        <p className="text-xs tracking-wide text-muted uppercase">
-                            Notes
-                        </p>
-                        <p className="mt-1 text-sm whitespace-pre-wrap text-ink-soft">
-                            {order.notes}
-                        </p>
-                    </div>
-                )}
 
                 {order.meta &&
                     (order.meta.invoice_number ||
@@ -282,9 +236,6 @@ export default function PurchasedOrderDetailModal({
                     )}
 
                 <div className="mt-6">
-                    <p className="mb-2 text-xs tracking-wide text-muted uppercase">
-                        Line items ({items.length})
-                    </p>
                     <div className="rounded-md border border-line">
                         <table className="w-full border-collapse text-left text-sm">
                             <thead className="bg-mist">
@@ -337,6 +288,20 @@ export default function PurchasedOrderDetailModal({
                                     </tr>
                                 ))}
                             </tbody>
+                            <tfoot className="bg-mist border-t border-line">
+                                <tr>
+                                    <td colSpan="3" className="px-3 py-3 text-left">
+                                        <p className="text-lg font-semibold text-ink uppercase">
+                                            Grand total
+                                        </p>
+                                    </td>
+                                    <td colSpan="1" className="px-3 py-3 text-left">
+                                        <p className="text-lg font-semibold text-ink">
+                                            {formatMoney(order.grand_total)}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -344,7 +309,8 @@ export default function PurchasedOrderDetailModal({
                 {(order.payments ?? []).length > 0 && (
                     <div className="mt-6">
                         <p className="mb-2 text-xs tracking-wide text-muted uppercase">
-                            Pre-payments ({order.payments.length})
+                            Payments
+                            {/* ({order.payments.length}) */}
                         </p>
                         <div className="rounded-md border border-line">
                             <table className="w-full border-collapse text-left text-sm">
@@ -454,6 +420,23 @@ export default function PurchasedOrderDetailModal({
                                         );
                                     })}
                                 </tbody>
+                                <tfoot className="bg-mist border-t border-line">
+                                    <tr>
+                                        <td colSpan="2" className="px-3 py-3 text-left">
+                                            <p className="text-sm text-ink">
+                                                Total Amount Paid :&nbsp;
+                                                {/* <span className="text-lg font-semibold text-ink">
+                                                    {formatMoney(order.amount_paid)}
+                                                </span> */}
+                                            </p>
+                                        </td>
+                                        <td colSpan="2" className="px-3 py-3 text-left">
+                                            <p className="text-sm text-ink font-bold">
+                                                {formatMoney(order.amount_paid)}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
@@ -475,7 +458,7 @@ export default function PurchasedOrderDetailModal({
                             onClick={() => onAddPrepayment(order)}
                             className="min-h-11 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition hover:bg-teal-800"
                         >
-                            Add Pre-payment
+                            Add Payment
                         </button>
                     )}
                     {order.can_post_to_ap && onPostToAccountsPayable && (
