@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { usePage } from '@inertiajs/react';
+import { toast } from 'sonner';
 import { formatMoney } from '@/lib/format-money';
 import { formatProductLabel } from '@/lib/format-product-label';
+import { printRequestQuotation } from '@/lib/print-request-quotation';
 
 function formatDate(value) {
     if (!value) {
@@ -35,6 +38,9 @@ export default function RequestQuotationDetailModal({
     onEdit,
     onDelete,
 }) {
+    const { settings } = usePage().props;
+    const brandName = settings?.brand_name || 'JM Pundasyon';
+
     useEffect(() => {
         if (!open) {
             return undefined;
@@ -56,6 +62,18 @@ export default function RequestQuotationDetailModal({
             document.removeEventListener('keydown', handleKeyDown);
         };
     }, [open, onClose]);
+
+    function handlePrint() {
+        if (!quotation) {
+            return;
+        }
+
+        const result = printRequestQuotation(quotation, { brandName });
+
+        if (!result.ok && result.reason === 'popup_blocked') {
+            toast.error('Allow popups to print this quotation.');
+        }
+    }
 
     if (!open || !quotation) {
         return null;
@@ -87,10 +105,10 @@ export default function RequestQuotationDetailModal({
                             id="request-quotation-detail-title"
                             className="text-xl font-semibold tracking-tight text-ink"
                         >
-                            Request quotation
+                            Request Quotation
                         </h2>
-                        <p className="mt-1 font-mono text-sm break-all text-ink-soft">
-                            {quotation.reference}
+                        <p className="mt-1 font-mono text-xs break-all text-ink-soft">
+                            Reference No.: {quotation.reference}
                         </p>
                     </div>
                     <button
@@ -120,10 +138,10 @@ export default function RequestQuotationDetailModal({
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                     <div>
                         <p className="text-xs tracking-wide text-muted uppercase">
-                            Supplier
+                            Created
                         </p>
-                        <p className="mt-1 text-sm font-medium text-ink">
-                            {quotation.supplier_name || '—'}
+                        <p className="mt-1 text-sm text-ink-soft">
+                            {formatDate(quotation.created_at)}
                         </p>
                     </div>
                     <div>
@@ -143,22 +161,14 @@ export default function RequestQuotationDetailModal({
                             )}
                         </p>
                     </div>
-                    <div>
-                        <p className="text-xs tracking-wide text-muted uppercase">
-                            Created
-                        </p>
-                        <p className="mt-1 text-sm text-ink-soft">
-                            {formatDate(quotation.created_at)}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-xs tracking-wide text-muted uppercase">
-                            Grand total
-                        </p>
-                        <p className="mt-1 text-lg font-semibold text-ink">
-                            {formatMoney(quotation.grand_total)}
-                        </p>
-                    </div>
+                </div>
+                <div className="mt-4">
+                    <p className="text-xs tracking-wide text-muted uppercase">
+                        Supplier
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-ink">
+                        {quotation.supplier_name || '—'}
+                    </p>
                 </div>
 
                 {quotation.notes && (
@@ -173,9 +183,6 @@ export default function RequestQuotationDetailModal({
                 )}
 
                 <div className="mt-6">
-                    <p className="mb-2 text-xs tracking-wide text-muted uppercase">
-                        Line items ({items.length})
-                    </p>
                     <div className="rounded-md border border-line">
                         <table className="w-full border-collapse text-left text-sm">
                             <thead className="bg-mist">
@@ -189,7 +196,7 @@ export default function RequestQuotationDetailModal({
                                     <th className="px-3 py-2.5 font-medium text-muted">
                                         Qty
                                     </th>
-                                    <th className="px-3 py-2.5 font-medium text-muted">
+                                    <th className="px-3 py-2.5 font-medium text-muted text-right">
                                         Subtotal
                                     </th>
                                 </tr>
@@ -222,12 +229,26 @@ export default function RequestQuotationDetailModal({
                                         <td className="px-3 py-3 text-ink-soft">
                                             {item.quantity}
                                         </td>
-                                        <td className="px-3 py-3 font-medium text-ink">
+                                        <td className="px-3 py-3 font-medium text-ink text-right">
                                             {formatMoney(item.subtotal)}
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
+                            <tfoot className="bg-mist border-t border-line">
+                                <tr>
+                                    <td colSpan="2" className="px-3 py-3 text-left">
+                                        <p className="text-lg font-semibold text-ink uppercase">
+                                            Grand total
+                                        </p>
+                                    </td>
+                                    <td colSpan="2" className="px-3 py-3 text-right">
+                                        <p className="text-lg font-semibold text-ink">
+                                            {formatMoney(quotation.grand_total)}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -251,6 +272,13 @@ export default function RequestQuotationDetailModal({
                             Delete
                         </button>
                     )}
+                    <button
+                        type="button"
+                        onClick={handlePrint}
+                        className="min-h-11 rounded-md border border-line bg-white px-5 text-sm font-medium text-ink-soft transition hover:border-ink/30 hover:text-ink"
+                    >
+                        Print to File
+                    </button>
                     <button
                         type="button"
                         onClick={onClose}

@@ -57,6 +57,7 @@ export function buildRequestQuotationPrintHtml(quotation, options = {}) {
                           item.product_name,
                           item.product_unit,
                       );
+
                       return `<tr>
                         <td>${escapeHtml(label)}</td>
                         <td>${escapeHtml(formatMoney(item.buying_price))}</td>
@@ -205,4 +206,49 @@ export function buildRequestQuotationPrintHtml(quotation, options = {}) {
   <footer>Printed ${escapeHtml(formatDate(printedAt.toISOString()))}</footer>
 </body>
 </html>`;
+}
+
+/**
+ * Open a print window with the RFQ ops sheet and trigger the browser print dialog.
+ *
+ * @param {object} quotation
+ * @param {{ brandName?: string }} [options]
+ * @returns {{ ok: true } | { ok: false, reason: 'popup_blocked' }}
+ */
+export function printRequestQuotation(quotation, options = {}) {
+    const printWindow = window.open(
+        '',
+        '_blank',
+        'noopener,noreferrer,width=900,height=700',
+    );
+
+    if (!printWindow) {
+        return { ok: false, reason: 'popup_blocked' };
+    }
+
+    const html = buildRequestQuotationPrintHtml(quotation, {
+        brandName: options.brandName,
+    });
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+
+    const triggerPrint = () => {
+        printWindow.focus();
+        printWindow.print();
+    };
+
+    printWindow.addEventListener('afterprint', () => {
+        printWindow.close();
+    });
+
+    // Images/fonts are inline/system; short defer lets the document settle.
+    if (printWindow.document.readyState === 'complete') {
+        setTimeout(triggerPrint, 50);
+    } else {
+        printWindow.addEventListener('load', () => setTimeout(triggerPrint, 50));
+    }
+
+    return { ok: true };
 }
