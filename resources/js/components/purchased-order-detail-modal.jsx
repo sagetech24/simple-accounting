@@ -158,14 +158,16 @@ export default function PurchasedOrderDetailModal({
                     </div>
                     <div>
                         <p
-                            className={`text-xs tracking-wide uppercase ${hasBalanceDue ? 'text-red-800 font-bold' : 'text-muted'}`}
+                            className={`text-xs tracking-wide uppercase ${hasBalanceDue ? 'font-bold text-red-800' : 'text-muted'}`}
                         >
                             Balance due
                         </p>
                         <p
-                            className={`mt-1 text-sm ${hasBalanceDue ? 'text-red-800 font-bold' : 'text-ink'}`}
+                            className={`mt-1 text-sm ${hasBalanceDue ? 'font-bold text-red-800' : 'text-ink'}`}
                         >
-                            {formatMoney(order.balance_due ?? order.grand_total)}
+                            {formatMoney(
+                                order.balance_due ?? order.grand_total,
+                            )}
                         </p>
                     </div>
                 </div>
@@ -277,7 +279,10 @@ export default function PurchasedOrderDetailModal({
                                             )}
                                         </td>
                                         <td className="px-3 py-3 text-ink-soft">
-                                            {formatMoney(item.buying_price)} {item.product_unit ? ` / ${item.product_unit}` : ''}
+                                            {formatMoney(item.buying_price)}{' '}
+                                            {item.product_unit
+                                                ? ` / ${item.product_unit}`
+                                                : ''}
                                         </td>
                                         <td className="px-3 py-3 text-ink-soft">
                                             {item.quantity}
@@ -288,14 +293,20 @@ export default function PurchasedOrderDetailModal({
                                     </tr>
                                 ))}
                             </tbody>
-                            <tfoot className="bg-mist border-t border-line">
+                            <tfoot className="border-t border-line bg-mist">
                                 <tr>
-                                    <td colSpan="3" className="px-3 py-3 text-left">
+                                    <td
+                                        colSpan="3"
+                                        className="px-3 py-3 text-left"
+                                    >
                                         <p className="text-lg font-semibold text-ink uppercase">
                                             Grand total
                                         </p>
                                     </td>
-                                    <td colSpan="1" className="px-3 py-3 text-left">
+                                    <td
+                                        colSpan="1"
+                                        className="px-3 py-3 text-left"
+                                    >
                                         <p className="text-lg font-semibold text-ink">
                                             {formatMoney(order.grand_total)}
                                         </p>
@@ -374,37 +385,46 @@ export default function PurchasedOrderDetailModal({
                                                 key={payment.id}
                                                 className="border-b border-line/80 last:border-b-0"
                                             >
-                                                <td className="px-3 py-3 font-medium text-ink items-start flex">
-                                                    {isPdc ? 'PDC' : payment.method_label}
+                                                <td className="flex items-start px-3 py-3 font-medium text-ink">
+                                                    {isPdc
+                                                        ? 'PDC'
+                                                        : payment.method_label}
                                                 </td>
                                                 <td className="px-3 py-3 text-ink-soft">
                                                     {detailLines.length ===
                                                     0 ? (
                                                         '—'
                                                     ) : isPdc ? (
-                                                            <div className="space-y-0.5">
-                                                                <p className="whitespace-nowrap text-xs">
-                                                                    Banks: {detailLines[0]}
-                                                                </p>
-                                                                <p className="whitespace-nowrap text-xs">
-                                                                    Check #: {detailLines[1]}
-                                                                </p>
-                                                                <p className="whitespace-nowrap text-xs">
-                                                                    Due Date: {formatDate(detailLines[2])}
-                                                                </p>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-xs whitespace-nowrap">
+                                                                Banks:{' '}
+                                                                {detailLines[0]}
+                                                            </p>
+                                                            <p className="text-xs whitespace-nowrap">
+                                                                Check #:{' '}
+                                                                {detailLines[1]}
+                                                            </p>
+                                                            <p className="text-xs whitespace-nowrap">
+                                                                Due Date:{' '}
+                                                                {formatDate(
+                                                                    detailLines[2],
+                                                                )}
+                                                            </p>
                                                         </div>
                                                     ) : (
-                                                        <span className="whitespace-nowrap text-xs">
+                                                        <span className="text-xs whitespace-nowrap">
                                                             {detailLines.join(
                                                                 ' · ',
                                                             )}
                                                         </span>
                                                     )}
                                                 </td>
-                                                <td className="px-3 py-3 font-medium text-ink flex items-start">
-                                                    {formatMoney(payment.amount)}
+                                                <td className="flex items-start px-3 py-3 font-medium text-ink">
+                                                    {formatMoney(
+                                                        payment.amount,
+                                                    )}
                                                 </td>
-                                                <td className="px-3 py-3 text-ink-soft text-xs">
+                                                <td className="px-3 py-3 text-xs text-ink-soft">
                                                     <p>
                                                         {formatDate(
                                                             payment.paid_at,
@@ -412,7 +432,10 @@ export default function PurchasedOrderDetailModal({
                                                     </p>
                                                     {payment.recorded_by && (
                                                         <p className="mt-1 text-xs text-muted">
-                                                            Created by: {payment.recorded_by}
+                                                            Created by:{' '}
+                                                            {
+                                                                payment.recorded_by
+                                                            }
                                                         </p>
                                                     )}
                                                 </td>
@@ -420,9 +443,12 @@ export default function PurchasedOrderDetailModal({
                                         );
                                     })}
                                 </tbody>
-                                <tfoot className="bg-mist border-t border-line">
+                                <tfoot className="border-t border-line bg-mist">
                                     <tr>
-                                        <td colSpan="2" className="px-3 py-3 text-left">
+                                        <td
+                                            colSpan="2"
+                                            className="px-3 py-3 text-left"
+                                        >
                                             <p className="text-sm text-ink">
                                                 Total Amount Paid :&nbsp;
                                                 {/* <span className="text-lg font-semibold text-ink">
@@ -430,8 +456,11 @@ export default function PurchasedOrderDetailModal({
                                                 </span> */}
                                             </p>
                                         </td>
-                                        <td colSpan="2" className="px-3 py-3 text-left">
-                                            <p className="text-sm text-ink font-bold">
+                                        <td
+                                            colSpan="2"
+                                            className="px-3 py-3 text-left"
+                                        >
+                                            <p className="text-sm font-bold text-ink">
                                                 {formatMoney(order.amount_paid)}
                                             </p>
                                         </td>
