@@ -11,6 +11,7 @@ export default function BankAccountModal({
     mode,
     bankAccount,
     statuses,
+    returnTo,
     onClose,
 }) {
     useEffect(() => {
@@ -103,6 +104,9 @@ export default function BankAccountModal({
                             };
 
                             if (isEdit) {
+                                if (returnTo) {
+                                    form.setData('return_to', returnTo);
+                                }
                                 form.put(update.url(bankAccount.id), options);
                             } else {
                                 form.post(store.url(), options);

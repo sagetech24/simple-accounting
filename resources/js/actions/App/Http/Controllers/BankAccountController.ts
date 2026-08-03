@@ -1,10 +1,10 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\BankAccountController::restore
-* @see app/Http/Controllers/BankAccountController.php:104
+* @see app/Http/Controllers/BankAccountController.php:299
 * @route '/bank-accounts/{bank_account}/restore'
 */
-export const restore = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const restore = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: restore.url(args, options),
     method: 'post',
 })
@@ -16,10 +16,10 @@ restore.definition = {
 
 /**
 * @see \App\Http\Controllers\BankAccountController::restore
-* @see app/Http/Controllers/BankAccountController.php:104
+* @see app/Http/Controllers/BankAccountController.php:299
 * @route '/bank-accounts/{bank_account}/restore'
 */
-restore.url = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+restore.url = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { bank_account: args }
     }
@@ -49,39 +49,85 @@ restore.url = (args: { bank_account: number | { id: number } } | [bank_account: 
 
 /**
 * @see \App\Http\Controllers\BankAccountController::restore
-* @see app/Http/Controllers/BankAccountController.php:104
+* @see app/Http/Controllers/BankAccountController.php:299
 * @route '/bank-accounts/{bank_account}/restore'
 */
-restore.post = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+restore.post = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: restore.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\BankAccountController::restore
-* @see app/Http/Controllers/BankAccountController.php:104
-* @route '/bank-accounts/{bank_account}/restore'
+* @see \App\Http\Controllers\BankAccountController::show
+* @see app/Http/Controllers/BankAccountController.php:64
+* @route '/bank-accounts/{bank_account}'
 */
-const restoreForm = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: restore.url(args, options),
-    method: 'post',
+export const show = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
+})
+
+show.definition = {
+    methods: ["get","head"],
+    url: '/bank-accounts/{bank_account}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\BankAccountController::show
+* @see app/Http/Controllers/BankAccountController.php:64
+* @route '/bank-accounts/{bank_account}'
+*/
+show.url = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { bank_account: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { bank_account: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            bank_account: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        bank_account: typeof args.bank_account === 'object'
+        ? args.bank_account.id
+        : args.bank_account,
+    }
+
+    return show.definition.url
+            .replace('{bank_account}', parsedArgs.bank_account.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BankAccountController::show
+* @see app/Http/Controllers/BankAccountController.php:64
+* @route '/bank-accounts/{bank_account}'
+*/
+show.get = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
 })
 
 /**
-* @see \App\Http\Controllers\BankAccountController::restore
-* @see app/Http/Controllers/BankAccountController.php:104
-* @route '/bank-accounts/{bank_account}/restore'
+* @see \App\Http\Controllers\BankAccountController::show
+* @see app/Http/Controllers/BankAccountController.php:64
+* @route '/bank-accounts/{bank_account}'
 */
-restoreForm.post = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: restore.url(args, options),
-    method: 'post',
+show.head = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: show.url(args, options),
+    method: 'head',
 })
-
-restore.form = restoreForm
 
 /**
 * @see \App\Http\Controllers\BankAccountController::index
-* @see app/Http/Controllers/BankAccountController.php:20
+* @see app/Http/Controllers/BankAccountController.php:25
 * @route '/bank-accounts'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -96,7 +142,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\BankAccountController::index
-* @see app/Http/Controllers/BankAccountController.php:20
+* @see app/Http/Controllers/BankAccountController.php:25
 * @route '/bank-accounts'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -105,7 +151,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\BankAccountController::index
-* @see app/Http/Controllers/BankAccountController.php:20
+* @see app/Http/Controllers/BankAccountController.php:25
 * @route '/bank-accounts'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -115,7 +161,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\BankAccountController::index
-* @see app/Http/Controllers/BankAccountController.php:20
+* @see app/Http/Controllers/BankAccountController.php:25
 * @route '/bank-accounts'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -124,45 +170,8 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\BankAccountController::index
-* @see app/Http/Controllers/BankAccountController.php:20
-* @route '/bank-accounts'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\BankAccountController::index
-* @see app/Http/Controllers/BankAccountController.php:20
-* @route '/bank-accounts'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\BankAccountController::index
-* @see app/Http/Controllers/BankAccountController.php:20
-* @route '/bank-accounts'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\BankAccountController::store
-* @see app/Http/Controllers/BankAccountController.php:59
+* @see app/Http/Controllers/BankAccountController.php:212
 * @route '/bank-accounts'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -177,7 +186,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\BankAccountController::store
-* @see app/Http/Controllers/BankAccountController.php:59
+* @see app/Http/Controllers/BankAccountController.php:212
 * @route '/bank-accounts'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -186,7 +195,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\BankAccountController::store
-* @see app/Http/Controllers/BankAccountController.php:59
+* @see app/Http/Controllers/BankAccountController.php:212
 * @route '/bank-accounts'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -195,33 +204,11 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\BankAccountController::store
-* @see app/Http/Controllers/BankAccountController.php:59
-* @route '/bank-accounts'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\BankAccountController::store
-* @see app/Http/Controllers/BankAccountController.php:59
-* @route '/bank-accounts'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
-
-/**
 * @see \App\Http\Controllers\BankAccountController::update
-* @see app/Http/Controllers/BankAccountController.php:74
+* @see app/Http/Controllers/BankAccountController.php:227
 * @route '/bank-accounts/{bank_account}'
 */
-export const update = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+export const update = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -233,10 +220,10 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\BankAccountController::update
-* @see app/Http/Controllers/BankAccountController.php:74
+* @see app/Http/Controllers/BankAccountController.php:227
 * @route '/bank-accounts/{bank_account}'
 */
-update.url = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+update.url = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { bank_account: args }
     }
@@ -266,77 +253,30 @@ update.url = (args: { bank_account: number | { id: number } } | [bank_account: n
 
 /**
 * @see \App\Http\Controllers\BankAccountController::update
-* @see app/Http/Controllers/BankAccountController.php:74
+* @see app/Http/Controllers/BankAccountController.php:227
 * @route '/bank-accounts/{bank_account}'
 */
-update.put = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+update.put = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
 
 /**
 * @see \App\Http\Controllers\BankAccountController::update
-* @see app/Http/Controllers/BankAccountController.php:74
+* @see app/Http/Controllers/BankAccountController.php:227
 * @route '/bank-accounts/{bank_account}'
 */
-update.patch = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+update.patch = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: update.url(args, options),
     method: 'patch',
 })
 
 /**
-* @see \App\Http\Controllers\BankAccountController::update
-* @see app/Http/Controllers/BankAccountController.php:74
-* @route '/bank-accounts/{bank_account}'
-*/
-const updateForm = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\BankAccountController::update
-* @see app/Http/Controllers/BankAccountController.php:74
-* @route '/bank-accounts/{bank_account}'
-*/
-updateForm.put = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\BankAccountController::update
-* @see app/Http/Controllers/BankAccountController.php:74
-* @route '/bank-accounts/{bank_account}'
-*/
-updateForm.patch = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see \App\Http\Controllers\BankAccountController::destroy
-* @see app/Http/Controllers/BankAccountController.php:89
+* @see app/Http/Controllers/BankAccountController.php:284
 * @route '/bank-accounts/{bank_account}'
 */
-export const destroy = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -348,10 +288,10 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\BankAccountController::destroy
-* @see app/Http/Controllers/BankAccountController.php:89
+* @see app/Http/Controllers/BankAccountController.php:284
 * @route '/bank-accounts/{bank_account}'
 */
-destroy.url = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { bank_account: args }
     }
@@ -381,46 +321,14 @@ destroy.url = (args: { bank_account: number | { id: number } } | [bank_account: 
 
 /**
 * @see \App\Http\Controllers\BankAccountController::destroy
-* @see app/Http/Controllers/BankAccountController.php:89
+* @see app/Http/Controllers/BankAccountController.php:284
 * @route '/bank-accounts/{bank_account}'
 */
-destroy.delete = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
 
-/**
-* @see \App\Http\Controllers\BankAccountController::destroy
-* @see app/Http/Controllers/BankAccountController.php:89
-* @route '/bank-accounts/{bank_account}'
-*/
-const destroyForm = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\BankAccountController::destroy
-* @see app/Http/Controllers/BankAccountController.php:89
-* @route '/bank-accounts/{bank_account}'
-*/
-destroyForm.delete = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
-
-const BankAccountController = { restore, index, store, update, destroy }
+const BankAccountController = { restore, show, index, store, update, destroy }
 
 export default BankAccountController

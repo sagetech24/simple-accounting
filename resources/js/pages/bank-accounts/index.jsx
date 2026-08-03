@@ -8,7 +8,7 @@ import BankAccountModal from '@/components/bank-account-modal';
 import RouteNavTabs from '@/components/route-nav-tabs';
 import AppLayout from '@/layouts/app-layout';
 import { accountsDomainTabs } from '@/config/accounts-domain-tabs';
-import { index } from '@/routes/bank-accounts';
+import { index, show } from '@/routes/bank-accounts';
 
 const sortableColumns = [
     { key: 'name', label: 'Bank' },
@@ -70,6 +70,7 @@ function RowActionsMenu({
     open,
     onToggle,
     onClose,
+    onView,
     onEdit,
     onDelete,
     onRestore,
@@ -132,6 +133,17 @@ function RowActionsMenu({
                     role="menu"
                     className="absolute top-0 right-6 z-20 min-w-28 rounded-md border border-line bg-white py-1"
                 >
+                    <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                            onClose();
+                            onView(bankAccount);
+                        }}
+                        className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                    >
+                        View
+                    </button>
                     {!isDeleted && (
                         <>
                             <button
@@ -386,15 +398,16 @@ export default function BankAccountsIndex({ bankAccounts, filters, statuses }) {
                                     className="border-b border-line/80 align-top"
                                 >
                                     <td className="py-4 pr-4 px-4">
-                                        <p
+                                        <Link
+                                            href={show.url(bankAccount.id)}
                                             className={
                                                 isDeleted
-                                                    ? 'font-medium text-muted line-through'
-                                                    : 'font-medium text-ink'
+                                                    ? 'font-medium text-muted line-through underline-offset-2 hover:underline'
+                                                    : 'font-medium text-ink underline-offset-2 transition hover:text-teal-800 hover:underline'
                                             }
                                         >
                                             {bankAccount.name}
-                                        </p>
+                                        </Link>
                                         {bankAccount.account_number && (
                                             <p className="mt-1 text-xs text-muted">
                                                 {bankAccount.account_number}
@@ -429,6 +442,9 @@ export default function BankAccountsIndex({ bankAccounts, filters, statuses }) {
                                                 )
                                             }
                                             onClose={() => setOpenMenuId(null)}
+                                            onView={(account) =>
+                                                router.visit(show.url(account.id))
+                                            }
                                             onEdit={openEditModal}
                                             onDelete={deleteBankAccount}
                                             onRestore={restoreBankAccount}
