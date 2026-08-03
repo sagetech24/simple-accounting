@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountsPayableController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BankAccountController;
+use App\Http\Controllers\BankCheckController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
@@ -88,6 +89,12 @@ Route::middleware('auth')->group(function () {
     Route::get('bank-accounts/{bank_account}', [BankAccountController::class, 'show'])
         ->withTrashed()
         ->name('bank-accounts.show');
+    Route::post('bank-accounts/{bank_account}/checks', [BankCheckController::class, 'store'])
+        ->name('bank-accounts.checks.store');
+    Route::patch('bank-accounts/{bank_account}/checks/{bank_check}', [BankCheckController::class, 'update'])
+        ->name('bank-accounts.checks.update');
+    Route::post('bank-accounts/{bank_account}/checks/{bank_check}/void', [BankCheckController::class, 'voidCheck'])
+        ->name('bank-accounts.checks.void');
     Route::resource('bank-accounts', BankAccountController::class)->except(['show', 'create', 'edit']);
 
     Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
