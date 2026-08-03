@@ -235,7 +235,15 @@ class InventoryController extends Controller
             'name' => $builder->orderBy('name', $direction)->orderBy('id'),
             'quantity' => $builder->orderBy('quantity', $direction)->orderBy('name')->orderBy('id'),
             default => $builder
-                // Out of stock → low stock → healthy, then lowest quantity first.
+                // Available first, then out of stock → low stock → healthy.
+                ->orderByRaw('CASE status
+                    WHEN ? THEN 0
+                    WHEN ? THEN 1
+                    ELSE 2
+                END', [
+                    ProductStatus::Available->value,
+                    ProductStatus::Unavailable->value,
+                ])
                 ->orderByRaw('CASE
                     WHEN quantity = 0 THEN 0
                     WHEN low_stock_threshold IS NOT NULL AND quantity <= low_stock_threshold THEN 1

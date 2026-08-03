@@ -387,10 +387,20 @@ class InventoryTest extends TestCase
             );
     }
 
-    public function test_on_hand_tab_lists_out_of_stock_and_low_stock_first(): void
+    public function test_on_hand_tab_lists_available_then_out_of_stock_and_low_stock_first(): void
     {
         $admin = User::factory()->create();
 
+        Product::factory()->discontinued()->create([
+            'name' => 'Discontinued Healthy',
+            'quantity' => 50,
+            'low_stock_threshold' => 5,
+        ]);
+        Product::factory()->unavailable()->create([
+            'name' => 'Unavailable Empty',
+            'quantity' => 0,
+            'low_stock_threshold' => null,
+        ]);
         Product::factory()->available()->create([
             'name' => 'Healthy Item',
             'quantity' => 2,
@@ -415,6 +425,8 @@ class InventoryTest extends TestCase
                 ->where('products.data.0.name', 'Empty Item')
                 ->where('products.data.1.name', 'Low Item')
                 ->where('products.data.2.name', 'Healthy Item')
+                ->where('products.data.3.name', 'Unavailable Empty')
+                ->where('products.data.4.name', 'Discontinued Healthy')
             );
     }
 
