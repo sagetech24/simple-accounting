@@ -792,7 +792,7 @@ export default function PurchasedOrdersIndex({
                                     })}
                                 </div>
 
-                                <div className="hidden overflow-x-auto rounded-md border border-line lg:block">
+                                <div className="hidden rounded-md border border-line lg:block">
                                     <table className="w-full min-w-170 border-collapse text-left text-sm">
                                         <caption className="sr-only">
                                             Purchase orders ordered by workflow
