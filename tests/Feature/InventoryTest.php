@@ -351,4 +351,124 @@ class InventoryTest extends TestCase
                 ->where('products.data.0.suggested_low_stock_threshold', 10)
             );
     }
+
+    public function test_on_hand_tab_includes_summary_rollup(): void
+    {
+        $admin = User::factory()->create();
+
+        Product::factory()->available()->create([
+            'name' => 'Healthy Item',
+            'quantity' => 20,
+            'purchase_price' => '5.00',
+            'low_stock_threshold' => 5,
+        ]);
+        Product::factory()->available()->create([
+            'name' => 'Low Item',
+            'quantity' => 3,
+            'purchase_price' => '10.00',
+            'low_stock_threshold' => 5,
+        ]);
+        Product::factory()->available()->create([
+            'name' => 'Empty Item',
+            'quantity' => 0,
+            'purchase_price' => '2.00',
+            'low_stock_threshold' => null,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('inventory.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('summary.product_count', 3)
+                ->where('summary.low_stock_count', 1)
+                ->where('summary.out_of_stock_count', 1)
+                ->where('summary.on_hand_units', 23)
+                ->where('summary.stock_value', '130.00')
+            );
+    }
+
+    public function test_on_hand_tab_lists_out_of_stock_and_low_stock_first(): void
+    {
+        $admin = User::factory()->create();
+
+        Product::factory()->available()->create([
+            'name' => 'Healthy Item',
+            'quantity' => 2,
+            'low_stock_threshold' => 1,
+        ]);
+        Product::factory()->available()->create([
+            'name' => 'Low Item',
+            'quantity' => 5,
+            'low_stock_threshold' => 10,
+        ]);
+        Product::factory()->available()->create([
+            'name' => 'Empty Item',
+            'quantity' => 0,
+            'low_stock_threshold' => null,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('inventory.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('filters.sort', 'stock')
+                ->where('products.data.0.name', 'Empty Item')
+                ->where('products.data.1.name', 'Low Item')
+                ->where('products.data.2.name', 'Healthy Item')
+            );
+    }
+
+    public function test_on_hand_tab_can_filter_by_low_stock_health(): void
+    {
+        $admin = User::factory()->create();
+
+        Product::factory()->available()->create([
+            'name' => 'Healthy Item',
+            'quantity' => 20,
+            'low_stock_threshold' => 5,
+        ]);
+        Product::factory()->available()->create([
+            'name' => 'Low Item',
+            'quantity' => 3,
+            'low_stock_threshold' => 5,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('inventory.index', ['stock_health' => 'low']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('filters.stock_health', 'low')
+                ->has('products.data', 1)
+                ->where('products.data.0.name', 'Low Item')
+                ->where('summary.product_count', 2)
+                ->where('summary.low_stock_count', 1)
+            );
+    }
+
+    public function test_on_hand_tab_can_filter_by_out_of_stock_health(): void
+    {
+        $admin = User::factory()->create();
+
+        Product::factory()->available()->create([
+            'name' => 'In Stock',
+            'quantity' => 4,
+        ]);
+        Product::factory()->available()->create([
+            'name' => 'Empty Available',
+            'quantity' => 0,
+        ]);
+        Product::factory()->unavailable()->create([
+            'name' => 'Empty Unavailable',
+            'quantity' => 0,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('inventory.index', ['stock_health' => 'out']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('filters.stock_health', 'out')
+                ->has('products.data', 1)
+                ->where('products.data.0.name', 'Empty Available')
+            );
+    }
 }
