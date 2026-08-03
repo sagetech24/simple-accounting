@@ -85,6 +85,9 @@ Route::middleware('auth')->group(function () {
     Route::post('bank-accounts/{bank_account}/restore', [BankAccountController::class, 'restore'])
         ->withTrashed()
         ->name('bank-accounts.restore');
+    Route::get('bank-accounts/{bank_account}', [BankAccountController::class, 'show'])
+        ->withTrashed()
+        ->name('bank-accounts.show');
     Route::resource('bank-accounts', BankAccountController::class)->except(['show', 'create', 'edit']);
 
     Route::put('settings', [SettingController::class, 'update'])->name('settings.update');

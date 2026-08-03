@@ -6,6 +6,10 @@ use App\Enums\BankAccountStatus;
 use App\Http\Requests\StoreBankAccountRequest;
 use App\Http\Requests\UpdateBankAccountRequest;
 use App\Models\BankAccount;
+use App\Models\BankAccountAuditLog;
+use App\Models\BankCheck;
+use App\Models\PurchasedOrder;
+use App\Models\PurchasedOrderPayment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -49,6 +53,154 @@ class BankAccountController extends Controller
                 'trashed' => $trashed ?? '',
                 'sort' => $sort,
                 'direction' => $direction,
+            ],
+        ]);
+    }
+
+    /**
+     * Bank account profile: checks, payments, audit, and KPIs.
+     */
+    public function show(Request $request, BankAccount $bankAccount): Response
+    {
+        $filters = $request->validate([
+            'tab' => ['nullable', 'string', Rule::in(['checks', 'payments', 'audit'])],
+            'due' => ['nullable', 'string', Rule::in(['all', 'upcoming', 'overdue'])],
+            'q' => ['nullable', 'string', 'max:120'],
+            'linkage' => ['nullable', 'string', Rule::in(['all', 'linked', 'standalone'])],
+            'audit_q' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $tab = $filters['tab'] ?? 'checks';
+        $due = $filters['due'] ?? 'all';
+        $search = $filters['q'] ?? '';
+        $linkage = $filters['linkage'] ?? 'all';
+        $auditQ = $filters['audit_q'] ?? '';
+
+        $today = now()->startOfDay();
+
+        $allChecks = $bankAccount->checks()
+            ->with(['payment.purchasedOrder.supplier', 'bankAccount'])
+            ->orderByDesc('due_date')
+            ->orderByDesc('id')
+            ->get();
+
+        $activeChecks = $allChecks->filter(fn (BankCheck $check) => ! $check->isVoided());
+
+        $overdueChecks = $activeChecks->filter(
+            fn (BankCheck $check) => $check->due_date !== null && $check->due_date->lt($today),
+        );
+        $upcomingChecks = $activeChecks->filter(
+            fn (BankCheck $check) => $check->due_date !== null && $check->due_date->gte($today),
+        );
+
+        $kpis = [
+            'open_total' => number_format((float) $activeChecks->sum(fn (BankCheck $c) => (float) $c->amount), 2, '.', ''),
+            'overdue_count' => $overdueChecks->count(),
+            'overdue_amount' => number_format((float) $overdueChecks->sum(fn (BankCheck $c) => (float) $c->amount), 2, '.', ''),
+            'upcoming_count' => $upcomingChecks->count(),
+            'upcoming_amount' => number_format((float) $upcomingChecks->sum(fn (BankCheck $c) => (float) $c->amount), 2, '.', ''),
+            'issued_count' => $activeChecks->count(),
+        ];
+
+        $filteredChecks = $allChecks
+            ->when($due === 'upcoming', fn ($checks) => $checks->filter(
+                fn (BankCheck $check) => ! $check->isVoided()
+                    && $check->due_date !== null
+                    && $check->due_date->gte($today),
+            ))
+            ->when($due === 'overdue', fn ($checks) => $checks->filter(
+                fn (BankCheck $check) => ! $check->isVoided()
+                    && $check->due_date !== null
+                    && $check->due_date->lt($today),
+            ))
+            ->when($linkage === 'linked', fn ($checks) => $checks->filter(fn (BankCheck $check) => $check->isLinked()))
+            ->when($linkage === 'standalone', fn ($checks) => $checks->filter(fn (BankCheck $check) => ! $check->isLinked()))
+            ->when(filled($search), function ($checks) use ($search) {
+                $term = mb_strtolower($search);
+
+                return $checks->filter(function (BankCheck $check) use ($term) {
+                    $haystack = mb_strtolower(implode(' ', array_filter([
+                        $check->check_number,
+                        $check->issued_by,
+                        $check->payment?->purchasedOrder?->reference,
+                    ])));
+
+                    return str_contains($haystack, $term);
+                });
+            })
+            ->values()
+            ->take(50)
+            ->map(fn (BankCheck $check) => $check->toArrayPayload())
+            ->all();
+
+        $payments = PurchasedOrderPayment::query()
+            ->whereHas('bankCheck', fn ($query) => $query->where('bank_account_id', $bankAccount->id))
+            ->with(['bankCheck.bankAccount', 'purchasedOrder.supplier'])
+            ->orderByDesc('paid_at')
+            ->orderByDesc('id')
+            ->limit(50)
+            ->get()
+            ->map(function (PurchasedOrderPayment $payment) {
+                $payload = $payment->toArrayPayload();
+                $order = $payment->purchasedOrder;
+
+                return array_merge($payload, [
+                    'purchased_order_reference' => $order?->reference,
+                    'supplier_id' => $order?->supplier_id,
+                    'supplier_name' => $order?->supplier?->name,
+                    'check_number' => $payment->bankCheck?->check_number,
+                ]);
+            })
+            ->all();
+
+        $auditLogs = BankAccountAuditLog::query()
+            ->where('bank_account_id', $bankAccount->id)
+            ->with('actor')
+            ->when(filled($auditQ), function ($query) use ($auditQ) {
+                $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $auditQ).'%';
+
+                $query->where(function ($builder) use ($like) {
+                    $builder->where('summary', 'like', $like)
+                        ->orWhere('action', 'like', $like);
+                });
+            })
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->limit(50)
+            ->get()
+            ->map(fn (BankAccountAuditLog $log) => $log->toArrayPayload())
+            ->all();
+
+        $eligibleOrders = PurchasedOrder::query()
+            ->with(['supplier', 'payments'])
+            ->whereNull('deleted_at')
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get()
+            ->filter(fn (PurchasedOrder $order) => $order->canAddPrepayment())
+            ->values()
+            ->map(fn (PurchasedOrder $order) => [
+                'id' => $order->id,
+                'reference' => $order->reference,
+                'supplier_name' => $order->supplier?->name,
+                'balance_due' => $order->balanceDue(),
+            ])
+            ->all();
+
+        return Inertia::render('bank-accounts/show', [
+            'bankAccount' => $bankAccount->toArrayPayload(),
+            'kpis' => $kpis,
+            'checks' => $filteredChecks,
+            'payments' => $payments,
+            'auditLogs' => $auditLogs,
+            'eligibleOrders' => $eligibleOrders,
+            'statuses' => $this->statusOptions(),
+            'filters' => [
+                'tab' => $tab,
+                'due' => $due,
+                'q' => $search,
+                'linkage' => $linkage,
+                'audit_q' => $auditQ,
             ],
         ]);
     }
