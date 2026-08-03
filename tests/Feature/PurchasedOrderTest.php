@@ -926,6 +926,15 @@ class PurchasedOrderTest extends TestCase
             'bank_check_id' => $check->id,
             'recorded_by' => 'Check Issuer',
         ]);
+
+        $this->assertDatabaseHas('bank_account_audit_logs', [
+            'bank_account_id' => $bankAccount->id,
+            'action' => 'check.created',
+        ]);
+        $this->assertDatabaseHas('bank_account_audit_logs', [
+            'bank_account_id' => $bankAccount->id,
+            'action' => 'payment.recorded',
+        ]);
     }
 
     public function test_prepayment_rejected_for_draft_orders(): void

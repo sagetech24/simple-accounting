@@ -10,6 +10,7 @@ use App\Models\BankAccountAuditLog;
 use App\Models\BankCheck;
 use App\Models\PurchasedOrder;
 use App\Models\PurchasedOrderPayment;
+use App\Services\BankAccountAuditor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -225,12 +226,54 @@ class BankAccountController extends Controller
      */
     public function update(UpdateBankAccountRequest $request, BankAccount $bankAccount): RedirectResponse
     {
+        $before = [
+            'name' => $bankAccount->name,
+            'account_name' => $bankAccount->account_name,
+            'account_number' => $bankAccount->account_number,
+            'notes' => $bankAccount->notes,
+            'status' => $bankAccount->status->value,
+        ];
+
         $bankAccount->update($request->bankAccountAttributes());
+        $bankAccount->refresh();
+
+        $after = [
+            'name' => $bankAccount->name,
+            'account_name' => $bankAccount->account_name,
+            'account_number' => $bankAccount->account_number,
+            'notes' => $bankAccount->notes,
+            'status' => $bankAccount->status->value,
+        ];
+
+        $changedBefore = [];
+        $changedAfter = [];
+        foreach ($after as $key => $value) {
+            if ((string) ($before[$key] ?? '') !== (string) ($value ?? '')) {
+                $changedBefore[$key] = $before[$key];
+                $changedAfter[$key] = $value;
+            }
+        }
+
+        if ($changedBefore !== []) {
+            app(BankAccountAuditor::class)->record(
+                $bankAccount,
+                'account.updated',
+                $bankAccount,
+                "Updated bank account {$bankAccount->name}",
+                $changedBefore,
+                $changedAfter,
+                $request->user(),
+            );
+        }
 
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Bank account updated.',
         ]);
+
+        if ($request->input('return_to') === 'show') {
+            return redirect()->route('bank-accounts.show', $bankAccount);
+        }
 
         return redirect()->route('bank-accounts.index');
     }

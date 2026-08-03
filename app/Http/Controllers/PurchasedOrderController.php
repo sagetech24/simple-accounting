@@ -16,6 +16,7 @@ use App\Models\Product;
 use App\Models\PurchasedOrder;
 use App\Models\PurchasedOrderItem;
 use App\Models\Supplier;
+use App\Services\BankAccountAuditor;
 use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -304,19 +305,56 @@ class PurchasedOrderController extends Controller
         $paymentAttributes = $request->paymentAttributes($userName);
         $bankCheckAttributes = $request->bankCheckAttributes($userName);
 
-        DB::transaction(function () use ($purchasedOrder, $paymentAttributes, $bankCheckAttributes): void {
+        $createdBankCheck = null;
+        $createdPayment = null;
+
+        DB::transaction(function () use ($purchasedOrder, $paymentAttributes, $bankCheckAttributes, &$createdBankCheck, &$createdPayment): void {
             if ($bankCheckAttributes !== null) {
-                $bankCheck = BankCheck::query()->create($bankCheckAttributes);
-                $paymentAttributes['bank_check_id'] = $bankCheck->id;
+                $createdBankCheck = BankCheck::query()->create($bankCheckAttributes);
+                $paymentAttributes['bank_check_id'] = $createdBankCheck->id;
             }
 
-            $purchasedOrder->payments()->create($paymentAttributes);
+            $createdPayment = $purchasedOrder->payments()->create($paymentAttributes);
         });
+
+        if ($createdBankCheck !== null && $createdPayment !== null) {
+            $createdBankCheck->load('bankAccount');
+            $auditor = app(BankAccountAuditor::class);
+            $account = $createdBankCheck->bankAccount;
+
+            if ($account !== null) {
+                $auditor->record(
+                    $account,
+                    'check.created',
+                    $createdBankCheck,
+                    "Issued check #{$createdBankCheck->check_number}",
+                    null,
+                    $createdBankCheck->toArrayPayload(),
+                    $request->user(),
+                );
+                $auditor->record(
+                    $account,
+                    'payment.recorded',
+                    $createdPayment,
+                    "Recorded check payment {$createdPayment->amount}",
+                    null,
+                    $createdPayment->toArrayPayload(),
+                    $request->user(),
+                );
+            }
+        }
 
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Pre-payment recorded.',
         ]);
+
+        if ($request->filled('return_bank_account_id')) {
+            return redirect()->route(
+                'bank-accounts.show',
+                (int) $request->input('return_bank_account_id'),
+            );
+        }
 
         return redirect()->route('purchased-orders.index');
     }

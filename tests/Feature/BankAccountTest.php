@@ -77,6 +77,30 @@ class BankAccountTest extends TestCase
             'name' => 'New Bank',
             'status' => BankAccountStatus::Inactive->value,
         ]);
+
+        $this->assertDatabaseHas('bank_account_audit_logs', [
+            'bank_account_id' => $bankAccount->id,
+            'action' => 'account.updated',
+            'subject_type' => 'bank_account',
+            'subject_id' => $bankAccount->id,
+        ]);
+    }
+
+    public function test_updating_bank_account_from_profile_redirects_to_show(): void
+    {
+        $admin = User::factory()->create();
+        $bankAccount = BankAccount::factory()->create(['name' => 'Profile Bank']);
+
+        $this->actingAs($admin)
+            ->put(route('bank-accounts.update', $bankAccount), [
+                'name' => 'Profile Bank Updated',
+                'account_name' => $bankAccount->account_name,
+                'account_number' => $bankAccount->account_number,
+                'notes' => $bankAccount->notes,
+                'status' => BankAccountStatus::Active->value,
+                'return_to' => 'show',
+            ])
+            ->assertRedirect(route('bank-accounts.show', $bankAccount));
     }
 
     public function test_authenticated_users_can_soft_delete_and_restore_a_bank_account(): void
