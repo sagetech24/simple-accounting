@@ -25,6 +25,12 @@ class BankCheckFactory extends Factory
             'due_date' => fake()->dateTimeBetween('+1 day', '+60 days')->format('Y-m-d'),
             'issued_by' => fake()->name(),
             'notes' => fake()->optional(0.3)->sentence(),
+            'voided_at' => null,
         ];
+    }
+
+    public function voided(): static
+    {
+        return $this->state(fn () => ['voided_at' => now()]);
     }
 }

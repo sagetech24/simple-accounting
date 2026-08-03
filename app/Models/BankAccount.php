@@ -42,6 +42,14 @@ class BankAccount extends Model
     }
 
     /**
+     * @return HasMany<BankAccountAuditLog, $this>
+     */
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(BankAccountAuditLog::class);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function toArrayPayload(): array
