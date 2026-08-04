@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import ProductTrendChart from '@/components/product-trend-chart';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
 import { index as accountsPayable } from '@/routes/accounts-payable';
@@ -24,33 +25,6 @@ const attentionTypes = {
         className: 'border-red-600/30 bg-red-400/5 text-red-700',
     },
 };
-
-function buildLinePoints(values, maxValue, chartWidth, chartHeight) {
-    if (values.length === 0) {
-        return '';
-    }
-
-    return values
-        .map((value, index) => {
-            const x =
-                values.length === 1
-                    ? chartWidth / 2
-                    : (index / (values.length - 1)) * chartWidth;
-            const normalized = maxValue > 0 ? value / maxValue : 0;
-            const y = chartHeight - normalized * chartHeight;
-
-            return `${x},${y}`;
-        })
-        .join(' ');
-}
-
-function buildAreaPoints(linePoints, chartWidth, chartHeight) {
-    if (!linePoints) {
-        return '';
-    }
-
-    return `0,${chartHeight} ${linePoints} ${chartWidth},${chartHeight}`;
-}
 
 function MetricLegend({ colorClass, label, value }) {
     return (
@@ -93,25 +67,9 @@ export default function Dashboard({ kpis, attention, productTrend }) {
             href: inventory.url(),
         },
     ];
-    const chartWidth = 100;
-    const chartHeight = 36;
+    const labels = productTrend?.labels ?? [];
     const receivedSeries = productTrend?.series?.received_units ?? [];
     const adjustmentSeries = productTrend?.series?.adjustment_net ?? [];
-    const combinedValues = [...receivedSeries, ...adjustmentSeries.map(Math.abs)];
-    const maxValue = Math.max(...combinedValues, 0);
-    const receivedLine = buildLinePoints(
-        receivedSeries,
-        maxValue,
-        chartWidth,
-        chartHeight
-    );
-    const adjustmentLine = buildLinePoints(
-        adjustmentSeries.map(Math.abs),
-        maxValue,
-        chartWidth,
-        chartHeight
-    );
-    const receivedArea = buildAreaPoints(receivedLine, chartWidth, chartHeight);
     const recommendedData = [
         'Monthly received units vs outbound units',
         'Top 5 fast-moving products by quantity sold',
@@ -161,63 +119,29 @@ export default function Dashboard({ kpis, attention, productTrend }) {
                             </p>
                         </div>
                         <div className="space-y-4 p-4">
-                            <div className="h-52 rounded-md border border-line bg-soft p-3">
-                                <svg
-                                    viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-                                    className="h-full w-full"
-                                    preserveAspectRatio="none"
-                                    role="img"
-                                    aria-label="Product trend chart"
-                                >
-                                    <line
-                                        x1="0"
-                                        y1={chartHeight}
-                                        x2={chartWidth}
-                                        y2={chartHeight}
-                                        className="stroke-line"
-                                        strokeWidth="0.8"
-                                    />
-                                    {receivedArea ? (
-                                        <polygon
-                                            points={receivedArea}
-                                            className="fill-sky-200/40"
-                                        />
-                                    ) : null}
-                                    <polyline
-                                        points={receivedLine}
-                                        fill="none"
-                                        className="stroke-sky-600"
-                                        strokeWidth="1.5"
-                                    />
-                                    <polyline
-                                        points={adjustmentLine}
-                                        fill="none"
-                                        className="stroke-amber-600"
-                                        strokeWidth="1.5"
-                                        strokeDasharray="2 1.4"
-                                    />
-                                </svg>
-                            </div>
+                            <ProductTrendChart
+                                labels={labels}
+                                receivedUnits={receivedSeries}
+                                adjustmentNet={adjustmentSeries}
+                            />
 
                             <div className="grid gap-2 md:grid-cols-2">
                                 <MetricLegend
                                     label="Total Received Units"
-                                    value={productTrend?.totals?.received_units ?? 0}
+                                    value={
+                                        productTrend?.totals?.received_units ??
+                                        0
+                                    }
                                     colorClass="text-sky-700"
                                 />
                                 <MetricLegend
                                     label="Net Adjustments"
-                                    value={productTrend?.totals?.adjustment_net ?? 0}
+                                    value={
+                                        productTrend?.totals?.adjustment_net ??
+                                        0
+                                    }
                                     colorClass="text-amber-700"
                                 />
-                            </div>
-
-                            <div className="grid grid-cols-6 gap-2 text-xs text-muted">
-                                {(productTrend?.labels ?? []).map((month) => (
-                                    <span key={month} className="text-center">
-                                        {month}
-                                    </span>
-                                ))}
                             </div>
                         </div>
                     </article>
