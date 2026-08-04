@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             CategorySeeder::class,
             ProductSeeder::class,
+            StockMovementSeeder::class,
             SupplierSeeder::class,
             CustomerSeeder::class,
             BankAccountSeeder::class,

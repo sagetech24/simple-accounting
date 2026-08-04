@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\PurchasedOrderStatus;
 use App\Enums\RequestQuotationStatus;
+use App\Enums\StockMovementType;
 use App\Models\Product;
 use App\Models\PurchasedOrder;
 use App\Models\RequestQuotation;
+use App\Models\StockMovement;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -46,7 +48,85 @@ class DashboardController extends Controller
                 'low_stock' => $lowStock,
             ],
             'attention' => $this->attentionItems(),
+            'productTrend' => $this->productTrend(),
         ]);
+    }
+
+    /**
+     * @return array{
+     *   labels: list<string>,
+     *   series: array{received_units: list<int>, adjustment_net: list<int>},
+     *   totals: array{received_units: int, adjustment_net: int}
+     * }
+     */
+    private function productTrend(): array
+    {
+        $startMonth = now()->startOfMonth()->subMonths(5);
+        $months = collect(range(0, 5))
+            ->map(fn (int $offset) => $startMonth->copy()->addMonths($offset));
+
+        $buckets = $months
+            ->mapWithKeys(fn ($month) => [
+                $month->format('Y-m') => [
+                    'received_units' => 0,
+                    'adjustment_net' => 0,
+                ],
+            ]);
+
+        $movements = StockMovement::query()
+            ->where('created_at', '>=', $startMonth)
+            ->whereIn('type', [
+                StockMovementType::Receipt->value,
+                StockMovementType::Adjustment->value,
+            ])
+            ->get(['type', 'quantity_delta', 'created_at']);
+
+        foreach ($movements as $movement) {
+            $monthKey = $movement->created_at?->format('Y-m');
+
+            if (! $monthKey || ! $buckets->has($monthKey)) {
+                continue;
+            }
+
+            $bucket = $buckets->get($monthKey);
+
+            if ($movement->type === StockMovementType::Receipt) {
+                $bucket['received_units'] += max((int) $movement->quantity_delta, 0);
+            }
+
+            if ($movement->type === StockMovementType::Adjustment) {
+                $bucket['adjustment_net'] += (int) $movement->quantity_delta;
+            }
+
+            $buckets->put($monthKey, $bucket);
+        }
+
+        $labels = $months
+            ->map(fn ($month) => $month->format('M'))
+            ->values()
+            ->all();
+
+        $receivedUnits = $buckets
+            ->map(fn (array $bucket) => $bucket['received_units'])
+            ->values()
+            ->all();
+
+        $adjustmentNet = $buckets
+            ->map(fn (array $bucket) => $bucket['adjustment_net'])
+            ->values()
+            ->all();
+
+        return [
+            'labels' => $labels,
+            'series' => [
+                'received_units' => $receivedUnits,
+                'adjustment_net' => $adjustmentNet,
+            ],
+            'totals' => [
+                'received_units' => array_sum($receivedUnits),
+                'adjustment_net' => array_sum($adjustmentNet),
+            ],
+        ];
     }
 
     /**

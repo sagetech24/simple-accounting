@@ -25,7 +25,45 @@ const attentionTypes = {
     },
 };
 
-export default function Dashboard({ kpis, attention }) {
+function buildLinePoints(values, maxValue, chartWidth, chartHeight) {
+    if (values.length === 0) {
+        return '';
+    }
+
+    return values
+        .map((value, index) => {
+            const x =
+                values.length === 1
+                    ? chartWidth / 2
+                    : (index / (values.length - 1)) * chartWidth;
+            const normalized = maxValue > 0 ? value / maxValue : 0;
+            const y = chartHeight - normalized * chartHeight;
+
+            return `${x},${y}`;
+        })
+        .join(' ');
+}
+
+function buildAreaPoints(linePoints, chartWidth, chartHeight) {
+    if (!linePoints) {
+        return '';
+    }
+
+    return `0,${chartHeight} ${linePoints} ${chartWidth},${chartHeight}`;
+}
+
+function MetricLegend({ colorClass, label, value }) {
+    return (
+        <div className="rounded-md border border-line bg-soft px-3 py-2">
+            <p className="text-xs text-muted">{label}</p>
+            <p className={`text-lg font-semibold tracking-tight ${colorClass}`}>
+                {value}
+            </p>
+        </div>
+    );
+}
+
+export default function Dashboard({ kpis, attention, productTrend }) {
     const { settings } = usePage().props;
     const brand = settings?.brand_name || 'JMC Pundasyon';
     const cards = [
@@ -54,6 +92,31 @@ export default function Dashboard({ kpis, attention }) {
             value: kpis.low_stock,
             href: inventory.url(),
         },
+    ];
+    const chartWidth = 100;
+    const chartHeight = 36;
+    const receivedSeries = productTrend?.series?.received_units ?? [];
+    const adjustmentSeries = productTrend?.series?.adjustment_net ?? [];
+    const combinedValues = [...receivedSeries, ...adjustmentSeries.map(Math.abs)];
+    const maxValue = Math.max(...combinedValues, 0);
+    const receivedLine = buildLinePoints(
+        receivedSeries,
+        maxValue,
+        chartWidth,
+        chartHeight
+    );
+    const adjustmentLine = buildLinePoints(
+        adjustmentSeries.map(Math.abs),
+        maxValue,
+        chartWidth,
+        chartHeight
+    );
+    const receivedArea = buildAreaPoints(receivedLine, chartWidth, chartHeight);
+    const recommendedData = [
+        'Monthly received units vs outbound units',
+        'Top 5 fast-moving products by quantity sold',
+        'Stock coverage days based on recent consumption',
+        'Supplier lead-time trend (request to receive)',
     ];
 
     return (
@@ -85,6 +148,100 @@ export default function Dashboard({ kpis, attention }) {
                             </Link>
                         ))}
                     </div>
+                </section>
+
+                <section className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                    <article className="overflow-hidden rounded-md border border-line bg-white">
+                        <div className="border-b border-line px-4 py-3">
+                            <h3 className="text-lg font-semibold text-ink">
+                                Product Trend (Last 6 Months)
+                            </h3>
+                            <p className="text-xs text-muted">
+                                Received units and stock adjustments by month
+                            </p>
+                        </div>
+                        <div className="space-y-4 p-4">
+                            <div className="h-52 rounded-md border border-line bg-soft p-3">
+                                <svg
+                                    viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+                                    className="h-full w-full"
+                                    preserveAspectRatio="none"
+                                    role="img"
+                                    aria-label="Product trend chart"
+                                >
+                                    <line
+                                        x1="0"
+                                        y1={chartHeight}
+                                        x2={chartWidth}
+                                        y2={chartHeight}
+                                        className="stroke-line"
+                                        strokeWidth="0.8"
+                                    />
+                                    {receivedArea ? (
+                                        <polygon
+                                            points={receivedArea}
+                                            className="fill-sky-200/40"
+                                        />
+                                    ) : null}
+                                    <polyline
+                                        points={receivedLine}
+                                        fill="none"
+                                        className="stroke-sky-600"
+                                        strokeWidth="1.5"
+                                    />
+                                    <polyline
+                                        points={adjustmentLine}
+                                        fill="none"
+                                        className="stroke-amber-600"
+                                        strokeWidth="1.5"
+                                        strokeDasharray="2 1.4"
+                                    />
+                                </svg>
+                            </div>
+
+                            <div className="grid gap-2 md:grid-cols-2">
+                                <MetricLegend
+                                    label="Total Received Units"
+                                    value={productTrend?.totals?.received_units ?? 0}
+                                    colorClass="text-sky-700"
+                                />
+                                <MetricLegend
+                                    label="Net Adjustments"
+                                    value={productTrend?.totals?.adjustment_net ?? 0}
+                                    colorClass="text-amber-700"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-6 gap-2 text-xs text-muted">
+                                {(productTrend?.labels ?? []).map((month) => (
+                                    <span key={month} className="text-center">
+                                        {month}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </article>
+
+                    <article className="overflow-hidden rounded-md border border-line bg-white">
+                        <div className="border-b border-line px-4 py-3">
+                            <h3 className="text-lg font-semibold text-ink">
+                                Recommended Data to Add
+                            </h3>
+                            <p className="text-xs text-muted">
+                                Prioritize these for better forecasting
+                            </p>
+                        </div>
+                        <ul className="space-y-2 p-4">
+                            {recommendedData.map((item) => (
+                                <li
+                                    key={item}
+                                    className="rounded-md border border-line bg-soft px-3 py-2 text-sm text-ink"
+                                >
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    </article>
                 </section>
 
                 <section
