@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 * @see app/Http/Controllers/BankCheckController.php:16
 * @route '/bank-accounts/{bank_account}/checks'
 */
-export const store = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const store = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(args, options),
     method: 'post',
 })
@@ -19,7 +19,7 @@ store.definition = {
 * @see app/Http/Controllers/BankCheckController.php:16
 * @route '/bank-accounts/{bank_account}/checks'
 */
-store.url = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+store.url = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { bank_account: args }
     }
@@ -52,7 +52,7 @@ store.url = (args: { bank_account: number | { id: number } } | [bank_account: nu
 * @see app/Http/Controllers/BankCheckController.php:16
 * @route '/bank-accounts/{bank_account}/checks'
 */
-store.post = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+store.post = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(args, options),
     method: 'post',
 })
@@ -62,7 +62,7 @@ store.post = (args: { bank_account: number | { id: number } } | [bank_account: n
 * @see app/Http/Controllers/BankCheckController.php:16
 * @route '/bank-accounts/{bank_account}/checks'
 */
-const storeForm = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const storeForm = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: store.url(args, options),
     method: 'post',
 })
@@ -72,7 +72,7 @@ const storeForm = (args: { bank_account: number | { id: number } } | [bank_accou
 * @see app/Http/Controllers/BankCheckController.php:16
 * @route '/bank-accounts/{bank_account}/checks'
 */
-storeForm.post = (args: { bank_account: number | { id: number } } | [bank_account: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+storeForm.post = (args: { bank_account: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: store.url(args, options),
     method: 'post',
 })
@@ -84,7 +84,7 @@ store.form = storeForm
 * @see app/Http/Controllers/BankCheckController.php:41
 * @route '/bank-accounts/{bank_account}/checks/{bank_check}'
 */
-export const update = (args: { bank_account: number | { id: number }, bank_check: number | { id: number } } | [bank_account: number | { id: number }, bank_check: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+export const update = (args: { bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: update.url(args, options),
     method: 'patch',
 })
@@ -99,7 +99,7 @@ update.definition = {
 * @see app/Http/Controllers/BankCheckController.php:41
 * @route '/bank-accounts/{bank_account}/checks/{bank_check}'
 */
-update.url = (args: { bank_account: number | { id: number }, bank_check: number | { id: number } } | [bank_account: number | { id: number }, bank_check: number | { id: number } ], options?: RouteQueryOptions) => {
+update.url = (args: { bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } ], options?: RouteQueryOptions) => {
     if (Array.isArray(args)) {
         args = {
             bank_account: args[0],
@@ -129,7 +129,7 @@ update.url = (args: { bank_account: number | { id: number }, bank_check: number 
 * @see app/Http/Controllers/BankCheckController.php:41
 * @route '/bank-accounts/{bank_account}/checks/{bank_check}'
 */
-update.patch = (args: { bank_account: number | { id: number }, bank_check: number | { id: number } } | [bank_account: number | { id: number }, bank_check: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+update.patch = (args: { bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: update.url(args, options),
     method: 'patch',
 })
@@ -139,7 +139,7 @@ update.patch = (args: { bank_account: number | { id: number }, bank_check: numbe
 * @see app/Http/Controllers/BankCheckController.php:41
 * @route '/bank-accounts/{bank_account}/checks/{bank_check}'
 */
-const updateForm = (args: { bank_account: number | { id: number }, bank_check: number | { id: number } } | [bank_account: number | { id: number }, bank_check: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const updateForm = (args: { bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'PATCH',
@@ -154,7 +154,7 @@ const updateForm = (args: { bank_account: number | { id: number }, bank_check: n
 * @see app/Http/Controllers/BankCheckController.php:41
 * @route '/bank-accounts/{bank_account}/checks/{bank_check}'
 */
-updateForm.patch = (args: { bank_account: number | { id: number }, bank_check: number | { id: number } } | [bank_account: number | { id: number }, bank_check: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+updateForm.patch = (args: { bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'PATCH',
@@ -171,7 +171,7 @@ update.form = updateForm
 * @see app/Http/Controllers/BankCheckController.php:90
 * @route '/bank-accounts/{bank_account}/checks/{bank_check}/void'
 */
-export const voidCheck = (args: { bank_account: number | { id: number }, bank_check: number | { id: number } } | [bank_account: number | { id: number }, bank_check: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const voidCheck = (args: { bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: voidCheck.url(args, options),
     method: 'post',
 })
@@ -186,7 +186,7 @@ voidCheck.definition = {
 * @see app/Http/Controllers/BankCheckController.php:90
 * @route '/bank-accounts/{bank_account}/checks/{bank_check}/void'
 */
-voidCheck.url = (args: { bank_account: number | { id: number }, bank_check: number | { id: number } } | [bank_account: number | { id: number }, bank_check: number | { id: number } ], options?: RouteQueryOptions) => {
+voidCheck.url = (args: { bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } ], options?: RouteQueryOptions) => {
     if (Array.isArray(args)) {
         args = {
             bank_account: args[0],
@@ -216,7 +216,7 @@ voidCheck.url = (args: { bank_account: number | { id: number }, bank_check: numb
 * @see app/Http/Controllers/BankCheckController.php:90
 * @route '/bank-accounts/{bank_account}/checks/{bank_check}/void'
 */
-voidCheck.post = (args: { bank_account: number | { id: number }, bank_check: number | { id: number } } | [bank_account: number | { id: number }, bank_check: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+voidCheck.post = (args: { bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: voidCheck.url(args, options),
     method: 'post',
 })
@@ -226,7 +226,7 @@ voidCheck.post = (args: { bank_account: number | { id: number }, bank_check: num
 * @see app/Http/Controllers/BankCheckController.php:90
 * @route '/bank-accounts/{bank_account}/checks/{bank_check}/void'
 */
-const voidCheckForm = (args: { bank_account: number | { id: number }, bank_check: number | { id: number } } | [bank_account: number | { id: number }, bank_check: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const voidCheckForm = (args: { bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: voidCheck.url(args, options),
     method: 'post',
 })
@@ -236,7 +236,7 @@ const voidCheckForm = (args: { bank_account: number | { id: number }, bank_check
 * @see app/Http/Controllers/BankCheckController.php:90
 * @route '/bank-accounts/{bank_account}/checks/{bank_check}/void'
 */
-voidCheckForm.post = (args: { bank_account: number | { id: number }, bank_check: number | { id: number } } | [bank_account: number | { id: number }, bank_check: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+voidCheckForm.post = (args: { bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } } | [bank_account: string | number | { id: string | number }, bank_check: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: voidCheck.url(args, options),
     method: 'post',
 })
