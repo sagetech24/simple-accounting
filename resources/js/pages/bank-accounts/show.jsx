@@ -243,7 +243,7 @@ export default function BankAccountShow({
                         <p className="mt-1 text-sm text-ink-soft">
                             {[bankAccount.account_name, bankAccount.account_number]
                                 .filter(Boolean)
-                                .join(' · ') || 'No account details'}
+                                .join(' | ') || 'No account details'}
                         </p>
                         {bankAccount.notes && (
                             <p className="mt-2 max-w-2xl text-sm whitespace-pre-wrap text-muted">
@@ -252,11 +252,6 @@ export default function BankAccountShow({
                         )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                        <span
-                            className={`inline-flex rounded-full border px-3 py-1 text-xs ${accountStatusClass(bankAccount.status)}`}
-                        >
-                            {bankAccount.status_label}
-                        </span>
                         {isDeleted && (
                             <span className="inline-flex rounded-full border border-red-600/30 bg-red-400/10 px-3 py-1 text-xs text-red-700">
                                 Deleted
@@ -307,9 +302,8 @@ export default function BankAccountShow({
                             Overdue
                         </p>
                         <p className="mt-1 text-lg font-semibold text-ink">
-                            {kpis.overdue_count}{' '}
-                            <span className="text-sm font-medium text-ink-soft">
-                                · {formatMoney(kpis.overdue_amount)}
+                            <span className="text-lg font-medium text-ink-soft">
+                                 {formatMoney(kpis.overdue_amount)}
                             </span>
                         </p>
                     </div>
@@ -318,9 +312,8 @@ export default function BankAccountShow({
                             Upcoming
                         </p>
                         <p className="mt-1 text-lg font-semibold text-ink">
-                            {kpis.upcoming_count}{' '}
-                            <span className="text-sm font-medium text-ink-soft">
-                                · {formatMoney(kpis.upcoming_amount)}
+                            <span className="text-lg font-medium text-ink-soft">
+                                 {formatMoney(kpis.upcoming_amount)}
                             </span>
                         </p>
                     </div>
@@ -329,7 +322,9 @@ export default function BankAccountShow({
                             Issued
                         </p>
                         <p className="mt-1 text-lg font-semibold text-ink">
-                            {kpis.issued_count}
+                            <span className="text-lg font-medium text-ink-soft">
+                                 {formatMoney(kpis.issued_amount)}
+                            </span>
                         </p>
                     </div>
                 </div>
