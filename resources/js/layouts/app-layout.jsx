@@ -7,6 +7,7 @@ import {
     ProductsNavIcon,
     PurchasedOrdersNavIcon,
     RequestQuotationsNavIcon,
+    SalesOrdersNavIcon,
     SuppliersNavIcon,
 } from '@/components/nav-icons';
 import SiteHeader from '@/components/site-header';
@@ -17,6 +18,7 @@ import { index as customers } from '@/routes/customers';
 import { index as inventory } from '@/routes/inventory';
 import { index as purchasedOrders } from '@/routes/purchased-orders';
 import { index as requestQuotations } from '@/routes/request-quotations';
+import { index as salesOrders } from '@/routes/sales-orders';
 import { index as suppliers } from '@/routes/suppliers';
 
 const navItems = [
@@ -24,6 +26,7 @@ const navItems = [
     { label: 'Products', route: products, icon: ProductsNavIcon },
     { label: 'Suppliers', route: suppliers, icon: SuppliersNavIcon },
     { label: 'Customers', route: customers, icon: CustomersNavIcon },
+    { label: 'Sales Orders', route: salesOrders, icon: SalesOrdersNavIcon },
     {
         label: 'Request Quotations',
         route: requestQuotations,

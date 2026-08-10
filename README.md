@@ -37,9 +37,10 @@ Canonical product rules live in `.cursor/rules/PRD.mdc` (PRD v1).
 | Admin products | `/admin/products` | Full CRUD, soft delete / restore, `purchase_price` |
 | Suppliers | `/suppliers` | Index-only CRUD in slide-down modal |
 | Customers | `/customers` | Index-only CRUD in slide-down modal |
+| Sales Orders | `/sales-orders` | Multi-line outbound sale; stock out on save; void restores stock |
 | Request Quotations | `/request-quotations` | List + create/edit tabs; draft → pending → approved |
 | Purchased Orders | `/purchased-orders` | RFQ→PO; draft → ordered → received; prepayments; post to AP |
-| Inventory | `/inventory` | On-hand stock + movement ledger; receive posts stock from PO |
+| Inventory | `/inventory` | On-hand stock + movement ledger; PO receipts + sales `sale` movements |
 | Accounts payable | `/accounts-payable` | Settle posted POs by supplier |
 
 `/received-orders` redirects to `/inventory`.
@@ -73,8 +74,14 @@ Canonical product rules live in `.cursor/rules/PRD.mdc` (PRD v1).
 ### Inventory
 
 - Cached on-hand on `products.quantity`
-- Append-only `stock_movements` (`receipt` \| `adjustment` \| `sale` reserved)
+- Append-only `stock_movements` (`receipt` \| `adjustment` \| `sale`)
 - Receiving on Purchased Orders posts receipt movements and increments stock in one transaction
+- Sales Orders post outbound `sale` movements on create; void restores stock
+
+### Sales Order
+
+- Optional customer (walk-in allowed), multi-line items, server-calculated grand total
+- Save deducts stock immediately; void soft-deletes and restores stock; no edit after save
 
 ---
 
@@ -191,11 +198,12 @@ From the PRD:
 - Mobile API
 - Warehouses / lots / serials
 - Partial multi-receipt receiving
-- Sales / COGS outbound (`sale` movements reserved)
+- Sales payments / Accounts Receivable / COGS costing
+- Draft / confirm sales workflow
 
 ### Recommended next (v1.x)
 
-- Sales / outbound stock
+- Sales payments / AR
 - Low-stock alerts and price history polish
 - Policies/gates even with one admin
 - Pagination / empty-state polish across modules

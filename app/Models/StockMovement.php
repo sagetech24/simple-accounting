@@ -64,6 +64,13 @@ class StockMovement extends Model
                 'label' => $this->reference->reference,
                 'purchased_order' => $this->reference->toArrayPayload(),
             ];
+        } elseif ($this->reference instanceof SalesOrder) {
+            $reference = [
+                'type' => 'sales_order',
+                'id' => $this->reference->id,
+                'label' => $this->reference->reference,
+                'sales_order' => $this->reference->toArrayPayload(),
+            ];
         } elseif ($this->reference_type !== null) {
             $reference = [
                 'type' => $this->reference_type,

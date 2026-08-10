@@ -414,9 +414,14 @@ function ProductCard({
 
 function MovementCard({ movement, onOpenPurchaseOrder }) {
     const deltaPositive = movement.quantity_delta > 0;
-    const reference =
+    const purchaseOrderReference =
         movement.reference?.type === 'purchased_order' &&
         movement.reference.purchased_order
+            ? movement.reference
+            : null;
+    const salesOrderReference =
+        movement.reference?.type === 'sales_order' &&
+        movement.reference.sales_order
             ? movement.reference
             : null;
 
@@ -483,16 +488,23 @@ function MovementCard({ movement, onOpenPurchaseOrder }) {
                     </dd>
                 </div>
             </dl>
-            {reference ? (
+            {purchaseOrderReference ? (
                 <button
                     type="button"
                     onClick={() =>
-                        onOpenPurchaseOrder(reference.purchased_order)
+                        onOpenPurchaseOrder(
+                            purchaseOrderReference.purchased_order,
+                        )
                     }
                     className={`self-start cursor-pointer text-sm font-medium text-teal-800 underline-offset-2 transition duration-150 hover:underline ${focusRing}`}
                 >
-                    {formatPurchaseOrderReference(reference)}
+                    {formatPurchaseOrderReference(purchaseOrderReference)}
                 </button>
+            ) : null}
+            {salesOrderReference ? (
+                <p className="self-start text-sm font-medium text-teal-800">
+                    {formatSalesOrderReference(salesOrderReference)}
+                </p>
             ) : null}
         </article>
     );
@@ -504,6 +516,14 @@ function formatPurchaseOrderReference(reference) {
     }
 
     return `PO ${String(reference.label).slice(0, 8)}`;
+}
+
+function formatSalesOrderReference(reference) {
+    if (!reference?.label) {
+        return reference?.id ? `SO ${reference.id}` : 'SO';
+    }
+
+    return `SO ${String(reference.label).slice(0, 8)}`;
 }
 
 export default function InventoryIndex({
@@ -1213,12 +1233,20 @@ export default function InventoryIndex({
                                             {movements.data.map((movement) => {
                                                 const deltaPositive =
                                                     movement.quantity_delta > 0;
-                                                const reference =
+                                                const purchaseOrderReference =
                                                     movement.reference
                                                         ?.type ===
                                                         'purchased_order' &&
                                                     movement.reference
                                                         .purchased_order
+                                                        ? movement.reference
+                                                        : null;
+                                                const salesOrderReference =
+                                                    movement.reference
+                                                        ?.type ===
+                                                        'sales_order' &&
+                                                    movement.reference
+                                                        .sales_order
                                                         ? movement.reference
                                                         : null;
 
@@ -1281,20 +1309,26 @@ export default function InventoryIndex({
                                                                 : '—'}
                                                         </td>
                                                         <td className="px-4 py-2 text-ink-soft">
-                                                            {reference ? (
+                                                            {purchaseOrderReference ? (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() =>
                                                                         openPurchaseOrderDetail(
-                                                                            reference.purchased_order,
+                                                                            purchaseOrderReference.purchased_order,
                                                                         )
                                                                     }
                                                                     className={`cursor-pointer text-left text-teal-800 underline-offset-2 transition duration-150 hover:underline ${focusRing}`}
                                                                 >
                                                                     {formatPurchaseOrderReference(
-                                                                        reference,
+                                                                        purchaseOrderReference,
                                                                     )}
                                                                 </button>
+                                                            ) : salesOrderReference ? (
+                                                                <span className="text-teal-800">
+                                                                    {formatSalesOrderReference(
+                                                                        salesOrderReference,
+                                                                    )}
+                                                                </span>
                                                             ) : (
                                                                 '—'
                                                             )}

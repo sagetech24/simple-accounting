@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\InventoryController::index
-* @see app/Http/Controllers/InventoryController.php:29
+* @see app/Http/Controllers/InventoryController.php:30
 * @route '/inventory'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\InventoryController::index
-* @see app/Http/Controllers/InventoryController.php:29
+* @see app/Http/Controllers/InventoryController.php:30
 * @route '/inventory'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\InventoryController::index
-* @see app/Http/Controllers/InventoryController.php:29
+* @see app/Http/Controllers/InventoryController.php:30
 * @route '/inventory'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\InventoryController::index
-* @see app/Http/Controllers/InventoryController.php:29
+* @see app/Http/Controllers/InventoryController.php:30
 * @route '/inventory'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\InventoryController::index
-* @see app/Http/Controllers/InventoryController.php:29
+* @see app/Http/Controllers/InventoryController.php:30
 * @route '/inventory'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\InventoryController::index
-* @see app/Http/Controllers/InventoryController.php:29
+* @see app/Http/Controllers/InventoryController.php:30
 * @route '/inventory'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\InventoryController::index
-* @see app/Http/Controllers/InventoryController.php:29
+* @see app/Http/Controllers/InventoryController.php:30
 * @route '/inventory'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\InventoryController::adjust
-* @see app/Http/Controllers/InventoryController.php:132
+* @see app/Http/Controllers/InventoryController.php:137
 * @route '/inventory/{product}/adjust'
 */
 export const adjust = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ adjust.definition = {
 
 /**
 * @see \App\Http\Controllers\InventoryController::adjust
-* @see app/Http/Controllers/InventoryController.php:132
+* @see app/Http/Controllers/InventoryController.php:137
 * @route '/inventory/{product}/adjust'
 */
 adjust.url = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -130,7 +130,7 @@ adjust.url = (args: { product: number | { id: number } } | [product: number | { 
 
 /**
 * @see \App\Http\Controllers\InventoryController::adjust
-* @see app/Http/Controllers/InventoryController.php:132
+* @see app/Http/Controllers/InventoryController.php:137
 * @route '/inventory/{product}/adjust'
 */
 adjust.post = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -140,7 +140,7 @@ adjust.post = (args: { product: number | { id: number } } | [product: number | {
 
 /**
 * @see \App\Http\Controllers\InventoryController::adjust
-* @see app/Http/Controllers/InventoryController.php:132
+* @see app/Http/Controllers/InventoryController.php:137
 * @route '/inventory/{product}/adjust'
 */
 const adjustForm = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -150,7 +150,7 @@ const adjustForm = (args: { product: number | { id: number } } | [product: numbe
 
 /**
 * @see \App\Http\Controllers\InventoryController::adjust
-* @see app/Http/Controllers/InventoryController.php:132
+* @see app/Http/Controllers/InventoryController.php:137
 * @route '/inventory/{product}/adjust'
 */
 adjustForm.post = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -162,7 +162,7 @@ adjust.form = adjustForm
 
 /**
 * @see \App\Http\Controllers\InventoryController::updateSettings
-* @see app/Http/Controllers/InventoryController.php:157
+* @see app/Http/Controllers/InventoryController.php:162
 * @route '/inventory/{product}/settings'
 */
 export const updateSettings = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -177,7 +177,7 @@ updateSettings.definition = {
 
 /**
 * @see \App\Http\Controllers\InventoryController::updateSettings
-* @see app/Http/Controllers/InventoryController.php:157
+* @see app/Http/Controllers/InventoryController.php:162
 * @route '/inventory/{product}/settings'
 */
 updateSettings.url = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -210,7 +210,7 @@ updateSettings.url = (args: { product: number | { id: number } } | [product: num
 
 /**
 * @see \App\Http\Controllers\InventoryController::updateSettings
-* @see app/Http/Controllers/InventoryController.php:157
+* @see app/Http/Controllers/InventoryController.php:162
 * @route '/inventory/{product}/settings'
 */
 updateSettings.post = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -220,7 +220,7 @@ updateSettings.post = (args: { product: number | { id: number } } | [product: nu
 
 /**
 * @see \App\Http\Controllers\InventoryController::updateSettings
-* @see app/Http/Controllers/InventoryController.php:157
+* @see app/Http/Controllers/InventoryController.php:162
 * @route '/inventory/{product}/settings'
 */
 const updateSettingsForm = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -230,7 +230,7 @@ const updateSettingsForm = (args: { product: number | { id: number } } | [produc
 
 /**
 * @see \App\Http\Controllers\InventoryController::updateSettings
-* @see app/Http/Controllers/InventoryController.php:157
+* @see app/Http/Controllers/InventoryController.php:162
 * @route '/inventory/{product}/settings'
 */
 updateSettingsForm.post = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

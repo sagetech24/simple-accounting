@@ -12,6 +12,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PurchasedOrderController;
 use App\Http\Controllers\RequestQuotationController;
+use App\Http\Controllers\SalesOrderController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +45,12 @@ Route::middleware('auth')->group(function () {
         ->withTrashed()
         ->name('customers.restore');
     Route::resource('customers', CustomerController::class)->except(['show', 'create', 'edit']);
+
+    Route::post('sales-orders/{sales_order}/restore', [SalesOrderController::class, 'restore'])
+        ->withTrashed()
+        ->name('sales-orders.restore');
+    Route::resource('sales-orders', SalesOrderController::class)
+        ->only(['index', 'store', 'destroy']);
 
     Route::post('request-quotations/{request_quotation}/submit', [RequestQuotationController::class, 'submit'])
         ->name('request-quotations.submit');

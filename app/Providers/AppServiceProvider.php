@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\PurchasedOrder;
+use App\Models\SalesOrder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::enforceMorphMap([
             'purchased_order' => PurchasedOrder::class,
+            'sales_order' => SalesOrder::class,
         ]);
     }
 }

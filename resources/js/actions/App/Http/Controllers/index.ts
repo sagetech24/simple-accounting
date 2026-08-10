@@ -5,6 +5,7 @@ import HomeController from './HomeController'
 import InventoryController from './InventoryController'
 import SupplierController from './SupplierController'
 import CustomerController from './CustomerController'
+import SalesOrderController from './SalesOrderController'
 import RequestQuotationController from './RequestQuotationController'
 import PurchasedOrderController from './PurchasedOrderController'
 import AccountsPayableController from './AccountsPayableController'
@@ -21,6 +22,7 @@ const Controllers = {
     InventoryController: Object.assign(InventoryController, InventoryController),
     SupplierController: Object.assign(SupplierController, SupplierController),
     CustomerController: Object.assign(CustomerController, CustomerController),
+    SalesOrderController: Object.assign(SalesOrderController, SalesOrderController),
     RequestQuotationController: Object.assign(RequestQuotationController, RequestQuotationController),
     PurchasedOrderController: Object.assign(PurchasedOrderController, PurchasedOrderController),
     AccountsPayableController: Object.assign(AccountsPayableController, AccountsPayableController),

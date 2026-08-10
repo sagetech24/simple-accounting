@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\StockMovementType;
 use App\Models\Product;
 use App\Models\PurchasedOrder;
+use App\Models\SalesOrder;
 use App\Models\StockMovement;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -78,6 +79,50 @@ class StockService
                 unitCost: (string) $item->buying_price,
                 reference: $order,
                 notes: null,
+                createdBy: $createdBy,
+            );
+        }
+    }
+
+    /**
+     * Post outbound sale movements for each line on a sales order.
+     *
+     * Caller must ensure the order is being sold exactly once (create or restore).
+     */
+    public function sellFromSalesOrder(SalesOrder $order, string $createdBy): void
+    {
+        $order->loadMissing('items.product');
+
+        foreach ($order->items as $item) {
+            $this->apply(
+                product: $item->product,
+                type: StockMovementType::Sale,
+                quantityDelta: -$item->quantity,
+                unitCost: null,
+                reference: $order,
+                notes: null,
+                createdBy: $createdBy,
+            );
+        }
+    }
+
+    /**
+     * Restore on-hand stock when voiding a sales order (compensating positive sale deltas).
+     *
+     * Caller must soft-delete (or be about to soft-delete) the order exactly once.
+     */
+    public function restoreStockFromSalesOrder(SalesOrder $order, string $createdBy): void
+    {
+        $order->loadMissing('items.product');
+
+        foreach ($order->items as $item) {
+            $this->apply(
+                product: $item->product,
+                type: StockMovementType::Sale,
+                quantityDelta: $item->quantity,
+                unitCost: null,
+                reference: $order,
+                notes: 'Void restore for '.$order->reference,
                 createdBy: $createdBy,
             );
         }

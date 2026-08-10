@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductSellingPriceHistory;
 use App\Models\PurchasedOrder;
+use App\Models\SalesOrder;
 use App\Models\StockMovement;
 use App\Services\StockService;
 use Illuminate\Database\Eloquent\Builder;
@@ -61,6 +62,10 @@ class InventoryController extends Controller
                                 'requestQuotation',
                                 'items.product',
                                 'payments.bankCheck.bankAccount',
+                            ],
+                            SalesOrder::class => [
+                                'customer',
+                                'items.product',
                             ],
                         ]);
                     },

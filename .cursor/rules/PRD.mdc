@@ -33,9 +33,10 @@ Internal ops app for catalog pricing and early procurement workflow. Guests can 
 | Products | `/products` | Shipped — search/browse panel (includes stock; cost via admin edit) |
 | Suppliers | `/suppliers` | Shipped — full CRUD |
 | Customers | `/customers` | Shipped — full CRUD |
+| Sales Orders | `/sales-orders` | Shipped — multi-line outbound sale; stock out on save; void restores stock |
 | Request Quotations | `/request-quotations` | Shipped — list + create/edit tabs, soft delete, draft → pending → approved |
 | Purchased Orders | `/purchased-orders` | Shipped — RFQ→PO, draft → ordered → received, prepayments, post to AP |
-| Inventory | `/inventory` | Shipped — on-hand stock + movement ledger; receive posts stock from PO |
+| Inventory | `/inventory` | Shipped — on-hand stock + movement ledger; receive posts stock from PO; sales post `sale` movements |
 | Accounts | `/accounts-payable` | Shipped — settle posted POs by supplier |
 
 Admin product management lives under `/admin/products` (also auth-gated). `/received-orders` redirects to `/inventory`.
@@ -139,7 +140,7 @@ Admin product management lives under `/admin/products` (also auth-gated). `/rece
 | Field / concept | Rules |
 |-----------------|-------|
 | `products.quantity` | Cached on-hand balance; ≥ 0 |
-| `stock_movements` | Append-only ledger: `receipt` \| `adjustment` \| `sale` (sale reserved) |
+| `stock_movements` | Append-only ledger: `receipt` \| `adjustment` \| `sale` |
 | `quantity_delta` | Signed int; receipts from PO receive are positive |
 | `quantity_after` | Snapshot after apply |
 | `unit_cost` | Set on receipts from PO line buying price |
@@ -151,18 +152,40 @@ Admin product management lives under `/admin/products` (also auth-gated). `/rece
 - On hand: search, category filter, sortable name/qty; row action **Adjust stock** (modal)
 - Movements: search, type filter; shows delta, after, unit cost, PO reference, created by
 - Receiving remains on Purchased Orders (`mark-received-with-adjustment`); posts receipt movements and increments on-hand in the same transaction
+- Sales Orders post `sale` movements (negative delta) on create; void restores stock with compensating positive `sale` movements
 - Admin product create/update quantity writes adjustment / opening-balance movements
 - Routes: `inventory.index`, `inventory.adjust`
 
 ---
 
+## Domain — Sales Order
+
+| Field / concept | Rules |
+|-----|----|
+| `reference` | Unique UUID; auto-generated |
+| `customer_id` | Nullable; active customer when set (`null` = walk-in) |
+| `grand_total` | Decimal; **server-calculated** from line subtotals |
+| `notes` | Nullable text |
+| Soft delete | Void soft-deletes and restores stock; restore re-decrements if stock allows |
+| Line `selling_price` | Defaults from product; overridable |
+| Line `quantity` | Integer ≥ 1; must not exceed on-hand on create/restore |
+
+### Sales Orders UX
+
+- Single index page (`/sales-orders`) with **list** + **create** tabs (no edit after save)
+- List: trash filter; detail modal; void / restore actions
+- Create: optional customer, product lines, live totals; save posts stock immediately
+- Routes: `index`, `store`, `destroy`, `sales-orders.restore`
+
+---
+
 ## Out of scope (v1)
 
-Multi-user roles, public registration, public/guest catalog, multi-tenant, mobile API, warehouses/lots/serials, partial multi-receipt receiving, sales/COGS outbound.
+Multi-user roles, public registration, public/guest catalog, multi-tenant, mobile API, warehouses/lots/serials, partial multi-receipt receiving, sales payments/AR, COGS costing, draft/confirm sales workflow.
 
 ## Recommended next (v1.x)
 
-- Sales / outbound stock (`sale` movements)
+- Sales payments / Accounts Receivable
 - Low-stock alerts and price history polish
 - Policies/gates even with one admin
 - Pagination/empty-state polish across modules
