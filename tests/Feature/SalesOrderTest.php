@@ -11,6 +11,7 @@ use App\Models\SalesOrderItem;
 use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -49,12 +50,61 @@ class SalesOrderTest extends TestCase
                 ->has('customers')
                 ->has('products')
                 ->has('summary')
+                ->has('dailySales')
+                ->has('dailySales.labels', 90)
+                ->has('dailySales.totals', 90)
                 ->where('summary.order_count', 1)
                 ->where('summary.grand_total_sum', '40.00')
                 ->where('orders.data.0.reference', $order->reference)
                 ->where('orders.data.0.customer_name', 'River Retail')
                 ->where('orders.data.0.item_count', 1)
             );
+    }
+
+    public function test_index_includes_daily_sales_series_excluding_voided_and_filling_zeros(): void
+    {
+        $admin = User::factory()->create();
+
+        Carbon::setTestNow(Carbon::parse('2026-08-10 12:00:00', config('app.timezone')));
+
+        try {
+            SalesOrder::factory()->create([
+                'grand_total' => '100.00',
+                'created_at' => Carbon::parse('2026-08-10 09:00:00'),
+                'updated_at' => Carbon::parse('2026-08-10 09:00:00'),
+            ]);
+            SalesOrder::factory()->create([
+                'grand_total' => '50.00',
+                'created_at' => Carbon::parse('2026-08-10 15:00:00'),
+                'updated_at' => Carbon::parse('2026-08-10 15:00:00'),
+            ]);
+            SalesOrder::factory()->create([
+                'grand_total' => '25.00',
+                'created_at' => Carbon::parse('2026-08-08 10:00:00'),
+                'updated_at' => Carbon::parse('2026-08-08 10:00:00'),
+            ]);
+            $voided = SalesOrder::factory()->create([
+                'grand_total' => '999.00',
+                'created_at' => Carbon::parse('2026-08-10 11:00:00'),
+                'updated_at' => Carbon::parse('2026-08-10 11:00:00'),
+            ]);
+            $voided->delete();
+
+            $this->actingAs($admin)
+                ->get(route('sales-orders.index'))
+                ->assertOk()
+                ->assertInertia(fn (Assert $page) => $page
+                    ->has('dailySales.labels', 90)
+                    ->has('dailySales.totals', 90)
+                    ->where('dailySales.labels.0', '2026-05-13')
+                    ->where('dailySales.labels.89', '2026-08-10')
+                    ->where('dailySales.totals.89', 150)
+                    ->where('dailySales.totals.87', 25)
+                    ->where('dailySales.totals.88', 0)
+                );
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     public function test_authenticated_users_can_create_a_walk_in_sale_and_decrement_stock(): void
