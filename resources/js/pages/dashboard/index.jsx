@@ -42,22 +42,22 @@ export default function Dashboard({ kpis, attention, productTrend }) {
     const brand = settings?.brand_name || 'JMC Pundasyon';
     const cards = [
         {
-            label: 'Pending RFQs',
+            label: 'Pending Requests',
             value: kpis.pending_rfqs,
             href: requestQuotations.url(),
         },
         {
-            label: 'Draft POs',
+            label: 'Pending POs',
             value: kpis.draft_pos,
             href: purchasedOrders.url(),
         },
         {
-            label: 'Ordered POs',
+            label: 'Purchase Orders',
             value: kpis.ordered_pos,
             href: purchasedOrders.url(),
         },
         {
-            label: 'AP balance due',
+            label: 'Accounts Payable Due',
             value: formatMoney(kpis.ap_balance_due),
             href: accountsPayable.url(),
         },
