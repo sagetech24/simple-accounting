@@ -340,8 +340,21 @@ export default function PurchasedOrdersIndex({
     const [detailQuotation, setDetailQuotation] = useState(null);
     const [adjustmentOrder, setAdjustmentOrder] = useState(null);
     const [prepaymentOrder, setPrepaymentOrder] = useState(null);
-    const [openMenuId, setOpenMenuId] = useState(null);
+    // Track surface so card + table menus (both mounted via CSS) never open together.
+    const [openMenu, setOpenMenu] = useState(null);
     const trashed = filters.trashed ?? '';
+
+    function toggleMenu(orderId, surface) {
+        setOpenMenu((current) =>
+            current?.id === orderId && current?.surface === surface
+                ? null
+                : { id: orderId, surface },
+        );
+    }
+
+    function closeMenu() {
+        setOpenMenu(null);
+    }
 
     function openCreateTab() {
         setEditingOrder(null);
@@ -351,7 +364,7 @@ export default function PurchasedOrdersIndex({
         setPrepaymentOrder(null);
         setFormKey((current) => current + 1);
         setActiveTab('create');
-        setOpenMenuId(null);
+        closeMenu();
     }
 
     function openDetailModal(order) {
@@ -359,7 +372,7 @@ export default function PurchasedOrdersIndex({
         setAdjustmentOrder(null);
         setPrepaymentOrder(null);
         setDetailOrder(order);
-        setOpenMenuId(null);
+        closeMenu();
     }
 
     function closeDetailModal() {
@@ -375,7 +388,7 @@ export default function PurchasedOrdersIndex({
         setAdjustmentOrder(null);
         setPrepaymentOrder(null);
         setDetailQuotation(order.request_quotation);
-        setOpenMenuId(null);
+        closeMenu();
     }
 
     function closeSourceQuotationDetail() {
@@ -387,7 +400,7 @@ export default function PurchasedOrdersIndex({
         setDetailQuotation(null);
         setPrepaymentOrder(null);
         setAdjustmentOrder(order);
-        setOpenMenuId(null);
+        closeMenu();
     }
 
     function closeReceiveAdjustmentModal() {
@@ -399,7 +412,7 @@ export default function PurchasedOrdersIndex({
         setDetailQuotation(null);
         setAdjustmentOrder(null);
         setPrepaymentOrder(order);
-        setOpenMenuId(null);
+        closeMenu();
     }
 
     function closePrepaymentModal() {
@@ -414,7 +427,7 @@ export default function PurchasedOrdersIndex({
         setEditingOrder(order);
         setFormKey((current) => current + 1);
         setActiveTab('create');
-        setOpenMenuId(null);
+        closeMenu();
     }
 
     function handleFormSuccess() {
@@ -489,17 +502,15 @@ export default function PurchasedOrdersIndex({
             ? `${summary.ordered_count} awaiting receive`
             : 'None awaiting receive';
 
-    function renderRowActions(order) {
+    function renderRowActions(order, surface) {
         return (
             <RowActionsMenu
                 order={order}
-                open={openMenuId === order.id}
-                onToggle={() =>
-                    setOpenMenuId((current) =>
-                        current === order.id ? null : order.id,
-                    )
+                open={
+                    openMenu?.id === order.id && openMenu?.surface === surface
                 }
-                onClose={() => setOpenMenuId(null)}
+                onToggle={() => toggleMenu(order.id, surface)}
+                onClose={closeMenu}
                 onEdit={openEditTab}
                 onDelete={deleteOrder}
                 onRestore={restoreOrder}
@@ -737,7 +748,10 @@ export default function PurchasedOrdersIndex({
                                                             {order.reference}
                                                         </p>
                                                     </div>
-                                                    {renderRowActions(order)}
+                                                    {renderRowActions(
+                                                        order,
+                                                        'card',
+                                                    )}
                                                 </div>
 
                                                 <OrderStatusBadges
@@ -940,6 +954,7 @@ export default function PurchasedOrdersIndex({
                                                         <td className="px-4 py-2">
                                                             {renderRowActions(
                                                                 order,
+                                                                'table',
                                                             )}
                                                         </td>
                                                     </tr>
