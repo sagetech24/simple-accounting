@@ -4,6 +4,7 @@ import {
     destroy,
     restore,
 } from '@/actions/App/Http/Controllers/SalesOrderController';
+import SalesDailySalesChart from '@/components/sales-daily-sales-chart';
 import SalesOrderDetailModal from '@/components/sales-order-detail-modal';
 import SalesOrderForm from '@/components/sales-order-form';
 import AppLayout from '@/layouts/app-layout';
@@ -191,6 +192,7 @@ export default function SalesOrdersIndex({
     filters,
     customers,
     products,
+    dailySales,
 }) {
     const [activeTab, setActiveTab] = useState('list');
     const [formKey, setFormKey] = useState(0);
@@ -267,10 +269,15 @@ export default function SalesOrdersIndex({
                             className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition duration-150 hover:bg-teal-800 ${focusRing}`}
                         >
                             <PlusIcon />
-                            New sale
+                            Sales Order
                         </button>
                     ) : null}
                 </div>
+
+                <SalesDailySalesChart
+                    labels={dailySales?.labels ?? []}
+                    totals={dailySales?.totals ?? []}
+                />
 
                 <div className="border-b border-line px-4">
                     <div
@@ -291,7 +298,7 @@ export default function SalesOrdersIndex({
                                     : 'border-transparent text-muted hover:text-ink'
                             }`}
                         >
-                            Sales Orders list
+                            Sales Orders
                         </button>
                         <button
                             type="button"
@@ -395,7 +402,7 @@ export default function SalesOrdersIndex({
                                                 className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition duration-150 hover:bg-teal-800 ${focusRing}`}
                                             >
                                                 <PlusIcon />
-                                                New sale
+                                                New Sales Order
                                             </button>
                                         </div>
                                     ) : (
@@ -407,7 +414,7 @@ export default function SalesOrdersIndex({
                                                 }
                                                 className={`inline-flex min-h-11 cursor-pointer items-center rounded-md border border-line bg-white px-5 text-sm font-medium text-ink-soft transition duration-150 hover:border-ink/30 hover:text-ink ${focusRing}`}
                                             >
-                                                Show active sales
+                                                Show active Sales Orders
                                             </button>
                                         </div>
                                     )}
