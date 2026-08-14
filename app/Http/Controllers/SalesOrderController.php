@@ -15,10 +15,10 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
 use App\Models\SalesOrderPayment;
 use App\Services\BankAccountAuditor;
+use App\Services\DailySalesSeries;
 use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -63,7 +63,7 @@ class SalesOrderController extends Controller
         return Inertia::render('sales-orders/index', [
             'orders' => $orders,
             'summary' => $summary,
-            'dailySales' => $this->dailySalesSeries(),
+            'dailySales' => (new DailySalesSeries)->build(),
             'filters' => [
                 'trashed' => $trashed ?? '',
             ],
@@ -321,44 +321,6 @@ class SalesOrderController extends Controller
         ]);
 
         return redirect()->route('sales-orders.index');
-    }
-
-    /**
-     * Zero-filled daily grand_total sums for the last 90 calendar days (active orders only).
-     *
-     * @return array{labels: list<string>, totals: list<float>}
-     */
-    private function dailySalesSeries(): array
-    {
-        $timezone = config('app.timezone');
-        $end = now($timezone)->startOfDay();
-        $start = $end->copy()->subDays(89);
-
-        $days = collect(range(0, 89))
-            ->map(fn (int $offset) => $start->copy()->addDays($offset));
-
-        $buckets = $days->mapWithKeys(
-            fn ($day) => [$day->toDateString() => 0.0],
-        );
-
-        $rows = SalesOrder::query()
-            ->where('created_at', '>=', $start)
-            ->selectRaw('DATE(created_at) as sale_date, SUM(grand_total) as total')
-            ->groupBy('sale_date')
-            ->get();
-
-        foreach ($rows as $row) {
-            $key = Carbon::parse((string) $row->sale_date)->toDateString();
-
-            if ($buckets->has($key)) {
-                $buckets->put($key, round((float) $row->total, 2));
-            }
-        }
-
-        return [
-            'labels' => $buckets->keys()->values()->all(),
-            'totals' => $buckets->values()->map(fn ($total) => (float) $total)->all(),
-        ];
     }
 
     /**
