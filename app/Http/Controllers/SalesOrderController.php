@@ -13,6 +13,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
+use App\Models\SalesOrderPayment;
 use App\Services\BankAccountAuditor;
 use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
@@ -218,6 +219,15 @@ class SalesOrderController extends Controller
      */
     public function destroy(SalesOrder $salesOrder, StockService $stock, Request $request): RedirectResponse
     {
+        if (! $salesOrder->canVoid()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Void is only available while the sales order is unpaid. Void payments first.',
+            ]);
+
+            return redirect()->route('sales-orders.index');
+        }
+
         $createdBy = $request->user()?->name ?? 'Unknown';
 
         DB::transaction(function () use ($salesOrder, $stock, $createdBy): void {
@@ -229,6 +239,55 @@ class SalesOrderController extends Controller
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Sales order voided. Stock restored.',
+        ]);
+
+        return redirect()->route('sales-orders.index');
+    }
+
+    /**
+     * Void a recorded payment. PDC payments also void the linked bank check.
+     */
+    public function destroyPayment(
+        Request $request,
+        SalesOrder $salesOrder,
+        SalesOrderPayment $salesOrderPayment,
+        BankAccountAuditor $auditor,
+    ): RedirectResponse {
+        abort_unless(
+            (int) $salesOrderPayment->sales_order_id === (int) $salesOrder->id,
+            404,
+        );
+
+        $salesOrderPayment->load('bankCheck.bankAccount');
+        $bankCheck = $salesOrderPayment->bankCheck;
+
+        DB::transaction(function () use ($salesOrderPayment, $bankCheck): void {
+            $salesOrderPayment->delete();
+
+            if ($bankCheck !== null && $bankCheck->voided_at === null) {
+                $bankCheck->update(['voided_at' => now()]);
+            }
+        });
+
+        if ($bankCheck !== null) {
+            $account = $bankCheck->bankAccount;
+
+            if ($account !== null) {
+                $auditor->record(
+                    $account,
+                    'check.voided',
+                    $bankCheck->fresh(),
+                    "Voided check #{$bankCheck->check_number}",
+                    ['voided_at' => null],
+                    ['voided_at' => $bankCheck->fresh()->voided_at?->toIso8601String()],
+                    $request->user(),
+                );
+            }
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Payment voided.',
         ]);
 
         return redirect()->route('sales-orders.index');

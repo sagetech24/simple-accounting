@@ -52,6 +52,14 @@ class BankCheck extends Model
         return $this->hasOne(PurchasedOrderPayment::class);
     }
 
+    /**
+     * @return HasOne<SalesOrderPayment, $this>
+     */
+    public function salesOrderPayment(): HasOne
+    {
+        return $this->hasOne(SalesOrderPayment::class);
+    }
+
     public function isVoided(): bool
     {
         return $this->voided_at !== null;
@@ -59,11 +67,7 @@ class BankCheck extends Model
 
     public function isLinked(): bool
     {
-        if ($this->relationLoaded('payment')) {
-            return $this->payment !== null;
-        }
-
-        return $this->payment()->exists();
+        return $this->payment()->exists() || $this->salesOrderPayment()->exists();
     }
 
     /**

@@ -51,6 +51,8 @@ Route::middleware('auth')->group(function () {
         ->name('sales-orders.restore');
     Route::post('sales-orders/{sales_order}/payments', [SalesOrderController::class, 'storePayment'])
         ->name('sales-orders.payments.store');
+    Route::delete('sales-orders/{sales_order}/payments/{sales_order_payment}', [SalesOrderController::class, 'destroyPayment'])
+        ->name('sales-orders.payments.destroy');
     Route::resource('sales-orders', SalesOrderController::class)
         ->only(['index', 'store', 'destroy']);
 

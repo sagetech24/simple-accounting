@@ -1,10 +1,10 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\SalesOrderController::store
-* @see app/Http/Controllers/SalesOrderController.php:152
+* @see app/Http/Controllers/SalesOrderController.php:153
 * @route '/sales-orders/{sales_order}/payments'
 */
-export const store = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const store = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(args, options),
     method: 'post',
 })
@@ -16,10 +16,10 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::store
-* @see app/Http/Controllers/SalesOrderController.php:152
+* @see app/Http/Controllers/SalesOrderController.php:153
 * @route '/sales-orders/{sales_order}/payments'
 */
-store.url = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+store.url = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { sales_order: args }
     }
@@ -49,38 +49,72 @@ store.url = (args: { sales_order: number | { id: number } } | [sales_order: numb
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::store
-* @see app/Http/Controllers/SalesOrderController.php:152
+* @see app/Http/Controllers/SalesOrderController.php:153
 * @route '/sales-orders/{sales_order}/payments'
 */
-store.post = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+store.post = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\SalesOrderController::store
-* @see app/Http/Controllers/SalesOrderController.php:152
-* @route '/sales-orders/{sales_order}/payments'
+* @see \App\Http\Controllers\SalesOrderController::destroy
+* @see app/Http/Controllers/SalesOrderController.php:250
+* @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
 */
-const storeForm = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(args, options),
-    method: 'post',
+export const destroy = (args: { sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroy.url(args, options),
+    method: 'delete',
 })
+
+destroy.definition = {
+    methods: ["delete"],
+    url: '/sales-orders/{sales_order}/payments/{sales_order_payment}',
+} satisfies RouteDefinition<["delete"]>
 
 /**
-* @see \App\Http\Controllers\SalesOrderController::store
-* @see app/Http/Controllers/SalesOrderController.php:152
-* @route '/sales-orders/{sales_order}/payments'
+* @see \App\Http\Controllers\SalesOrderController::destroy
+* @see app/Http/Controllers/SalesOrderController.php:250
+* @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
 */
-storeForm.post = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(args, options),
-    method: 'post',
-})
+destroy.url = (args: { sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } ], options?: RouteQueryOptions) => {
+    if (Array.isArray(args)) {
+        args = {
+            sales_order: args[0],
+            sales_order_payment: args[1],
+        }
+    }
 
-store.form = storeForm
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        sales_order: typeof args.sales_order === 'object'
+        ? args.sales_order.id
+        : args.sales_order,
+        sales_order_payment: typeof args.sales_order_payment === 'object'
+        ? args.sales_order_payment.id
+        : args.sales_order_payment,
+    }
+
+    return destroy.definition.url
+            .replace('{sales_order}', parsedArgs.sales_order.toString())
+            .replace('{sales_order_payment}', parsedArgs.sales_order_payment.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\SalesOrderController::destroy
+* @see app/Http/Controllers/SalesOrderController.php:250
+* @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
+*/
+destroy.delete = (args: { sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroy.url(args, options),
+    method: 'delete',
+})
 
 const payments = {
     store: Object.assign(store, store),
+    destroy: Object.assign(destroy, destroy),
 }
 
 export default payments

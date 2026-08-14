@@ -95,11 +95,11 @@ class BankCheckController extends Controller
     ): RedirectResponse {
         $this->ensureCheckBelongsToAccount($bankAccount, $bankCheck);
 
-        if ($bankCheck->payment()->exists()) {
+        if ($bankCheck->isLinked()) {
             return redirect()
                 ->route('bank-accounts.show', $bankAccount)
                 ->withErrors([
-                    'void' => 'Void is blocked while this check is linked to a purchase order payment.',
+                    'void' => 'Void is blocked while this check is linked to a payment.',
                 ]);
         }
 

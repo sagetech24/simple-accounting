@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\SalesOrderPaymentMethod;
 use App\Models\BankAccount;
 use App\Models\BankCheck;
 use App\Models\PurchasedOrderPayment;
+use App\Models\SalesOrder;
+use App\Models\SalesOrderPayment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -109,6 +112,30 @@ class BankCheckTest extends TestCase
         PurchasedOrderPayment::factory()->create([
             'bank_check_id' => $check->id,
             'amount' => $check->amount,
+        ]);
+
+        $this->actingAs($admin)
+            ->from(route('bank-accounts.show', $account))
+            ->post(route('bank-accounts.checks.void', [$account, $check]))
+            ->assertRedirect(route('bank-accounts.show', $account))
+            ->assertSessionHasErrors('void');
+
+        $this->assertNull($check->fresh()->voided_at);
+    }
+
+    public function test_cannot_void_check_linked_to_sales_order_payment(): void
+    {
+        $admin = User::factory()->create();
+        $account = BankAccount::factory()->active()->create();
+        $check = BankCheck::factory()->create([
+            'bank_account_id' => $account->id,
+        ]);
+        $order = SalesOrder::factory()->create(['grand_total' => '100.00']);
+        SalesOrderPayment::factory()->create([
+            'sales_order_id' => $order->id,
+            'bank_check_id' => $check->id,
+            'amount' => $check->amount,
+            'method' => SalesOrderPaymentMethod::PostDatedCheck,
         ]);
 
         $this->actingAs($admin)

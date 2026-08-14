@@ -1,11 +1,11 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 import payments from './payments'
 /**
 * @see \App\Http\Controllers\SalesOrderController::restore
-* @see app/Http/Controllers/SalesOrderController.php:240
+* @see app/Http/Controllers/SalesOrderController.php:299
 * @route '/sales-orders/{sales_order}/restore'
 */
-export const restore = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const restore = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: restore.url(args, options),
     method: 'post',
 })
@@ -17,10 +17,10 @@ restore.definition = {
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::restore
-* @see app/Http/Controllers/SalesOrderController.php:240
+* @see app/Http/Controllers/SalesOrderController.php:299
 * @route '/sales-orders/{sales_order}/restore'
 */
-restore.url = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+restore.url = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { sales_order: args }
     }
@@ -50,39 +50,17 @@ restore.url = (args: { sales_order: number | { id: number } } | [sales_order: nu
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::restore
-* @see app/Http/Controllers/SalesOrderController.php:240
+* @see app/Http/Controllers/SalesOrderController.php:299
 * @route '/sales-orders/{sales_order}/restore'
 */
-restore.post = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+restore.post = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: restore.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\SalesOrderController::restore
-* @see app/Http/Controllers/SalesOrderController.php:240
-* @route '/sales-orders/{sales_order}/restore'
-*/
-const restoreForm = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: restore.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\SalesOrderController::restore
-* @see app/Http/Controllers/SalesOrderController.php:240
-* @route '/sales-orders/{sales_order}/restore'
-*/
-restoreForm.post = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: restore.url(args, options),
-    method: 'post',
-})
-
-restore.form = restoreForm
-
-/**
 * @see \App\Http\Controllers\SalesOrderController::index
-* @see app/Http/Controllers/SalesOrderController.php:32
+* @see app/Http/Controllers/SalesOrderController.php:33
 * @route '/sales-orders'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -97,7 +75,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::index
-* @see app/Http/Controllers/SalesOrderController.php:32
+* @see app/Http/Controllers/SalesOrderController.php:33
 * @route '/sales-orders'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -106,7 +84,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::index
-* @see app/Http/Controllers/SalesOrderController.php:32
+* @see app/Http/Controllers/SalesOrderController.php:33
 * @route '/sales-orders'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -116,7 +94,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::index
-* @see app/Http/Controllers/SalesOrderController.php:32
+* @see app/Http/Controllers/SalesOrderController.php:33
 * @route '/sales-orders'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -125,45 +103,8 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\SalesOrderController::index
-* @see app/Http/Controllers/SalesOrderController.php:32
-* @route '/sales-orders'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\SalesOrderController::index
-* @see app/Http/Controllers/SalesOrderController.php:32
-* @route '/sales-orders'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\SalesOrderController::index
-* @see app/Http/Controllers/SalesOrderController.php:32
-* @route '/sales-orders'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\SalesOrderController::store
-* @see app/Http/Controllers/SalesOrderController.php:112
+* @see app/Http/Controllers/SalesOrderController.php:113
 * @route '/sales-orders'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -178,7 +119,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::store
-* @see app/Http/Controllers/SalesOrderController.php:112
+* @see app/Http/Controllers/SalesOrderController.php:113
 * @route '/sales-orders'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -187,7 +128,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::store
-* @see app/Http/Controllers/SalesOrderController.php:112
+* @see app/Http/Controllers/SalesOrderController.php:113
 * @route '/sales-orders'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -196,33 +137,11 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\SalesOrderController::store
-* @see app/Http/Controllers/SalesOrderController.php:112
-* @route '/sales-orders'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\SalesOrderController::store
-* @see app/Http/Controllers/SalesOrderController.php:112
-* @route '/sales-orders'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
-
-/**
 * @see \App\Http\Controllers\SalesOrderController::destroy
-* @see app/Http/Controllers/SalesOrderController.php:219
+* @see app/Http/Controllers/SalesOrderController.php:220
 * @route '/sales-orders/{sales_order}'
 */
-export const destroy = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -234,10 +153,10 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::destroy
-* @see app/Http/Controllers/SalesOrderController.php:219
+* @see app/Http/Controllers/SalesOrderController.php:220
 * @route '/sales-orders/{sales_order}'
 */
-destroy.url = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { sales_order: args }
     }
@@ -267,45 +186,13 @@ destroy.url = (args: { sales_order: number | { id: number } } | [sales_order: nu
 
 /**
 * @see \App\Http\Controllers\SalesOrderController::destroy
-* @see app/Http/Controllers/SalesOrderController.php:219
+* @see app/Http/Controllers/SalesOrderController.php:220
 * @route '/sales-orders/{sales_order}'
 */
-destroy.delete = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
-
-/**
-* @see \App\Http\Controllers\SalesOrderController::destroy
-* @see app/Http/Controllers/SalesOrderController.php:219
-* @route '/sales-orders/{sales_order}'
-*/
-const destroyForm = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\SalesOrderController::destroy
-* @see app/Http/Controllers/SalesOrderController.php:219
-* @route '/sales-orders/{sales_order}'
-*/
-destroyForm.delete = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
 
 const salesOrders = {
     restore: Object.assign(restore, restore),

@@ -664,4 +664,119 @@ class SalesOrderTest extends TestCase
             Carbon::setTestNow();
         }
     }
+
+    public function test_void_sale_is_rejected_when_any_payment_exists(): void
+    {
+        $admin = User::factory()->create();
+        $product = Product::factory()->available()->create(['quantity' => 10]);
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.store'), [
+                'items' => [[
+                    'product_id' => $product->id,
+                    'selling_price' => '8.00',
+                    'quantity' => 3,
+                ]],
+            ])
+            ->assertRedirect(route('sales-orders.index'));
+
+        $order = SalesOrder::query()->first();
+        SalesOrderPayment::factory()->cash()->create([
+            'sales_order_id' => $order->id,
+            'amount' => '8.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->delete(route('sales-orders.destroy', $order))
+            ->assertRedirect(route('sales-orders.index'));
+
+        $this->assertNull($order->fresh()->deleted_at);
+        $this->assertSame(7, $product->fresh()->quantity);
+        $this->assertDatabaseCount('sales_order_payments', 1);
+    }
+
+    public function test_void_payment_restores_unpaid_and_can_void_sale(): void
+    {
+        $admin = User::factory()->create();
+        $order = SalesOrder::factory()->create(['grand_total' => '100.00']);
+        $payment = SalesOrderPayment::factory()->cash()->create([
+            'sales_order_id' => $order->id,
+            'amount' => '40.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->delete(route('sales-orders.payments.destroy', [$order, $payment]))
+            ->assertRedirect(route('sales-orders.index'));
+
+        $this->assertDatabaseCount('sales_order_payments', 0);
+
+        $this->actingAs($admin)
+            ->get(route('sales-orders.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('orders.data.0.id', $order->id)
+                ->where('orders.data.0.payment_status', 'unpaid')
+                ->where('orders.data.0.can_void', true)
+                ->where('orders.data.0.can_add_payment', true)
+            );
+    }
+
+    public function test_void_pdc_payment_voids_bank_check_without_deleting_it(): void
+    {
+        $admin = User::factory()->create(['name' => 'Admin User']);
+        $customer = Customer::factory()->active()->create();
+        $bankAccount = BankAccount::factory()->active()->create();
+        $order = SalesOrder::factory()->create([
+            'customer_id' => $customer->id,
+            'grand_total' => '100.00',
+        ]);
+        $dueDate = now()->addDays(7)->toDateString();
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.payments.store', $order), [
+                'method' => SalesOrderPaymentMethod::PostDatedCheck->value,
+                'amount' => '100.00',
+                'bank_account_id' => $bankAccount->id,
+                'check_number' => 'CHK-VOID-1',
+                'due_date' => $dueDate,
+            ])
+            ->assertRedirect(route('sales-orders.index'));
+
+        $payment = SalesOrderPayment::query()->first();
+        $check = BankCheck::query()->where('check_number', 'CHK-VOID-1')->first();
+        $this->assertNotNull($check);
+        $this->assertNull($check->voided_at);
+
+        $this->actingAs($admin)
+            ->delete(route('sales-orders.payments.destroy', [$order, $payment]))
+            ->assertRedirect(route('sales-orders.index'));
+
+        $this->assertDatabaseCount('sales_order_payments', 0);
+        $this->assertNotNull($check->fresh()->voided_at);
+        $this->assertDatabaseHas('bank_checks', [
+            'id' => $check->id,
+            'check_number' => 'CHK-VOID-1',
+        ]);
+        $this->assertDatabaseHas('bank_account_audit_logs', [
+            'bank_account_id' => $bankAccount->id,
+            'action' => 'check.voided',
+        ]);
+    }
+
+    public function test_void_payment_for_another_order_returns_not_found(): void
+    {
+        $admin = User::factory()->create();
+        $orderA = SalesOrder::factory()->create(['grand_total' => '50.00']);
+        $orderB = SalesOrder::factory()->create(['grand_total' => '50.00']);
+        $payment = SalesOrderPayment::factory()->cash()->create([
+            'sales_order_id' => $orderB->id,
+            'amount' => '10.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->delete(route('sales-orders.payments.destroy', [$orderA, $payment]))
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('sales_order_payments', ['id' => $payment->id]);
+    }
 }
