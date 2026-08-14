@@ -2,15 +2,19 @@
 
 namespace Tests\Feature;
 
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\PurchasedOrder;
 use App\Models\PurchasedOrderItem;
 use App\Models\PurchasedOrderPayment;
 use App\Models\RequestQuotation;
 use App\Models\RequestQuotationItem;
+use App\Models\SalesOrder;
+use App\Models\SalesOrderPayment;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -36,6 +40,11 @@ class DashboardTest extends TestCase
                 ->where('kpis.ordered_pos', 0)
                 ->where('kpis.ap_balance_due', '0.00')
                 ->where('kpis.low_stock', 0)
+                ->where('kpis.todays_sales', '0.00')
+                ->where('kpis.unpaid_partial_sales', 0)
+                ->where('kpis.sales_ar_balance_due', '0.00')
+                ->has('dailySales.labels', 90)
+                ->has('dailySales.totals', 90)
                 ->where('attention', [])
             );
     }
@@ -112,6 +121,64 @@ class DashboardTest extends TestCase
                 ->where('kpis.ap_balance_due', '60.00')
                 ->where('kpis.low_stock', 1)
             );
+    }
+
+    public function test_kpis_reflect_sales_snapshot(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->active()->create();
+
+        Carbon::setTestNow(Carbon::parse('2026-08-14 12:00:00', config('app.timezone')));
+
+        try {
+            SalesOrder::factory()->create([
+                'grand_total' => '100.00',
+                'customer_id' => null,
+                'created_at' => Carbon::parse('2026-08-14 09:00:00'),
+                'updated_at' => Carbon::parse('2026-08-14 09:00:00'),
+            ]);
+
+            $partial = SalesOrder::factory()->create([
+                'grand_total' => '80.00',
+                'customer_id' => $customer->id,
+                'created_at' => Carbon::parse('2026-08-14 10:00:00'),
+                'updated_at' => Carbon::parse('2026-08-14 10:00:00'),
+            ]);
+            SalesOrderPayment::factory()->cash()->create([
+                'sales_order_id' => $partial->id,
+                'amount' => '30.00',
+            ]);
+
+            $paid = SalesOrder::factory()->create([
+                'grand_total' => '40.00',
+                'created_at' => Carbon::parse('2026-08-14 11:00:00'),
+                'updated_at' => Carbon::parse('2026-08-14 11:00:00'),
+            ]);
+            SalesOrderPayment::factory()->cash()->create([
+                'sales_order_id' => $paid->id,
+                'amount' => '40.00',
+            ]);
+
+            $voided = SalesOrder::factory()->create([
+                'grand_total' => '999.00',
+                'created_at' => Carbon::parse('2026-08-14 08:00:00'),
+                'updated_at' => Carbon::parse('2026-08-14 08:00:00'),
+            ]);
+            $voided->delete();
+
+            $this->actingAs($admin)
+                ->get(route('dashboard'))
+                ->assertOk()
+                ->assertInertia(fn (Assert $page) => $page
+                    ->where('kpis.todays_sales', '220.00')
+                    ->where('kpis.unpaid_partial_sales', 2)
+                    ->where('kpis.sales_ar_balance_due', '150.00')
+                    ->where('dailySales.labels.89', '2026-08-14')
+                    ->where('dailySales.totals.89', 220)
+                );
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     public function test_attention_list_includes_actionable_rows_and_excludes_noise(): void

@@ -8,7 +8,9 @@ use App\Enums\StockMovementType;
 use App\Models\Product;
 use App\Models\PurchasedOrder;
 use App\Models\RequestQuotation;
+use App\Models\SalesOrder;
 use App\Models\StockMovement;
+use App\Services\DailySalesSeries;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -39,6 +41,19 @@ class DashboardController extends Controller
             ->whereColumn('quantity', '<=', 'low_stock_threshold')
             ->count();
 
+        $dailySales = (new DailySalesSeries)->build();
+        $todaysSales = number_format(
+            (float) ($dailySales['totals'][count($dailySales['totals']) - 1] ?? 0),
+            2,
+            '.',
+            '',
+        );
+
+        $unpaidPartialSales = SalesOrder::query()
+            ->with('payments')
+            ->get()
+            ->filter(fn (SalesOrder $order) => (float) $order->balanceDue() > 0);
+
         return Inertia::render('dashboard/index', [
             'kpis' => [
                 'pending_rfqs' => $pendingRfqs,
@@ -46,9 +61,18 @@ class DashboardController extends Controller
                 'ordered_pos' => $orderedPos,
                 'ap_balance_due' => number_format($apBalanceDue, 2, '.', ''),
                 'low_stock' => $lowStock,
+                'todays_sales' => $todaysSales,
+                'unpaid_partial_sales' => $unpaidPartialSales->count(),
+                'sales_ar_balance_due' => number_format(
+                    $unpaidPartialSales->sum(fn (SalesOrder $order) => (float) $order->balanceDue()),
+                    2,
+                    '.',
+                    '',
+                ),
             ],
             'attention' => $this->attentionItems(),
             'productTrend' => $this->productTrend(),
+            'dailySales' => $dailySales,
         ]);
     }
 
