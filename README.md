@@ -32,7 +32,7 @@ Canonical product rules live in `.cursor/rules/PRD.mdc` (PRD v1).
 | Module | Route | Notes |
 |--------|-------|--------|
 | Catalog (public) | `/` | Search price & availability; Soft Flat landing (guests and auth) |
-| Dashboard | `/dashboard` | Procurement KPIs + needs-attention list |
+| Dashboard | `/dashboard` | Sales + procurement KPIs, daily sales chart, needs-attention |
 | Products | `/products` | Auth browse (includes stock; cost via admin edit) |
 | Admin products | `/admin/products` | Full CRUD, soft delete / restore, `purchase_price` |
 | Suppliers | `/suppliers` | Index-only CRUD in slide-down modal |

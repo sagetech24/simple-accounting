@@ -80,4 +80,4 @@ Feature coverage on `SalesOrderController@index` (or dedicated assertion in `Sal
 - Sales payments / AR
 - Multi-series (order count vs revenue)
 - Persist selected range in query string or localStorage
-- Dashboard reuse of this chart (can share later if needed)
+- Dashboard reuse of this chart (see `2026-08-14-dashboard-sales-orders-design.md`)

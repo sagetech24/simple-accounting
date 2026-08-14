@@ -29,7 +29,7 @@ Internal ops app for catalog pricing and early procurement workflow. Guests can 
 | Module | Route | Status |
 |--------|-------|--------|
 | Catalog (public) | `/` | Shipped — search price & availability; Soft Flat landing (guests and auth) |
-| Dashboard | `/dashboard` | Shipped — procurement KPIs + needs-attention list |
+| Dashboard | `/dashboard` | Shipped — sales + procurement KPIs, daily sales chart, needs-attention (including collect payment) |
 | Products | `/products` | Shipped — search/browse panel (includes stock; cost via admin edit) |
 | Suppliers | `/suppliers` | Shipped — full CRUD |
 | Customers | `/customers` | Shipped — full CRUD |
