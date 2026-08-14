@@ -31,6 +31,20 @@ export function formatMoney(value) {
 }
 
 /**
+ * Currency symbol for the configured application currency (e.g. ₱, $).
+ */
+export function currencyPrefix() {
+    const parts = new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).formatToParts(0);
+
+    return parts.find((part) => part.type === 'currency')?.value ?? currency;
+}
+
+/**
  * Format a plain decimal for number inputs (no currency symbol or grouping).
  */
 export function formatDecimal(value) {

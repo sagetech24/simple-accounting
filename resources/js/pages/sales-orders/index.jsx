@@ -137,6 +137,12 @@ function RowActionsMenu({
         }
 
         function handlePointerDown(event) {
+            // Card + table each mount a menu for the same order. The hidden
+            // copy would treat a click on the visible menu as "outside".
+            if (event.target.closest('[role="menu"]')) {
+                return;
+            }
+
             if (!rootRef.current?.contains(event.target)) {
                 onClose();
             }
@@ -603,7 +609,7 @@ export default function SalesOrdersIndex({
                                         })}
                                     </div>
 
-                                    <div className="hidden overflow-x-auto rounded-md border border-line lg:block">
+                                    <div className="hidden rounded-md border border-line lg:block">
                                         <table className="w-full min-w-[820px] border-collapse text-left text-sm">
                                             <thead className="bg-mist">
                                                 <tr className="border-b border-line text-xs tracking-wide uppercase">
@@ -808,6 +814,7 @@ export default function SalesOrdersIndex({
                 onRestore={restoreOrder}
             />
             <SalesOrderPaymentModal
+                key={paymentOrder?.id ?? 'payment'}
                 open={Boolean(paymentOrder)}
                 order={paymentOrder}
                 paymentMethods={paymentMethods}

@@ -2,7 +2,7 @@ import { useForm, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { storePayment } from '@/actions/App/Http/Controllers/SalesOrderController';
-import { formatMoney } from '@/lib/format-money';
+import { currencyPrefix, formatMoney } from '@/lib/format-money';
 
 const FIELD_CLASS =
     'min-h-11 w-full border border-line bg-white px-3 text-ink transition outline-none focus:border-accent focus:ring-2 focus:ring-accent/20';
@@ -42,29 +42,11 @@ export default function SalesOrderPaymentModal({
         : paymentMethods;
 
     const form = useForm({
-        method: 'cash',
-        amount: '',
+        method: isWalkIn ? 'cash' : (paymentMethods[0]?.value ?? 'cash'),
+        amount: order?.balance_due ?? order?.grand_total ?? '',
         notes: '',
         ...emptyFields(),
     });
-
-    useEffect(() => {
-        if (!open || !order) {
-            return undefined;
-        }
-
-        form.setData({
-            method: isWalkIn ? 'cash' : (paymentMethods[0]?.value ?? 'cash'),
-            amount: order.balance_due ?? order.grand_total ?? '',
-            notes: '',
-            ...emptyFields(),
-        });
-        form.clearErrors();
-
-        return undefined;
-        // Reset once per open/order; form methods are unstable.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open, order?.id]);
 
     useEffect(() => {
         if (!open) {
@@ -282,17 +264,30 @@ export default function SalesOrderPaymentModal({
                             >
                                 Amount
                             </label>
-                            <input
-                                id="sales-payment-amount"
-                                type="number"
-                                min="0.01"
-                                step="0.01"
-                                value={form.data.amount}
-                                onChange={(event) =>
-                                    form.setData('amount', event.target.value)
-                                }
-                                className={FIELD_CLASS}
-                            />
+                            <div
+                                className={`${FIELD_CLASS} flex items-center gap-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20`}
+                            >
+                                <span
+                                    className="shrink-0 text-muted"
+                                    aria-hidden="true"
+                                >
+                                    {currencyPrefix()}
+                                </span>
+                                <input
+                                    id="sales-payment-amount"
+                                    type="number"
+                                    min="0.01"
+                                    step="0.01"
+                                    value={form.data.amount}
+                                    onChange={(event) =>
+                                        form.setData(
+                                            'amount',
+                                            event.target.value,
+                                        )
+                                    }
+                                    className="min-h-11 min-w-0 flex-1 border-0 bg-transparent px-0 outline-none"
+                                />
+                            </div>
                             {form.errors.amount && (
                                 <p className="mt-1.5 text-sm text-warn">
                                     {form.errors.amount}
