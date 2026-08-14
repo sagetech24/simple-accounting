@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\AccountsPayableController::index
 * @see app/Http/Controllers/AccountsPayableController.php:26
@@ -42,6 +42,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::index
+* @see app/Http/Controllers/AccountsPayableController.php:26
+* @route '/accounts-payable'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::index
+* @see app/Http/Controllers/AccountsPayableController.php:26
+* @route '/accounts-payable'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::index
+* @see app/Http/Controllers/AccountsPayableController.php:26
+* @route '/accounts-payable'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\AccountsPayableController::supplier
@@ -112,6 +149,43 @@ supplier.head = (args: { supplier: string | number | { id: string | number } } |
 })
 
 /**
+* @see \App\Http\Controllers\AccountsPayableController::supplier
+* @see app/Http/Controllers/AccountsPayableController.php:110
+* @route '/accounts-payable/{supplier}'
+*/
+const supplierForm = (args: { supplier: string | number | { id: string | number } } | [supplier: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: supplier.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::supplier
+* @see app/Http/Controllers/AccountsPayableController.php:110
+* @route '/accounts-payable/{supplier}'
+*/
+supplierForm.get = (args: { supplier: string | number | { id: string | number } } | [supplier: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: supplier.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::supplier
+* @see app/Http/Controllers/AccountsPayableController.php:110
+* @route '/accounts-payable/{supplier}'
+*/
+supplierForm.head = (args: { supplier: string | number | { id: string | number } } | [supplier: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: supplier.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+supplier.form = supplierForm
+
+/**
 * @see \App\Http\Controllers\AccountsPayableController::show
 * @see app/Http/Controllers/AccountsPayableController.php:166
 * @route '/accounts-payable/{supplier}/{purchased_order}'
@@ -177,6 +251,43 @@ show.head = (args: { supplier: string | number | { id: string | number }, purcha
 })
 
 /**
+* @see \App\Http\Controllers\AccountsPayableController::show
+* @see app/Http/Controllers/AccountsPayableController.php:166
+* @route '/accounts-payable/{supplier}/{purchased_order}'
+*/
+const showForm = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::show
+* @see app/Http/Controllers/AccountsPayableController.php:166
+* @route '/accounts-payable/{supplier}/{purchased_order}'
+*/
+showForm.get = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::show
+* @see app/Http/Controllers/AccountsPayableController.php:166
+* @route '/accounts-payable/{supplier}/{purchased_order}'
+*/
+showForm.head = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+show.form = showForm
+
+/**
 * @see \App\Http\Controllers\AccountsPayableController::storePayment
 * @see app/Http/Controllers/AccountsPayableController.php:202
 * @route '/accounts-payable/{supplier}/{purchased_order}/payments'
@@ -230,6 +341,28 @@ storePayment.post = (args: { supplier: string | number | { id: string | number }
     url: storePayment.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::storePayment
+* @see app/Http/Controllers/AccountsPayableController.php:202
+* @route '/accounts-payable/{supplier}/{purchased_order}/payments'
+*/
+const storePaymentForm = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: storePayment.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::storePayment
+* @see app/Http/Controllers/AccountsPayableController.php:202
+* @route '/accounts-payable/{supplier}/{purchased_order}/payments'
+*/
+storePaymentForm.post = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: storePayment.url(args, options),
+    method: 'post',
+})
+
+storePayment.form = storePaymentForm
 
 const AccountsPayableController = { index, supplier, show, storePayment }
 

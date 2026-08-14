@@ -2,11 +2,13 @@ import { router } from '@inertiajs/react';
 import { useEffect, useId, useRef, useState } from 'react';
 import {
     destroy,
+    destroyPayment,
     restore,
 } from '@/actions/App/Http/Controllers/SalesOrderController';
 import SalesDailySalesChart from '@/components/sales-daily-sales-chart';
 import SalesOrderDetailModal from '@/components/sales-order-detail-modal';
 import SalesOrderForm from '@/components/sales-order-form';
+import SalesOrderPaymentModal from '@/components/sales-order-payment-modal';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
 import { index } from '@/routes/sales-orders';
@@ -55,6 +57,34 @@ function Badge({ className, children }) {
     );
 }
 
+function paymentStatusBadge(order) {
+    if (order.deleted_at) {
+        return (
+            <Badge className="border-red-600/30 bg-red-400/10 text-red-700">
+                Voided
+            </Badge>
+        );
+    }
+
+    const status = order.payment_status ?? 'unpaid';
+    const styles = {
+        unpaid: 'border-amber-600/30 bg-amber-400/10 text-amber-800',
+        partial: 'border-teal-700/30 bg-teal-700/10 text-teal-800',
+        paid: 'border-green-600/30 bg-green-400/10 text-green-700',
+    };
+    const labels = {
+        unpaid: 'Unpaid',
+        partial: 'Partial',
+        paid: 'Paid',
+    };
+
+    return (
+        <Badge className={styles[status] ?? styles.unpaid}>
+            {labels[status] ?? 'Unpaid'}
+        </Badge>
+    );
+}
+
 function SummaryCard({ label, value, hint }) {
     return (
         <div className="flex min-h-24 flex-col justify-between rounded-md border border-line bg-white p-4">
@@ -89,7 +119,15 @@ function PlusIcon({ className = 'size-5' }) {
     );
 }
 
-function RowActionsMenu({ order, open, onToggle, onClose, onVoid, onRestore }) {
+function RowActionsMenu({
+    order,
+    open,
+    onToggle,
+    onClose,
+    onAddPayment,
+    onVoid,
+    onRestore,
+}) {
     const menuId = useId();
     const rootRef = useRef(null);
 
@@ -152,6 +190,20 @@ function RowActionsMenu({ order, open, onToggle, onClose, onVoid, onRestore }) {
                     role="menu"
                     className="absolute right-0 z-20 mt-1 min-w-40 rounded-md border border-line bg-white py-1 shadow-sm"
                 >
+                    {!isDeleted && order.can_add_payment ? (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                onClose();
+                                onAddPayment(order);
+                            }}
+                            className="block w-full px-3 py-2.5 text-left text-sm text-ink transition hover:bg-mist"
+                        >
+                            Add Payment
+                        </button>
+                    ) : null}
                     {!isDeleted && order.can_void ? (
                         <button
                             type="button"
@@ -193,10 +245,13 @@ export default function SalesOrdersIndex({
     customers,
     products,
     dailySales,
+    paymentMethods = [],
+    bankAccounts = [],
 }) {
     const [activeTab, setActiveTab] = useState('list');
     const [formKey, setFormKey] = useState(0);
     const [detailOrder, setDetailOrder] = useState(null);
+    const [paymentOrder, setPaymentOrder] = useState(null);
     const [actionsOrderId, setActionsOrderId] = useState(null);
     const trashed = filters?.trashed ?? '';
 
@@ -248,6 +303,31 @@ export default function SalesOrdersIndex({
             preserveScroll: true,
             onSuccess: () => setDetailOrder(null),
         });
+    }
+
+    function openPaymentModal(order) {
+        setPaymentOrder(order);
+        setActionsOrderId(null);
+    }
+
+    function voidPayment(order, payment) {
+        if (!window.confirm('Void this payment?')) {
+            return;
+        }
+
+        router.delete(
+            destroyPayment.url({
+                sales_order: order.id,
+                sales_order_payment: payment.id,
+            }),
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setDetailOrder(null);
+                    setPaymentOrder(null);
+                },
+            },
+        );
     }
 
     return (
@@ -484,6 +564,9 @@ export default function SalesOrdersIndex({
                                                                     null,
                                                                 )
                                                             }
+                                                            onAddPayment={
+                                                                openPaymentModal
+                                                            }
                                                             onVoid={voidOrder}
                                                             onRestore={
                                                                 restoreOrder
@@ -491,14 +574,8 @@ export default function SalesOrdersIndex({
                                                         />
                                                     </div>
                                                     <div className="flex flex-wrap items-center gap-2">
-                                                        {isDeleted ? (
-                                                            <Badge className="border-red-600/30 bg-red-400/10 text-red-700">
-                                                                Voided
-                                                            </Badge>
-                                                        ) : (
-                                                            <Badge className="border-green-600/30 bg-green-400/10 text-green-700">
-                                                                Completed
-                                                            </Badge>
+                                                        {paymentStatusBadge(
+                                                            order,
                                                         )}
                                                         <span className="text-sm text-muted">
                                                             {order.item_count}{' '}
@@ -526,8 +603,8 @@ export default function SalesOrdersIndex({
                                         })}
                                     </div>
 
-                                    <div className="hidden rounded-md border border-line lg:block">
-                                        <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+                                    <div className="hidden overflow-x-auto rounded-md border border-line lg:block">
+                                        <table className="w-full min-w-[820px] border-collapse text-left text-sm">
                                             <thead className="bg-mist">
                                                 <tr className="border-b border-line text-xs tracking-wide uppercase">
                                                     <th className="px-4 py-3 font-medium text-muted">
@@ -541,6 +618,9 @@ export default function SalesOrdersIndex({
                                                     </th>
                                                     <th className="px-4 py-3 font-medium text-muted">
                                                         Total
+                                                    </th>
+                                                    <th className="px-4 py-3 font-medium text-muted">
+                                                        Payment
                                                     </th>
                                                     <th className="px-4 py-3 font-medium text-muted">
                                                         Created
@@ -607,6 +687,11 @@ export default function SalesOrdersIndex({
                                                                     order.grand_total,
                                                                 )}
                                                             </td>
+                                                            <td className="px-4 py-3">
+                                                                {paymentStatusBadge(
+                                                                    order,
+                                                                )}
+                                                            </td>
                                                             <td className="px-4 py-3 text-ink-soft">
                                                                 {created.date}
                                                                 {created.time ? (
@@ -641,6 +726,9 @@ export default function SalesOrdersIndex({
                                                                         setActionsOrderId(
                                                                             null,
                                                                         )
+                                                                    }
+                                                                    onAddPayment={
+                                                                        openPaymentModal
                                                                     }
                                                                     onVoid={
                                                                         voidOrder
@@ -714,8 +802,17 @@ export default function SalesOrdersIndex({
                 open={Boolean(detailOrder)}
                 order={detailOrder}
                 onClose={() => setDetailOrder(null)}
+                onAddPayment={openPaymentModal}
+                onVoidPayment={voidPayment}
                 onVoid={voidOrder}
                 onRestore={restoreOrder}
+            />
+            <SalesOrderPaymentModal
+                open={Boolean(paymentOrder)}
+                order={paymentOrder}
+                paymentMethods={paymentMethods}
+                bankAccounts={bankAccounts}
+                onClose={() => setPaymentOrder(null)}
             />
         </AppLayout>
     );

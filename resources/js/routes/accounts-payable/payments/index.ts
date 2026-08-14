@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\AccountsPayableController::store
 * @see app/Http/Controllers/AccountsPayableController.php:202
@@ -53,6 +53,28 @@ store.post = (args: { supplier: string | number | { id: string | number }, purch
     url: store.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::store
+* @see app/Http/Controllers/AccountsPayableController.php:202
+* @route '/accounts-payable/{supplier}/{purchased_order}/payments'
+*/
+const storeForm = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\AccountsPayableController::store
+* @see app/Http/Controllers/AccountsPayableController.php:202
+* @route '/accounts-payable/{supplier}/{purchased_order}/payments'
+*/
+storeForm.post = (args: { supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } } | [supplier: string | number | { id: string | number }, purchased_order: string | number | { reference: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(args, options),
+    method: 'post',
+})
+
+store.form = storeForm
 
 const payments = {
     store: Object.assign(store, store),

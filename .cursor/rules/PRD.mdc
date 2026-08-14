@@ -166,6 +166,9 @@ Admin product management lives under `/admin/products` (also auth-gated). `/rece
 | `customer_id` | Nullable; active customer when set (`null` = walk-in) |
 | `grand_total` | Decimal; **server-calculated** from line subtotals |
 | `notes` | Nullable text |
+| `amount_paid` / `balance_due` | Derived from `sales_order_payments`; not stored on the order |
+| `payment_status` | `unpaid` \| `partial` \| `paid` |
+| Payments | Partial OK; walk-in cash only; customer: Cash, PDC, Bank Transfer, Online Payment |
 | Soft delete | Void soft-deletes and restores stock; restore re-decrements if stock allows |
 | Line `selling_price` | Defaults from product; overridable |
 | Line `quantity` | Integer ≥ 1; must not exceed on-hand on create/restore |
@@ -173,19 +176,20 @@ Admin product management lives under `/admin/products` (also auth-gated). `/rece
 ### Sales Orders UX
 
 - Single index page (`/sales-orders`) with **list** + **create** tabs (no edit after save)
-- List: trash filter; detail modal; void / restore actions
+- List: Unpaid / Partial / Paid chip; 3-dot **Add Payment** then **Void** (Void only while unpaid); trash filter; detail modal
+- Detail: payment list + void payment; Add Payment while balance remains
 - Create: optional customer, product lines, live totals; save posts stock immediately
-- Routes: `index`, `store`, `destroy`, `sales-orders.restore`
+- Routes: `index`, `store`, `destroy`, `sales-orders.restore`, `sales-orders.payments.store`, `sales-orders.payments.destroy`
 
 ---
 
 ## Out of scope (v1)
 
-Multi-user roles, public registration, public/guest catalog, multi-tenant, mobile API, warehouses/lots/serials, partial multi-receipt receiving, sales payments/AR, COGS costing, draft/confirm sales workflow.
+Multi-user roles, public registration, public/guest catalog, multi-tenant, mobile API, warehouses/lots/serials, partial multi-receipt receiving, Accounts Receivable, COGS costing, draft/confirm sales workflow.
 
 ## Recommended next (v1.x)
 
-- Sales payments / Accounts Receivable
+- Accounts Receivable
 - Low-stock alerts and price history polish
 - Policies/gates even with one admin
 - Pagination/empty-state polish across modules

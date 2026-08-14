@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\SalesOrderController::store
 * @see app/Http/Controllers/SalesOrderController.php:153
@@ -58,6 +58,28 @@ store.post = (args: { sales_order: string | number | { id: string | number } } |
 })
 
 /**
+* @see \App\Http\Controllers\SalesOrderController::store
+* @see app/Http/Controllers/SalesOrderController.php:153
+* @route '/sales-orders/{sales_order}/payments'
+*/
+const storeForm = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\SalesOrderController::store
+* @see app/Http/Controllers/SalesOrderController.php:153
+* @route '/sales-orders/{sales_order}/payments'
+*/
+storeForm.post = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(args, options),
+    method: 'post',
+})
+
+store.form = storeForm
+
+/**
 * @see \App\Http\Controllers\SalesOrderController::destroy
 * @see app/Http/Controllers/SalesOrderController.php:250
 * @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
@@ -111,6 +133,38 @@ destroy.delete = (args: { sales_order: string | number | { id: string | number }
     url: destroy.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\SalesOrderController::destroy
+* @see app/Http/Controllers/SalesOrderController.php:250
+* @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
+*/
+const destroyForm = (args: { sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\SalesOrderController::destroy
+* @see app/Http/Controllers/SalesOrderController.php:250
+* @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
+*/
+destroyForm.delete = (args: { sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
 
 const payments = {
     store: Object.assign(store, store),

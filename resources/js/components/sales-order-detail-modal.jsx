@@ -22,6 +22,8 @@ export default function SalesOrderDetailModal({
     open,
     order,
     onClose,
+    onAddPayment,
+    onVoidPayment,
     onVoid,
     onRestore,
 }) {
@@ -53,6 +55,14 @@ export default function SalesOrderDetailModal({
 
     const isDeleted = Boolean(order.deleted_at);
     const items = order.items ?? [];
+    const payments = order.payments ?? [];
+    const paymentStatusLabel = isDeleted
+        ? 'Voided'
+        : {
+              unpaid: 'Unpaid',
+              partial: 'Partial',
+              paid: 'Paid',
+          }[order.payment_status] ?? 'Unpaid';
 
     return createPortal(
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-4 py-10 sm:px-6">
@@ -112,7 +122,7 @@ export default function SalesOrderDetailModal({
                             Status
                         </dt>
                         <dd className="mt-1 text-sm text-ink">
-                            {isDeleted ? 'Voided' : 'Completed'}
+                            {paymentStatusLabel}
                         </dd>
                     </div>
                     <div>
@@ -121,6 +131,24 @@ export default function SalesOrderDetailModal({
                         </dt>
                         <dd className="mt-1 text-sm font-semibold tabular-nums text-ink">
                             {formatMoney(order.grand_total)}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt className="text-xs font-medium tracking-wide text-muted uppercase">
+                            Amount paid
+                        </dt>
+                        <dd className="mt-1 text-sm tabular-nums text-ink">
+                            {formatMoney(order.amount_paid ?? 0)}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt className="text-xs font-medium tracking-wide text-muted uppercase">
+                            Balance due
+                        </dt>
+                        <dd className="mt-1 text-sm font-semibold tabular-nums text-ink">
+                            {formatMoney(
+                                order.balance_due ?? order.grand_total,
+                            )}
                         </dd>
                     </div>
                 </dl>
@@ -181,7 +209,170 @@ export default function SalesOrderDetailModal({
                     </table>
                 </div>
 
+                {payments.length > 0 ? (
+                    <div className="mt-6">
+                        <p className="mb-2 text-xs tracking-wide text-muted uppercase">
+                            Payments
+                        </p>
+                        <div className="overflow-x-auto rounded-md border border-line">
+                            <table className="w-full min-w-[560px] border-collapse text-left text-sm">
+                                <thead className="bg-mist">
+                                    <tr className="border-b border-line text-xs tracking-wide uppercase">
+                                        <th className="px-3 py-2.5 font-medium text-muted">
+                                            Method
+                                        </th>
+                                        <th className="px-3 py-2.5 font-medium text-muted">
+                                            Details
+                                        </th>
+                                        <th className="px-3 py-2.5 font-medium text-muted">
+                                            Amount
+                                        </th>
+                                        <th className="px-3 py-2.5 font-medium text-muted">
+                                            Recorded
+                                        </th>
+                                        {!isDeleted && onVoidPayment ? (
+                                            <th className="px-3 py-2.5 text-right font-medium text-muted">
+                                                <span className="sr-only">
+                                                    Actions
+                                                </span>
+                                            </th>
+                                        ) : null}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {payments.map((payment) => {
+                                        const details = [];
+
+                                        if (payment.platform) {
+                                            details.push(payment.platform);
+                                        }
+                                        if (payment.bank_name) {
+                                            details.push(payment.bank_name);
+                                        }
+                                        if (payment.reference_number) {
+                                            details.push(
+                                                `Ref ${payment.reference_number}`,
+                                            );
+                                        }
+                                        if (payment.bank_check) {
+                                            details.push(
+                                                payment.bank_check
+                                                    .bank_account_name ||
+                                                    'Bank',
+                                            );
+                                            details.push(
+                                                `#${payment.bank_check.check_number}`,
+                                            );
+                                            if (payment.bank_check.due_date) {
+                                                details.push(
+                                                    `Due ${payment.bank_check.due_date}`,
+                                                );
+                                            }
+                                        }
+
+                                        const detailLines = [
+                                            ...details,
+                                            payment.notes,
+                                        ].filter(Boolean);
+                                        const isPdc =
+                                            payment.method ===
+                                            'post_dated_check';
+
+                                        return (
+                                            <tr
+                                                key={payment.id}
+                                                className="border-b border-line/80 last:border-b-0"
+                                            >
+                                                <td className="px-3 py-3 font-medium text-ink">
+                                                    {isPdc
+                                                        ? 'PDC'
+                                                        : payment.method_label}
+                                                </td>
+                                                <td className="px-3 py-3 text-ink-soft">
+                                                    {detailLines.length ===
+                                                    0 ? (
+                                                        '—'
+                                                    ) : isPdc ? (
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-xs whitespace-nowrap">
+                                                                Banks:{' '}
+                                                                {detailLines[0]}
+                                                            </p>
+                                                            <p className="text-xs whitespace-nowrap">
+                                                                Check #:{' '}
+                                                                {detailLines[1]}
+                                                            </p>
+                                                            <p className="text-xs whitespace-nowrap">
+                                                                Due Date:{' '}
+                                                                {formatDate(
+                                                                    detailLines[2],
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs whitespace-nowrap">
+                                                            {detailLines.join(
+                                                                ' · ',
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="px-3 py-3 font-medium tabular-nums text-ink">
+                                                    {formatMoney(
+                                                        payment.amount,
+                                                    )}
+                                                </td>
+                                                <td className="px-3 py-3 text-xs text-ink-soft">
+                                                    <p>
+                                                        {formatDate(
+                                                            payment.paid_at,
+                                                        )}
+                                                    </p>
+                                                    {payment.recorded_by ? (
+                                                        <p className="mt-1 text-xs text-muted">
+                                                            Created by:{' '}
+                                                            {
+                                                                payment.recorded_by
+                                                            }
+                                                        </p>
+                                                    ) : null}
+                                                </td>
+                                                {!isDeleted &&
+                                                onVoidPayment ? (
+                                                    <td className="px-3 py-3 text-right">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                onVoidPayment(
+                                                                    order,
+                                                                    payment,
+                                                                )
+                                                            }
+                                                            className="inline-flex min-h-11 cursor-pointer items-center rounded-md border border-red-600/40 bg-white px-3 text-sm font-medium text-red-700 transition hover:bg-red-50"
+                                                        >
+                                                            Void payment
+                                                        </button>
+                                                    </td>
+                                                ) : null}
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                ) : null}
+
                 <div className="mt-6 flex flex-wrap gap-2 border-t border-line pt-4">
+                    {order.can_add_payment && onAddPayment ? (
+                        <button
+                            type="button"
+                            onClick={() => onAddPayment(order)}
+                            className="inline-flex min-h-11 cursor-pointer items-center rounded-md bg-teal-700 px-5 text-sm font-medium text-paper transition hover:bg-teal-800"
+                        >
+                            Add Payment
+                        </button>
+                    ) : null}
                     {order.can_void && onVoid ? (
                         <button
                             type="button"

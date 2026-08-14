@@ -37,7 +37,7 @@ Canonical product rules live in `.cursor/rules/PRD.mdc` (PRD v1).
 | Admin products | `/admin/products` | Full CRUD, soft delete / restore, `purchase_price` |
 | Suppliers | `/suppliers` | Index-only CRUD in slide-down modal |
 | Customers | `/customers` | Index-only CRUD in slide-down modal |
-| Sales Orders | `/sales-orders` | Multi-line outbound sale; stock out on save; void restores stock |
+| Sales Orders | `/sales-orders` | Multi-line outbound sale; stock out on save; partial payments; void restores stock |
 | Request Quotations | `/request-quotations` | List + create/edit tabs; draft → pending → approved |
 | Purchased Orders | `/purchased-orders` | RFQ→PO; draft → ordered → received; prepayments; post to AP |
 | Inventory | `/inventory` | On-hand stock + movement ledger; PO receipts + sales `sale` movements |
@@ -82,6 +82,7 @@ Canonical product rules live in `.cursor/rules/PRD.mdc` (PRD v1).
 
 - Optional customer (walk-in allowed), multi-line items, server-calculated grand total
 - Save deducts stock immediately; void soft-deletes and restores stock; no edit after save
+- Payments after save: walk-in is cash only; customer sales accept Cash, PDC, Bank Transfer, Online Payment; Void sale only while unpaid
 
 ---
 
