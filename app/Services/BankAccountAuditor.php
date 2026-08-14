@@ -6,6 +6,7 @@ use App\Models\BankAccount;
 use App\Models\BankAccountAuditLog;
 use App\Models\BankCheck;
 use App\Models\PurchasedOrderPayment;
+use App\Models\SalesOrderPayment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -45,6 +46,7 @@ class BankAccountAuditor
             $subject instanceof BankAccount => 'bank_account',
             $subject instanceof BankCheck => 'bank_check',
             $subject instanceof PurchasedOrderPayment => 'purchased_order_payment',
+            $subject instanceof SalesOrderPayment => 'sales_order_payment',
             $subject === null => 'bank_account',
             default => class_basename($subject),
         };

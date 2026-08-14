@@ -49,6 +49,8 @@ Route::middleware('auth')->group(function () {
     Route::post('sales-orders/{sales_order}/restore', [SalesOrderController::class, 'restore'])
         ->withTrashed()
         ->name('sales-orders.restore');
+    Route::post('sales-orders/{sales_order}/payments', [SalesOrderController::class, 'storePayment'])
+        ->name('sales-orders.payments.store');
     Route::resource('sales-orders', SalesOrderController::class)
         ->only(['index', 'store', 'destroy']);
 

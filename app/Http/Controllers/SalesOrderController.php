@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Enums\BankAccountStatus;
 use App\Enums\CustomerStatus;
 use App\Enums\SalesOrderPaymentMethod;
+use App\Http\Requests\StoreSalesOrderPaymentRequest;
 use App\Http\Requests\StoreSalesOrderRequest;
 use App\Models\BankAccount;
+use App\Models\BankCheck;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
+use App\Services\BankAccountAuditor;
 use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -138,6 +141,73 @@ class SalesOrderController extends Controller
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Sales order recorded. Stock updated.',
+        ]);
+
+        return redirect()->route('sales-orders.index');
+    }
+
+    /**
+     * Record a payment against a sales order with remaining balance.
+     */
+    public function storePayment(
+        StoreSalesOrderPaymentRequest $request,
+        SalesOrder $salesOrder,
+    ): RedirectResponse {
+        if (! $salesOrder->canAddPayment()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Payments can only be added when there is a remaining balance.',
+            ]);
+
+            return redirect()->route('sales-orders.index');
+        }
+
+        $userName = $request->user()?->name ?? 'Unknown';
+        $paymentAttributes = $request->paymentAttributes($userName);
+        $bankCheckAttributes = $request->bankCheckAttributes($userName);
+
+        $createdBankCheck = null;
+        $createdPayment = null;
+
+        DB::transaction(function () use ($salesOrder, $paymentAttributes, $bankCheckAttributes, &$createdBankCheck, &$createdPayment): void {
+            if ($bankCheckAttributes !== null) {
+                $createdBankCheck = BankCheck::query()->create($bankCheckAttributes);
+                $paymentAttributes['bank_check_id'] = $createdBankCheck->id;
+            }
+
+            $createdPayment = $salesOrder->payments()->create($paymentAttributes);
+        });
+
+        if ($createdBankCheck !== null && $createdPayment !== null) {
+            $createdBankCheck->load('bankAccount');
+            $auditor = app(BankAccountAuditor::class);
+            $account = $createdBankCheck->bankAccount;
+
+            if ($account !== null) {
+                $auditor->record(
+                    $account,
+                    'check.created',
+                    $createdBankCheck,
+                    "Issued check #{$createdBankCheck->check_number}",
+                    null,
+                    $createdBankCheck->toArrayPayload(),
+                    $request->user(),
+                );
+                $auditor->record(
+                    $account,
+                    'payment.recorded',
+                    $createdPayment,
+                    "Recorded check payment {$createdPayment->amount}",
+                    null,
+                    $createdPayment->toArrayPayload(),
+                    $request->user(),
+                );
+            }
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Payment recorded.',
         ]);
 
         return redirect()->route('sales-orders.index');
