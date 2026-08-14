@@ -1,11 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
 import ProductTrendChart from '@/components/product-trend-chart';
+import SalesDailySalesChart from '@/components/sales-daily-sales-chart';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
 import { index as accountsPayable } from '@/routes/accounts-payable';
 import { index as inventory } from '@/routes/inventory';
 import { index as purchasedOrders } from '@/routes/purchased-orders';
 import { index as requestQuotations } from '@/routes/request-quotations';
+import { index as salesOrders } from '@/routes/sales-orders';
 
 const attentionTypes = {
     pending_rfq: {
@@ -19,6 +21,10 @@ const attentionTypes = {
     ap_balance: {
         label: 'Accounts Payable',
         className: 'border-teal-600/30 bg-mist text-teal-800',
+    },
+    sales_balance: {
+        label: 'Sales due',
+        className: 'border-teal-700/30 bg-teal-700/5 text-teal-800',
     },
     low_stock: {
         label: 'Low stock',
@@ -37,10 +43,41 @@ function MetricLegend({ colorClass, label, value }) {
     );
 }
 
-export default function Dashboard({ kpis, attention, productTrend }) {
+function KpiCard({ label, value, href }) {
+    return (
+        <Link
+            href={href}
+            className="flex min-h-24 cursor-pointer flex-col justify-between rounded-md border border-line bg-white p-4 transition duration-200 hover:border-teal-600 hover:bg-mist focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
+            <span className="text-sm font-medium text-muted">{label}</span>
+            <span className="mt-3 text-2xl font-semibold tracking-tight text-ink">
+                {value}
+            </span>
+        </Link>
+    );
+}
+
+export default function Dashboard({ kpis, attention, productTrend, dailySales }) {
     const { settings } = usePage().props;
     const brand = settings?.brand_name || 'JMC Pundasyon';
-    const cards = [
+    const salesCards = [
+        {
+            label: "Today's sales",
+            value: formatMoney(kpis.todays_sales),
+            href: salesOrders.url(),
+        },
+        {
+            label: 'Unpaid / partial',
+            value: kpis.unpaid_partial_sales,
+            href: salesOrders.url(),
+        },
+        {
+            label: 'AR balance due',
+            value: formatMoney(kpis.sales_ar_balance_due),
+            href: salesOrders.url(),
+        },
+    ];
+    const procurementCards = [
         {
             label: 'Pending Requests',
             value: kpis.pending_rfqs,
@@ -70,12 +107,6 @@ export default function Dashboard({ kpis, attention, productTrend }) {
     const labels = productTrend?.labels ?? [];
     const receivedSeries = productTrend?.series?.received_units ?? [];
     const adjustmentSeries = productTrend?.series?.adjustment_net ?? [];
-    const recommendedData = [
-        'Monthly received units vs outbound units',
-        'Top 5 fast-moving products by quantity sold',
-        'Stock coverage days based on recent consumption',
-        'Supplier lead-time trend (request to receive)',
-    ];
 
     return (
         <AppLayout title="Dashboard">
@@ -85,30 +116,43 @@ export default function Dashboard({ kpis, attention, productTrend }) {
                         Dashboard
                     </h2>
                     <p className="mt-1 text-sm text-muted">
-                        {brand} — Procurement snapshot
+                        {brand} — Ops snapshot
                     </p>
                 </header>
 
-                <section aria-label="Procurement key performance indicators">
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-                        {cards.map((card) => (
-                            <Link
+                <section aria-label="Sales key performance indicators">
+                    <h3 className="mb-2 text-sm font-medium text-muted">
+                        Sales
+                    </h3>
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                        {salesCards.map((card) => (
+                            <KpiCard
                                 key={card.label}
+                                label={card.label}
+                                value={card.value}
                                 href={card.href}
-                                className="flex min-h-24 cursor-pointer flex-col justify-between rounded-md border border-line bg-white p-4 transition duration-200 hover:border-teal-600 hover:bg-mist focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
-                            >
-                                <span className="text-sm font-medium text-muted">
-                                    {card.label}
-                                </span>
-                                <span className="mt-3 text-2xl font-semibold tracking-tight text-ink">
-                                    {card.value}
-                                </span>
-                            </Link>
+                            />
                         ))}
                     </div>
                 </section>
 
-                <section className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                <section aria-label="Procurement key performance indicators">
+                    <h3 className="mb-2 text-sm font-medium text-muted">
+                        Procurement
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+                        {procurementCards.map((card) => (
+                            <KpiCard
+                                key={card.label}
+                                label={card.label}
+                                value={card.value}
+                                href={card.href}
+                            />
+                        ))}
+                    </div>
+                </section>
+
+                <section className="grid gap-4 xl:grid-cols-2">
                     <article className="overflow-hidden rounded-md border border-line bg-white">
                         <div className="border-b border-line px-4 py-3">
                             <h3 className="text-lg font-semibold text-ink">
@@ -147,24 +191,11 @@ export default function Dashboard({ kpis, attention, productTrend }) {
                     </article>
 
                     <article className="overflow-hidden rounded-md border border-line bg-white">
-                        <div className="border-b border-line px-4 py-3">
-                            <h3 className="text-lg font-semibold text-ink">
-                                Recommended Data to Add
-                            </h3>
-                            <p className="text-xs text-muted">
-                                Prioritize these for better forecasting
-                            </p>
-                        </div>
-                        <ul className="space-y-2 p-4">
-                            {recommendedData.map((item) => (
-                                <li
-                                    key={item}
-                                    className="rounded-md border border-line bg-soft px-3 py-2 text-sm text-ink"
-                                >
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
+                        <SalesDailySalesChart
+                            labels={dailySales?.labels ?? []}
+                            totals={dailySales?.totals ?? []}
+                            className="space-y-3 px-4 py-4"
+                        />
                     </article>
                 </section>
 

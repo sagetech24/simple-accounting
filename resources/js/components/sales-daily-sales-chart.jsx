@@ -58,7 +58,11 @@ function formatAxisDate(value) {
     }
 }
 
-export default function SalesDailySalesChart({ labels = [], totals = [] }) {
+export default function SalesDailySalesChart({
+    labels = [],
+    totals = [],
+    className = 'space-y-3 border-b border-line px-4 py-4',
+}) {
     const [Chart, setChart] = useState(null);
     const [reduceMotion, setReduceMotion] = useState(false);
     const [range, setRange] = useState('30');
@@ -160,7 +164,7 @@ export default function SalesDailySalesChart({ labels = [], totals = [] }) {
     ];
 
     return (
-        <div className="space-y-3 border-b border-line px-4 py-4">
+        <div className={className}>
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h2 className="text-sm font-semibold text-ink">
