@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\CustomerStatus;
 use App\Enums\StockMovementType;
+use App\Models\BankAccount;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\SalesOrder;
@@ -58,6 +59,47 @@ class SalesOrderTest extends TestCase
                 ->where('orders.data.0.reference', $order->reference)
                 ->where('orders.data.0.customer_name', 'River Retail')
                 ->where('orders.data.0.item_count', 1)
+                ->where('orders.data.0.amount_paid', '0.00')
+                ->where('orders.data.0.balance_due', '40.00')
+                ->where('orders.data.0.payment_status', 'unpaid')
+                ->where('orders.data.0.can_add_payment', true)
+                ->where('orders.data.0.can_void', true)
+                ->has('orders.data.0.payments', 0)
+                ->has('paymentMethods', 4)
+                ->where('paymentMethods.0.value', 'cash')
+                ->where('paymentMethods.2.value', 'bank_transfer')
+            );
+    }
+
+    public function test_index_includes_active_bank_accounts_only(): void
+    {
+        $admin = User::factory()->create();
+        BankAccount::factory()->active()->create(['name' => 'BPI Checking']);
+        BankAccount::factory()->inactive()->create(['name' => 'Hidden Bank']);
+
+        $this->actingAs($admin)
+            ->get(route('sales-orders.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('sales-orders/index')
+                ->has('bankAccounts', 1)
+                ->where('bankAccounts.0.name', 'BPI Checking')
+            );
+    }
+
+    public function test_zero_total_order_is_paid_without_add_payment_and_still_voidable(): void
+    {
+        $admin = User::factory()->create();
+        $order = SalesOrder::factory()->create(['grand_total' => '0.00']);
+
+        $this->actingAs($admin)
+            ->get(route('sales-orders.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('orders.data.0.id', $order->id)
+                ->where('orders.data.0.payment_status', 'paid')
+                ->where('orders.data.0.can_add_payment', false)
+                ->where('orders.data.0.can_void', true)
             );
     }
 

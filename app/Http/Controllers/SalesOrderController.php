@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BankAccountStatus;
 use App\Enums\CustomerStatus;
+use App\Enums\SalesOrderPaymentMethod;
 use App\Http\Requests\StoreSalesOrderRequest;
+use App\Models\BankAccount;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\SalesOrder;
@@ -46,7 +49,7 @@ class SalesOrderController extends Controller
         ];
 
         $orders = (clone $filteredQuery)
-            ->with(['customer', 'items.product'])
+            ->with(['customer', 'items.product', 'payments.bankCheck.bankAccount'])
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->paginate(8)
@@ -60,6 +63,17 @@ class SalesOrderController extends Controller
             'filters' => [
                 'trashed' => $trashed ?? '',
             ],
+            'paymentMethods' => $this->paymentMethodOptions(),
+            'bankAccounts' => BankAccount::query()
+                ->where('status', BankAccountStatus::Active)
+                ->orderBy('name')
+                ->get()
+                ->map(fn (BankAccount $bankAccount) => [
+                    'id' => $bankAccount->id,
+                    'name' => $bankAccount->name,
+                ])
+                ->values()
+                ->all(),
             'customers' => Customer::query()
                 ->where('status', CustomerStatus::Active)
                 ->orderBy('name')
@@ -243,5 +257,19 @@ class SalesOrderController extends Controller
         }
 
         return [$grandTotal, $lineRows];
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function paymentMethodOptions(): array
+    {
+        return array_map(
+            fn (SalesOrderPaymentMethod $method) => [
+                'value' => $method->value,
+                'label' => $method->label(),
+            ],
+            SalesOrderPaymentMethod::cases(),
+        );
     }
 }
