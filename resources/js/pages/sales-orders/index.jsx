@@ -6,8 +6,8 @@ import {
     restore,
 } from '@/actions/App/Http/Controllers/SalesOrderController';
 import SalesDailySalesChart from '@/components/sales-daily-sales-chart';
+import SalesOrderCreateModal from '@/components/sales-order-create-modal';
 import SalesOrderDetailModal from '@/components/sales-order-detail-modal';
-import SalesOrderForm from '@/components/sales-order-form';
 import SalesOrderPaymentModal from '@/components/sales-order-payment-modal';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
@@ -91,7 +91,7 @@ function SummaryCard({ label, value, hint }) {
             <p className="text-xs font-medium tracking-wide text-muted uppercase">
                 {label}
             </p>
-            <p className="mt-3 text-xl font-semibold tracking-tight tabular-nums text-ink">
+            <p className="mt-3 text-xl font-semibold tracking-tight text-ink tabular-nums">
                 {value}
             </p>
             {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
@@ -176,7 +176,7 @@ function RowActionsMenu({
                     event.stopPropagation();
                     onToggle();
                 }}
-                className={`inline-flex size-11 cursor-pointer items-center justify-center rounded-md hover:scale-110 text-ink-soft transition hover:text-ink ${focusRing}`}
+                className={`inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-ink-soft transition hover:scale-110 hover:text-ink ${focusRing}`}
             >
                 <span className="sr-only">Open actions</span>
                 <svg
@@ -254,7 +254,7 @@ export default function SalesOrdersIndex({
     paymentMethods = [],
     bankAccounts = [],
 }) {
-    const [activeTab, setActiveTab] = useState('list');
+    const [createOpen, setCreateOpen] = useState(false);
     const [formKey, setFormKey] = useState(0);
     const [detailOrder, setDetailOrder] = useState(null);
     const [paymentOrder, setPaymentOrder] = useState(null);
@@ -271,9 +271,9 @@ export default function SalesOrdersIndex({
         );
     }
 
-    function openCreateTab() {
+    function openCreateModal() {
         setFormKey((key) => key + 1);
-        setActiveTab('create');
+        setCreateOpen(true);
     }
 
     function openDetailModal(order) {
@@ -305,10 +305,14 @@ export default function SalesOrdersIndex({
             return;
         }
 
-        router.post(restore.url(order.id), {}, {
-            preserveScroll: true,
-            onSuccess: () => setDetailOrder(null),
-        });
+        router.post(
+            restore.url(order.id),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => setDetailOrder(null),
+            },
+        );
     }
 
     function openPaymentModal(order) {
@@ -348,16 +352,14 @@ export default function SalesOrdersIndex({
                             Record outbound sales and deduct stock in one step.
                         </p>
                     </div>
-                    {activeTab === 'list' ? (
-                        <button
-                            type="button"
-                            onClick={openCreateTab}
-                            className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition duration-150 hover:bg-teal-800 ${focusRing}`}
-                        >
-                            <PlusIcon />
-                            Sales Order
-                        </button>
-                    ) : null}
+                    <button
+                        type="button"
+                        onClick={openCreateModal}
+                        className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition duration-150 hover:bg-teal-800 ${focusRing}`}
+                    >
+                        <PlusIcon />
+                        Sales Order
+                    </button>
                 </div>
 
                 <SalesDailySalesChart
@@ -365,164 +367,236 @@ export default function SalesOrdersIndex({
                     totals={dailySales?.totals ?? []}
                 />
 
-                <div className="border-b border-line px-4">
-                    <div
-                        role="tablist"
-                        aria-label="Sales order views"
-                        className="flex gap-2 overflow-x-auto"
+                <div className="space-y-5 p-4">
+                    <section
+                        aria-label="Sales order rollup"
+                        className="grid grid-cols-2 gap-3"
                     >
-                        <button
-                            type="button"
-                            role="tab"
-                            id="tab-list"
-                            aria-selected={activeTab === 'list'}
-                            aria-controls="panel-list"
-                            onClick={() => setActiveTab('list')}
-                            className={`min-h-11 shrink-0 cursor-pointer border-b-2 px-4 text-sm font-medium transition ${
-                                activeTab === 'list'
-                                    ? 'border-teal-700 text-teal-800'
-                                    : 'border-transparent text-muted hover:text-ink'
-                            }`}
-                        >
-                            Sales Orders
-                        </button>
-                        <button
-                            type="button"
-                            role="tab"
-                            id="tab-create"
-                            aria-selected={activeTab === 'create'}
-                            aria-controls="panel-create"
-                            onClick={openCreateTab}
-                            className={`min-h-11 shrink-0 cursor-pointer border-b-2 px-4 text-sm font-medium transition ${
-                                activeTab === 'create'
-                                    ? 'border-teal-700 text-teal-800'
-                                    : 'border-transparent text-muted hover:text-ink'
-                            }`}
-                        >
-                            Create Sales Order
-                        </button>
+                        <SummaryCard
+                            label="Sales"
+                            value={summary.order_count}
+                            hint="Matching current filter"
+                        />
+                        <SummaryCard
+                            label="Total value"
+                            value={formatMoney(summary.grand_total_sum)}
+                            hint="Sum of grand totals"
+                        />
+                    </section>
+
+                    <div
+                        role="group"
+                        aria-label="Filter by trash state"
+                        className="flex flex-wrap gap-2"
+                    >
+                        {trashViews.map((view) => {
+                            const active = trashed === view.value;
+
+                            return (
+                                <button
+                                    key={view.value || 'active'}
+                                    type="button"
+                                    onClick={() => applyTrashFilter(view.value)}
+                                    aria-current={active ? 'true' : undefined}
+                                    className={`inline-flex min-h-11 items-center rounded-md border px-4 text-sm font-medium transition duration-150 ${focusRing} ${
+                                        active
+                                            ? 'cursor-default border-teal-700 bg-teal-700 text-paper'
+                                            : 'cursor-pointer border-line bg-white text-ink-soft hover:border-teal-600 hover:text-ink'
+                                    }`}
+                                >
+                                    {view.label}
+                                </button>
+                            );
+                        })}
                     </div>
-                </div>
 
-                {activeTab === 'list' ? (
-                    <div
-                        role="tabpanel"
-                        id="panel-list"
-                        aria-labelledby="tab-list"
-                        className="space-y-5 p-4"
+                    <section
+                        aria-labelledby="so-orders-heading"
+                        className="space-y-3"
                     >
-                        <section
-                            aria-label="Sales order rollup"
-                            className="grid grid-cols-2 gap-3"
+                        <h3
+                            id="so-orders-heading"
+                            className="text-lg font-semibold text-ink"
                         >
-                            <SummaryCard
-                                label="Sales"
-                                value={summary.order_count}
-                                hint="Matching current filter"
-                            />
-                            <SummaryCard
-                                label="Total value"
-                                value={formatMoney(summary.grand_total_sum)}
-                                hint="Sum of grand totals"
-                            />
-                        </section>
+                            Sales orders
+                        </h3>
 
-                        <div
-                            role="group"
-                            aria-label="Filter by trash state"
-                            className="flex flex-wrap gap-2"
-                        >
-                            {trashViews.map((view) => {
-                                const active = trashed === view.value;
+                        {orders.data.length === 0 ? (
+                            <div className="rounded-md border border-line bg-white px-4 py-10 text-center">
+                                <p className="text-sm font-semibold text-ink">
+                                    {trashed === 'only'
+                                        ? 'No voided sales'
+                                        : 'No sales orders yet'}
+                                </p>
+                                <p className="mx-auto mt-1 max-w-md text-sm text-muted">
+                                    {trashed === 'only'
+                                        ? 'Nothing in the trash for this filter.'
+                                        : 'Record a sale to deduct stock and keep a sales history.'}
+                                </p>
+                                {trashed !== 'only' ? (
+                                    <div className="mt-4">
+                                        <button
+                                            type="button"
+                                            onClick={openCreateModal}
+                                            className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition duration-150 hover:bg-teal-800 ${focusRing}`}
+                                        >
+                                            <PlusIcon />
+                                            New Sales Order
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="mt-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => applyTrashFilter('')}
+                                            className={`inline-flex min-h-11 cursor-pointer items-center rounded-md border border-line bg-white px-5 text-sm font-medium text-ink-soft transition duration-150 hover:border-ink/30 hover:text-ink ${focusRing}`}
+                                        >
+                                            Show active Sales Orders
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <>
+                                <div className="grid gap-3 sm:grid-cols-2 lg:hidden">
+                                    {orders.data.map((order) => {
+                                        const created = formatDateParts(
+                                            order.created_at,
+                                        );
+                                        const isDeleted = Boolean(
+                                            order.deleted_at,
+                                        );
 
-                                return (
-                                    <button
-                                        key={view.value || 'active'}
-                                        type="button"
-                                        onClick={() =>
-                                            applyTrashFilter(view.value)
-                                        }
-                                        aria-current={
-                                            active ? 'true' : undefined
-                                        }
-                                        className={`inline-flex min-h-11 items-center rounded-md border px-4 text-sm font-medium transition duration-150 ${focusRing} ${
-                                            active
-                                                ? 'cursor-default border-teal-700 bg-teal-700 text-paper'
-                                                : 'cursor-pointer border-line bg-white text-ink-soft hover:border-teal-600 hover:text-ink'
-                                        }`}
-                                    >
-                                        {view.label}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        <section
-                            aria-labelledby="so-orders-heading"
-                            className="space-y-3"
-                        >
-                            <h3
-                                id="so-orders-heading"
-                                className="text-lg font-semibold text-ink"
-                            >
-                                Sales orders
-                            </h3>
-
-                            {orders.data.length === 0 ? (
-                                <div className="rounded-md border border-line bg-white px-4 py-10 text-center">
-                                    <p className="text-sm font-semibold text-ink">
-                                        {trashed === 'only'
-                                            ? 'No voided sales'
-                                            : 'No sales orders yet'}
-                                    </p>
-                                    <p className="mx-auto mt-1 max-w-md text-sm text-muted">
-                                        {trashed === 'only'
-                                            ? 'Nothing in the trash for this filter.'
-                                            : 'Record a sale to deduct stock and keep a sales history.'}
-                                    </p>
-                                    {trashed !== 'only' ? (
-                                        <div className="mt-4">
-                                            <button
-                                                type="button"
-                                                onClick={openCreateTab}
-                                                className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-teal-700 px-5 text-sm font-medium tracking-wide text-paper transition duration-150 hover:bg-teal-800 ${focusRing}`}
+                                        return (
+                                            <div
+                                                key={order.id}
+                                                className="flex flex-col gap-3 rounded-md border border-line bg-white p-4"
                                             >
-                                                <PlusIcon />
-                                                New Sales Order
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="mt-4">
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    applyTrashFilter('')
-                                                }
-                                                className={`inline-flex min-h-11 cursor-pointer items-center rounded-md border border-line bg-white px-5 text-sm font-medium text-ink-soft transition duration-150 hover:border-ink/30 hover:text-ink ${focusRing}`}
-                                            >
-                                                Show active Sales Orders
-                                            </button>
-                                        </div>
-                                    )}
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="min-w-0">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                openDetailModal(
+                                                                    order,
+                                                                )
+                                                            }
+                                                            className={`text-left font-medium wrap-break-word underline-offset-2 transition hover:underline ${focusRing} ${
+                                                                isDeleted
+                                                                    ? 'text-muted line-through'
+                                                                    : 'cursor-pointer text-teal-800'
+                                                            }`}
+                                                        >
+                                                            {order.customer_name ||
+                                                                'Walk-in'}
+                                                        </button>
+                                                        <p
+                                                            className="mt-1 max-w-full truncate font-mono text-xs text-muted"
+                                                            title={
+                                                                order.reference
+                                                            }
+                                                        >
+                                                            {order.reference}
+                                                        </p>
+                                                    </div>
+                                                    <RowActionsMenu
+                                                        order={order}
+                                                        open={
+                                                            actionsOrderId ===
+                                                            order.id
+                                                        }
+                                                        onToggle={() =>
+                                                            setActionsOrderId(
+                                                                (current) =>
+                                                                    current ===
+                                                                    order.id
+                                                                        ? null
+                                                                        : order.id,
+                                                            )
+                                                        }
+                                                        onClose={() =>
+                                                            setActionsOrderId(
+                                                                null,
+                                                            )
+                                                        }
+                                                        onAddPayment={
+                                                            openPaymentModal
+                                                        }
+                                                        onVoid={voidOrder}
+                                                        onRestore={restoreOrder}
+                                                    />
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    {paymentStatusBadge(order)}
+                                                    <span className="text-sm text-muted">
+                                                        {order.item_count}{' '}
+                                                        {order.item_count === 1
+                                                            ? 'item'
+                                                            : 'items'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-end justify-between gap-2">
+                                                    <p className="text-lg font-semibold text-ink tabular-nums">
+                                                        {formatMoney(
+                                                            order.grand_total,
+                                                        )}
+                                                    </p>
+                                                    <p className="text-xs text-muted">
+                                                        {created.date}
+                                                        {created.time
+                                                            ? ` · ${created.time}`
+                                                            : ''}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                            ) : (
-                                <>
-                                    <div className="grid gap-3 sm:grid-cols-2 lg:hidden">
-                                        {orders.data.map((order) => {
-                                            const created = formatDateParts(
-                                                order.created_at,
-                                            );
-                                            const isDeleted = Boolean(
-                                                order.deleted_at,
-                                            );
 
-                                            return (
-                                                <div
-                                                    key={order.id}
-                                                    className="flex flex-col gap-3 rounded-md border border-line bg-white p-4"
-                                                >
-                                                    <div className="flex items-start justify-between gap-2">
-                                                        <div className="min-w-0">
+                                <div className="hidden rounded-md border border-line lg:block">
+                                    <table className="w-full min-w-[820px] border-collapse text-left text-sm">
+                                        <thead className="bg-mist">
+                                            <tr className="border-b border-line text-xs tracking-wide uppercase">
+                                                <th className="px-4 py-3 font-medium text-muted">
+                                                    Customer
+                                                </th>
+                                                <th className="px-4 py-3 font-medium text-muted">
+                                                    Reference
+                                                </th>
+                                                <th className="px-4 py-3 font-medium text-muted">
+                                                    Items
+                                                </th>
+                                                <th className="px-4 py-3 font-medium text-muted">
+                                                    Total
+                                                </th>
+                                                <th className="px-4 py-3 font-medium text-muted">
+                                                    Payment
+                                                </th>
+                                                <th className="px-4 py-3 font-medium text-muted">
+                                                    Created
+                                                </th>
+                                                <th className="w-16 px-4 py-3 text-right">
+                                                    <span className="sr-only">
+                                                        Actions
+                                                    </span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {orders.data.map((order) => {
+                                                const created = formatDateParts(
+                                                    order.created_at,
+                                                );
+                                                const isDeleted = Boolean(
+                                                    order.deleted_at,
+                                                );
+
+                                                return (
+                                                    <tr
+                                                        key={order.id}
+                                                        className="border-b border-line hover:bg-mist/40"
+                                                    >
+                                                        <td className="px-4 py-3">
                                                             <button
                                                                 type="button"
                                                                 onClick={() =>
@@ -530,7 +604,7 @@ export default function SalesOrdersIndex({
                                                                         order,
                                                                     )
                                                                 }
-                                                                className={`text-left font-medium wrap-break-word underline-offset-2 transition hover:underline ${focusRing} ${
+                                                                className={`text-left font-medium underline-offset-2 transition hover:underline ${focusRing} ${
                                                                     isDeleted
                                                                         ? 'text-muted line-through'
                                                                         : 'cursor-pointer text-teal-800'
@@ -539,271 +613,125 @@ export default function SalesOrdersIndex({
                                                                 {order.customer_name ||
                                                                     'Walk-in'}
                                                             </button>
-                                                            <p
-                                                                className="mt-1 max-w-full truncate font-mono text-xs text-muted"
-                                                                title={
-                                                                    order.reference
-                                                                }
-                                                            >
-                                                                {
-                                                                    order.reference
-                                                                }
-                                                            </p>
-                                                        </div>
-                                                        <RowActionsMenu
-                                                            order={order}
-                                                            open={
-                                                                actionsOrderId ===
-                                                                order.id
-                                                            }
-                                                            onToggle={() =>
-                                                                setActionsOrderId(
-                                                                    (current) =>
-                                                                        current ===
-                                                                        order.id
-                                                                            ? null
-                                                                            : order.id,
-                                                                )
-                                                            }
-                                                            onClose={() =>
-                                                                setActionsOrderId(
-                                                                    null,
-                                                                )
-                                                            }
-                                                            onAddPayment={
-                                                                openPaymentModal
-                                                            }
-                                                            onVoid={voidOrder}
-                                                            onRestore={
-                                                                restoreOrder
-                                                            }
-                                                        />
-                                                    </div>
-                                                    <div className="flex flex-wrap items-center gap-2">
-                                                        {paymentStatusBadge(
-                                                            order,
-                                                        )}
-                                                        <span className="text-sm text-muted">
-                                                            {order.item_count}{' '}
-                                                            {order.item_count ===
-                                                            1
-                                                                ? 'item'
-                                                                : 'items'}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-end justify-between gap-2">
-                                                        <p className="text-lg font-semibold tabular-nums text-ink">
+                                                            {isDeleted ? (
+                                                                <p className="mt-1">
+                                                                    <Badge className="border-red-600/30 bg-red-400/10 text-red-700">
+                                                                        Voided
+                                                                    </Badge>
+                                                                </p>
+                                                            ) : null}
+                                                        </td>
+                                                        <td className="px-4 py-3 font-mono text-xs text-muted">
+                                                            {order.reference}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-ink-soft tabular-nums">
+                                                            {order.item_count}
+                                                        </td>
+                                                        <td className="px-4 py-3 font-medium text-ink tabular-nums">
                                                             {formatMoney(
                                                                 order.grand_total,
                                                             )}
-                                                        </p>
-                                                        <p className="text-xs text-muted">
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            {paymentStatusBadge(
+                                                                order,
+                                                            )}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-ink-soft">
                                                             {created.date}
-                                                            {created.time
-                                                                ? ` · ${created.time}`
-                                                                : ''}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                                            {created.time ? (
+                                                                <span className="mt-0.5 block text-xs text-muted">
+                                                                    {
+                                                                        created.time
+                                                                    }
+                                                                </span>
+                                                            ) : null}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-right">
+                                                            <RowActionsMenu
+                                                                order={order}
+                                                                open={
+                                                                    actionsOrderId ===
+                                                                    order.id
+                                                                }
+                                                                onToggle={() =>
+                                                                    setActionsOrderId(
+                                                                        (
+                                                                            current,
+                                                                        ) =>
+                                                                            current ===
+                                                                            order.id
+                                                                                ? null
+                                                                                : order.id,
+                                                                    )
+                                                                }
+                                                                onClose={() =>
+                                                                    setActionsOrderId(
+                                                                        null,
+                                                                    )
+                                                                }
+                                                                onAddPayment={
+                                                                    openPaymentModal
+                                                                }
+                                                                onVoid={
+                                                                    voidOrder
+                                                                }
+                                                                onRestore={
+                                                                    restoreOrder
+                                                                }
+                                                            />
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                                    <div className="hidden rounded-md border border-line lg:block">
-                                        <table className="w-full min-w-[820px] border-collapse text-left text-sm">
-                                            <thead className="bg-mist">
-                                                <tr className="border-b border-line text-xs tracking-wide uppercase">
-                                                    <th className="px-4 py-3 font-medium text-muted">
-                                                        Customer
-                                                    </th>
-                                                    <th className="px-4 py-3 font-medium text-muted">
-                                                        Reference
-                                                    </th>
-                                                    <th className="px-4 py-3 font-medium text-muted">
-                                                        Items
-                                                    </th>
-                                                    <th className="px-4 py-3 font-medium text-muted">
-                                                        Total
-                                                    </th>
-                                                    <th className="px-4 py-3 font-medium text-muted">
-                                                        Payment
-                                                    </th>
-                                                    <th className="px-4 py-3 font-medium text-muted">
-                                                        Created
-                                                    </th>
-                                                    <th className="w-16 px-4 py-3 text-right">
-                                                        <span className="sr-only">
-                                                            Actions
-                                                        </span>
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {orders.data.map((order) => {
-                                                    const created =
-                                                        formatDateParts(
-                                                            order.created_at,
+                                {orders.links?.length > 3 ? (
+                                    <div className="flex flex-wrap gap-2">
+                                        {orders.links.map((link, index) => (
+                                            <button
+                                                key={`${link.label}-${index}`}
+                                                type="button"
+                                                disabled={!link.url}
+                                                onClick={() => {
+                                                    if (link.url) {
+                                                        router.get(
+                                                            link.url,
+                                                            {},
+                                                            {
+                                                                preserveScroll: true,
+                                                                preserveState: true,
+                                                            },
                                                         );
-                                                    const isDeleted = Boolean(
-                                                        order.deleted_at,
-                                                    );
-
-                                                    return (
-                                                        <tr
-                                                            key={order.id}
-                                                            className="border-b border-line hover:bg-mist/40"
-                                                        >
-                                                            <td className="px-4 py-3">
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() =>
-                                                                        openDetailModal(
-                                                                            order,
-                                                                        )
-                                                                    }
-                                                                    className={`text-left font-medium underline-offset-2 transition hover:underline ${focusRing} ${
-                                                                        isDeleted
-                                                                            ? 'text-muted line-through'
-                                                                            : 'cursor-pointer text-teal-800'
-                                                                    }`}
-                                                                >
-                                                                    {order.customer_name ||
-                                                                        'Walk-in'}
-                                                                </button>
-                                                                {isDeleted ? (
-                                                                    <p className="mt-1">
-                                                                        <Badge className="border-red-600/30 bg-red-400/10 text-red-700">
-                                                                            Voided
-                                                                        </Badge>
-                                                                    </p>
-                                                                ) : null}
-                                                            </td>
-                                                            <td className="px-4 py-3 font-mono text-xs text-muted">
-                                                                {
-                                                                    order.reference
-                                                                }
-                                                            </td>
-                                                            <td className="px-4 py-3 tabular-nums text-ink-soft">
-                                                                {
-                                                                    order.item_count
-                                                                }
-                                                            </td>
-                                                            <td className="px-4 py-3 font-medium tabular-nums text-ink">
-                                                                {formatMoney(
-                                                                    order.grand_total,
-                                                                )}
-                                                            </td>
-                                                            <td className="px-4 py-3">
-                                                                {paymentStatusBadge(
-                                                                    order,
-                                                                )}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-ink-soft">
-                                                                {created.date}
-                                                                {created.time ? (
-                                                                    <span className="mt-0.5 block text-xs text-muted">
-                                                                        {
-                                                                            created.time
-                                                                        }
-                                                                    </span>
-                                                                ) : null}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-right">
-                                                                <RowActionsMenu
-                                                                    order={
-                                                                        order
-                                                                    }
-                                                                    open={
-                                                                        actionsOrderId ===
-                                                                        order.id
-                                                                    }
-                                                                    onToggle={() =>
-                                                                        setActionsOrderId(
-                                                                            (
-                                                                                current,
-                                                                            ) =>
-                                                                                current ===
-                                                                                order.id
-                                                                                    ? null
-                                                                                    : order.id,
-                                                                        )
-                                                                    }
-                                                                    onClose={() =>
-                                                                        setActionsOrderId(
-                                                                            null,
-                                                                        )
-                                                                    }
-                                                                    onAddPayment={
-                                                                        openPaymentModal
-                                                                    }
-                                                                    onVoid={
-                                                                        voidOrder
-                                                                    }
-                                                                    onRestore={
-                                                                        restoreOrder
-                                                                    }
-                                                                />
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
+                                                    }
+                                                }}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                                className={`inline-flex min-h-11 items-center rounded-md border px-3 text-sm ${
+                                                    link.active
+                                                        ? 'border-teal-700 bg-teal-700 text-paper'
+                                                        : 'border-line bg-white text-ink-soft'
+                                                } ${!link.url ? 'cursor-default opacity-50' : `cursor-pointer ${focusRing}`}`}
+                                            />
+                                        ))}
                                     </div>
-
-                                    {orders.links?.length > 3 ? (
-                                        <div className="flex flex-wrap gap-2">
-                                            {orders.links.map((link, index) => (
-                                                <button
-                                                    key={`${link.label}-${index}`}
-                                                    type="button"
-                                                    disabled={!link.url}
-                                                    onClick={() => {
-                                                        if (link.url) {
-                                                            router.get(
-                                                                link.url,
-                                                                {},
-                                                                {
-                                                                    preserveScroll: true,
-                                                                    preserveState: true,
-                                                                },
-                                                            );
-                                                        }
-                                                    }}
-                                                    dangerouslySetInnerHTML={{
-                                                        __html: link.label,
-                                                    }}
-                                                    className={`inline-flex min-h-11 items-center rounded-md border px-3 text-sm ${
-                                                        link.active
-                                                            ? 'border-teal-700 bg-teal-700 text-paper'
-                                                            : 'border-line bg-white text-ink-soft'
-                                                    } ${!link.url ? 'cursor-default opacity-50' : `cursor-pointer ${focusRing}`}`}
-                                                />
-                                            ))}
-                                        </div>
-                                    ) : null}
-                                </>
-                            )}
-                        </section>
-                    </div>
-                ) : (
-                    <div
-                        role="tabpanel"
-                        id="panel-create"
-                        aria-labelledby="tab-create"
-                        className="p-4"
-                    >
-                        <SalesOrderForm
-                            key={formKey}
-                            customers={customers}
-                            products={products}
-                            onCancel={() => setActiveTab('list')}
-                            onSuccess={() => setActiveTab('list')}
-                        />
-                    </div>
-                )}
+                                ) : null}
+                            </>
+                        )}
+                    </section>
+                </div>
             </div>
 
+            <SalesOrderCreateModal
+                key={formKey}
+                open={createOpen}
+                customers={customers}
+                products={products}
+                onClose={() => setCreateOpen(false)}
+            />
             <SalesOrderDetailModal
                 open={Boolean(detailOrder)}
                 order={detailOrder}
