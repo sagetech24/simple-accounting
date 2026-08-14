@@ -232,6 +232,24 @@ class DashboardTest extends TestCase
             'amount' => '10.00',
         ]);
 
+        $unpaidSale = SalesOrder::factory()->create([
+            'reference' => '44444444-4444-4444-4444-444444444444',
+            'customer_id' => null,
+            'grand_total' => '80.00',
+        ]);
+
+        $paidSale = SalesOrder::factory()->create([
+            'grand_total' => '10.00',
+        ]);
+        SalesOrderPayment::factory()->cash()->create([
+            'sales_order_id' => $paidSale->id,
+            'amount' => '10.00',
+        ]);
+
+        SalesOrder::factory()->create([
+            'grand_total' => '99.00',
+        ])->delete();
+
         Product::factory()->available()->create([
             'name' => 'Bolt Pack',
             'quantity' => 1,
@@ -247,7 +265,7 @@ class DashboardTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->has('attention', 4)
+                ->has('attention', 5)
                 ->where('attention.0.type', 'pending_rfq')
                 ->where('attention.0.title', $rfq->reference)
                 ->where('attention.0.subtitle', 'Acme · ₱12,500.00 · 1 item')
@@ -266,11 +284,16 @@ class DashboardTest extends TestCase
                     'attention.2.href',
                     route('accounts-payable.show', [$supplier, $posted], absolute: false)
                 )
-                ->where('attention.3.type', 'low_stock')
-                ->where('attention.3.title', 'Bolt Pack')
-                ->where('attention.3.subtitle', '1 on hand · threshold 4')
-                ->where('attention.3.reason', 'Review stock')
-                ->where('attention.3.href', route('inventory.index', absolute: false))
+                ->where('attention.3.type', 'sales_balance')
+                ->where('attention.3.title', $unpaidSale->reference)
+                ->where('attention.3.subtitle', 'Walk-in · Balance ₱80.00 · Unpaid')
+                ->where('attention.3.reason', 'Collect payment')
+                ->where('attention.3.href', route('sales-orders.index', absolute: false))
+                ->where('attention.4.type', 'low_stock')
+                ->where('attention.4.title', 'Bolt Pack')
+                ->where('attention.4.subtitle', '1 on hand · threshold 4')
+                ->where('attention.4.reason', 'Review stock')
+                ->where('attention.4.href', route('inventory.index', absolute: false))
             );
     }
 }

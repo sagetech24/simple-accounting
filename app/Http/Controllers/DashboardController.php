@@ -229,6 +229,31 @@ class DashboardController extends Controller
             ];
         }
 
+        $salesDue = SalesOrder::query()
+            ->with(['payments', 'customer:id,name'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->limit(20)
+            ->get()
+            ->filter(fn (SalesOrder $order) => (float) $order->balanceDue() > 0)
+            ->take(3);
+
+        foreach ($salesDue as $order) {
+            $paymentStatus = $order->paymentStatus();
+
+            $attention[] = [
+                'type' => 'sales_balance',
+                'title' => $order->reference,
+                'subtitle' => $this->joinAttentionSegments([
+                    $order->customer?->name ?? 'Walk-in',
+                    'Balance '.$this->formatAttentionMoney((float) $order->balanceDue()),
+                    $paymentStatus === 'partial' ? 'Partial' : 'Unpaid',
+                ]),
+                'reason' => 'Collect payment',
+                'href' => route('sales-orders.index', absolute: false),
+            ];
+        }
+
         foreach (
             Product::query()
                 ->whereNotNull('low_stock_threshold')
