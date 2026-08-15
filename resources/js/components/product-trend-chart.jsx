@@ -7,6 +7,7 @@ export default function ProductTrendChart({
     labels = [],
     receivedUnits = [],
     adjustmentNet = [],
+    height = 288,
 }) {
     const [Chart, setChart] = useState(null);
     const [reduceMotion, setReduceMotion] = useState(false);
@@ -127,7 +128,8 @@ export default function ProductTrendChart({
     if (!Chart) {
         return (
             <div
-                className="flex h-72 items-center justify-center rounded-md border border-line bg-soft text-sm text-muted"
+                className="flex items-center justify-center rounded-md border border-line bg-soft text-sm text-muted"
+                style={{ height }}
                 aria-hidden="true"
             >
                 Loading chart…
@@ -141,7 +143,7 @@ export default function ProductTrendChart({
                 options={options}
                 series={series}
                 type="line"
-                height={288}
+                height={height}
                 width="100%"
             />
         </div>

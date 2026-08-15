@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 import ProductTrendChart from '@/components/product-trend-chart';
 import SalesDailySalesChart from '@/components/sales-daily-sales-chart';
 import AppLayout from '@/layouts/app-layout';
@@ -8,6 +9,14 @@ import { index as inventory } from '@/routes/inventory';
 import { index as purchasedOrders } from '@/routes/purchased-orders';
 import { index as requestQuotations } from '@/routes/request-quotations';
 import { index as salesOrders } from '@/routes/sales-orders';
+
+const focusRing =
+    'focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none';
+
+const chartTabs = [
+    { id: 'product-trend', label: 'Product Trend' },
+    { id: 'sales-order', label: 'Sales Order' },
+];
 
 const attentionTypes = {
     pending_rfq: {
@@ -60,6 +69,7 @@ function KpiCard({ label, value, href }) {
 export default function Dashboard({ kpis, attention, productTrend, dailySales }) {
     const { settings } = usePage().props;
     const brand = settings?.brand_name || 'JMC Pundasyon';
+    const [chartTab, setChartTab] = useState('product-trend');
     const salesCards = [
         {
             label: "Today's sales",
@@ -152,21 +162,59 @@ export default function Dashboard({ kpis, attention, productTrend, dailySales })
                     </div>
                 </section>
 
-                <section className="grid gap-4 xl:grid-cols-2">
-                    <article className="overflow-hidden rounded-md border border-line bg-white">
-                        <div className="border-b border-line px-4 py-3">
-                            <h3 className="text-lg font-semibold text-ink">
-                                Product Trend (Last 6 Months)
-                            </h3>
-                            <p className="text-xs text-muted">
-                                Received units and stock adjustments by month
-                            </p>
+                <section
+                    aria-label="Dashboard charts"
+                    className="overflow-hidden rounded-md border border-line bg-white"
+                >
+                    <div className="border-b border-line px-4">
+                        <div
+                            role="tablist"
+                            aria-label="Chart views"
+                            className="flex gap-2 overflow-x-auto"
+                        >
+                            {chartTabs.map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    type="button"
+                                    role="tab"
+                                    id={`tab-${tab.id}`}
+                                    aria-selected={chartTab === tab.id}
+                                    aria-controls={`panel-${tab.id}`}
+                                    onClick={() => setChartTab(tab.id)}
+                                    className={`min-h-11 shrink-0 cursor-pointer border-b-2 px-4 text-sm font-medium transition duration-150 ${focusRing} ${
+                                        chartTab === tab.id
+                                            ? 'border-teal-700 text-teal-800'
+                                            : 'border-transparent text-muted hover:text-ink'
+                                    }`}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
                         </div>
-                        <div className="space-y-4 p-4">
+                    </div>
+
+                    {chartTab === 'product-trend' && (
+                        <div
+                            role="tabpanel"
+                            id="panel-product-trend"
+                            aria-labelledby="tab-product-trend"
+                            className="space-y-4 p-4"
+                        >
+                            <div>
+                                <h3 className="text-lg font-semibold text-ink">
+                                    Product Trend (Last 6 Months)
+                                </h3>
+                                <p className="text-xs text-muted">
+                                    Received units and stock adjustments by
+                                    month
+                                </p>
+                            </div>
+
                             <ProductTrendChart
                                 labels={labels}
                                 receivedUnits={receivedSeries}
                                 adjustmentNet={adjustmentSeries}
+                                height={360}
                             />
 
                             <div className="grid gap-2 md:grid-cols-2">
@@ -188,15 +236,22 @@ export default function Dashboard({ kpis, attention, productTrend, dailySales })
                                 />
                             </div>
                         </div>
-                    </article>
+                    )}
 
-                    <article className="overflow-hidden rounded-md border border-line bg-white">
-                        <SalesDailySalesChart
-                            labels={dailySales?.labels ?? []}
-                            totals={dailySales?.totals ?? []}
-                            className="space-y-3 px-4 py-4"
-                        />
-                    </article>
+                    {chartTab === 'sales-order' && (
+                        <div
+                            role="tabpanel"
+                            id="panel-sales-order"
+                            aria-labelledby="tab-sales-order"
+                        >
+                            <SalesDailySalesChart
+                                labels={dailySales?.labels ?? []}
+                                totals={dailySales?.totals ?? []}
+                                className="space-y-3 px-4 py-4"
+                                height={360}
+                            />
+                        </div>
+                    )}
                 </section>
 
                 <section

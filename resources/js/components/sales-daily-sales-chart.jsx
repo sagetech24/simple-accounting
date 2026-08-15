@@ -62,6 +62,7 @@ export default function SalesDailySalesChart({
     labels = [],
     totals = [],
     className = 'space-y-3 border-b border-line px-4 py-4',
+    height = 256,
 }) {
     const [Chart, setChart] = useState(null);
     const [reduceMotion, setReduceMotion] = useState(false);
@@ -192,7 +193,8 @@ export default function SalesDailySalesChart({
 
             {!Chart ? (
                 <div
-                    className="flex h-64 items-center justify-center rounded-md border border-line bg-soft text-sm text-muted"
+                    className="flex items-center justify-center rounded-md border border-line bg-soft text-sm text-muted"
+                    style={{ height }}
                     aria-hidden="true"
                 >
                     Loading chart…
@@ -203,7 +205,7 @@ export default function SalesDailySalesChart({
                         options={options}
                         series={series}
                         type="area"
-                        height={256}
+                        height={height}
                         width="100%"
                     />
                 </div>
