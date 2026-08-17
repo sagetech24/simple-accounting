@@ -44,6 +44,9 @@ export default function SearchableSelect({
     emptyMessage = 'No matches found.',
     error,
     disabled = false,
+    allowCustomValue = false,
+    customValue = '',
+    onCustomValueChange,
 }) {
     const listboxId = useId();
     const [query, setQuery] = useState('');
@@ -55,8 +58,10 @@ export default function SearchableSelect({
         [options, value],
     );
 
+    const inputValue = allowCustomValue && !selected ? customValue : query;
+
     const filtered = useMemo(() => {
-        const term = query.trim().toLowerCase();
+        const term = inputValue.trim().toLowerCase();
 
         if (!term) {
             return options;
@@ -68,7 +73,7 @@ export default function SearchableSelect({
 
             return labelText.includes(term) || meta.includes(term);
         });
-    }, [options, query, getOptionLabel, getOptionMeta]);
+    }, [options, inputValue, getOptionLabel, getOptionMeta]);
 
     function selectOption(option) {
         onChange(option);
@@ -80,6 +85,18 @@ export default function SearchableSelect({
         onChange(null);
         setQuery('');
         setOpen(false);
+    }
+
+    function handleInputChange(event) {
+        const nextValue = event.target.value;
+
+        if (allowCustomValue) {
+            onCustomValueChange?.(nextValue);
+        } else {
+            setQuery(nextValue);
+        }
+
+        setOpen(true);
     }
 
     return (
@@ -119,13 +136,10 @@ export default function SearchableSelect({
                     <input
                         id={id}
                         type="search"
-                        value={query}
+                        value={inputValue}
                         disabled={disabled}
                         placeholder={placeholder}
-                        onChange={(event) => {
-                            setQuery(event.target.value);
-                            setOpen(true);
-                        }}
+                        onChange={handleInputChange}
                         onFocus={() => setOpen(true)}
                         role="combobox"
                         aria-expanded={open}

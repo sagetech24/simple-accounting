@@ -245,7 +245,7 @@ class DashboardController extends Controller
                 'type' => 'sales_balance',
                 'title' => $order->reference,
                 'subtitle' => $this->joinAttentionSegments([
-                    $order->customer?->name ?? 'Walk-in',
+                    $order->customer?->name ?? $order->customer_name ?? 'Walk-in',
                     'Balance '.$this->formatAttentionMoney((float) $order->balanceDue()),
                     $paymentStatus === 'partial' ? 'Partial' : 'Unpaid',
                 ]),

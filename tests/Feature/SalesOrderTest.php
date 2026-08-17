@@ -177,6 +177,7 @@ class SalesOrderTest extends TestCase
         $order = SalesOrder::query()->first();
         $this->assertNotNull($order);
         $this->assertNull($order->customer_id);
+        $this->assertNull($order->customer_name);
         $this->assertSame('25.00', $order->grand_total);
         $this->assertTrue(Str::isUuid($order->reference));
         $this->assertDatabaseHas('sales_order_items', [
@@ -226,10 +227,101 @@ class SalesOrderTest extends TestCase
 
         $order = SalesOrder::query()->first();
         $this->assertSame($customer->id, $order->customer_id);
+        $this->assertNull($order->customer_name);
         $this->assertSame('25.00', $order->grand_total);
         $this->assertSame(4, $productA->fresh()->quantity);
         $this->assertSame(1, $productB->fresh()->quantity);
         $this->assertSame(2, StockMovement::query()->where('type', StockMovementType::Sale)->count());
+    }
+
+    public function test_create_with_typed_customer_name_saves_guest_name_without_customer_id(): void
+    {
+        $admin = User::factory()->create();
+        $product = Product::factory()->available()->create(['quantity' => 5]);
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.store'), [
+                'customer_id' => null,
+                'customer_name' => 'Maria Santos',
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'selling_price' => '10.00',
+                        'quantity' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('sales-orders.index'));
+
+        $order = SalesOrder::query()->first();
+        $this->assertNotNull($order);
+        $this->assertNull($order->customer_id);
+        $this->assertSame('Maria Santos', $order->customer_name);
+
+        $this->actingAs($admin)
+            ->get(route('sales-orders.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('orders.data.0.id', $order->id)
+                ->where('orders.data.0.customer_id', null)
+                ->where('orders.data.0.customer_name', 'Maria Santos')
+            );
+    }
+
+    public function test_blank_or_whitespace_customer_name_is_stored_as_walk_in(): void
+    {
+        $admin = User::factory()->create();
+        $product = Product::factory()->available()->create(['quantity' => 5]);
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.store'), [
+                'customer_id' => '',
+                'customer_name' => '   ',
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'selling_price' => '10.00',
+                        'quantity' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('sales-orders.index'));
+
+        $order = SalesOrder::query()->first();
+        $this->assertNull($order->customer_id);
+        $this->assertNull($order->customer_name);
+    }
+
+    public function test_selected_customer_id_wins_over_typed_customer_name(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->active()->create(['name' => 'River Retail']);
+        $product = Product::factory()->available()->create(['quantity' => 5]);
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.store'), [
+                'customer_id' => $customer->id,
+                'customer_name' => 'Typed Over Name',
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'selling_price' => '10.00',
+                        'quantity' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('sales-orders.index'));
+
+        $order = SalesOrder::query()->first();
+        $this->assertSame($customer->id, $order->customer_id);
+        $this->assertNull($order->customer_name);
+
+        $this->actingAs($admin)
+            ->get(route('sales-orders.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('orders.data.0.customer_name', 'River Retail')
+            );
     }
 
     public function test_store_rejects_client_grand_total_and_recalculates_server_side(): void

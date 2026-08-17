@@ -29,6 +29,7 @@ export default function SalesOrderForm({
     const form = useForm({
         reference,
         customer_id: '',
+        customer_name: '',
         notes: '',
         items: [],
     });
@@ -64,7 +65,19 @@ export default function SalesOrderForm({
     );
 
     function selectCustomer(customer) {
-        form.setData('customer_id', customer?.id ?? '');
+        form.setData({
+            ...form.data,
+            customer_id: customer?.id ?? '',
+            customer_name: '',
+        });
+    }
+
+    function setCustomCustomerName(name) {
+        form.setData({
+            ...form.data,
+            customer_id: '',
+            customer_name: name,
+        });
     }
 
     function addProduct(product) {
@@ -149,19 +162,22 @@ export default function SalesOrderForm({
 
                 <SearchableSelect
                     id="customer_id"
-                    label="Customer (optional)"
-                    placeholder="Search customers… or leave blank for walk-in"
+                    label="Customer"
+                    placeholder="Search or type a name… leave blank for Walk-in"
                     options={customers}
                     value={selectedCustomer?.id ?? null}
                     onChange={selectCustomer}
+                    allowCustomValue
+                    customValue={form.data.customer_name}
+                    onCustomValueChange={setCustomCustomerName}
                     getOptionLabel={(customer) => customer.name}
                     getOptionMeta={(customer) =>
                         [customer.contact_name, customer.email]
                             .filter(Boolean)
                             .join(' · ')
                     }
-                    emptyMessage="No active customers match."
-                    error={form.errors.customer_id}
+                    emptyMessage="No matching customers. This name will be used on the order."
+                    error={form.errors.customer_id || form.errors.customer_name}
                     disabled={form.processing}
                 />
             </div>
@@ -232,9 +248,7 @@ export default function SalesOrderForm({
                                         </span>
                                         <span className="mt-0.5 block text-xs text-muted">
                                             Sell{' '}
-                                            {formatMoney(
-                                                product.selling_price,
-                                            )}{' '}
+                                            {formatMoney(product.selling_price)}{' '}
                                             · {product.quantity} on hand ·{' '}
                                             {product.status_label}
                                         </span>
@@ -362,7 +376,7 @@ export default function SalesOrderForm({
                                             </p>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3 font-medium tabular-nums text-ink">
+                                    <td className="px-4 py-3 font-medium text-ink tabular-nums">
                                         {formatMoney(subtotal)}
                                     </td>
                                     <td className="px-4 py-3 text-right">
@@ -409,7 +423,7 @@ export default function SalesOrderForm({
             <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-4">
                 <p className="text-sm text-ink-soft">
                     Grand total{' '}
-                    <span className="text-lg font-semibold tabular-nums text-ink">
+                    <span className="text-lg font-semibold text-ink tabular-nums">
                         {formatMoney(grandTotal)}
                     </span>
                 </p>

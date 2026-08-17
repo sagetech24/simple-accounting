@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 #[Fillable([
     'reference',
     'customer_id',
+    'customer_name',
     'grand_total',
     'notes',
 ])]
@@ -122,7 +123,7 @@ class SalesOrder extends Model
             'id' => $this->id,
             'reference' => $this->reference,
             'customer_id' => $this->customer_id,
-            'customer_name' => $this->customer?->name,
+            'customer_name' => $this->customer?->name ?? $this->customer_name,
             'grand_total' => $this->grand_total,
             'amount_paid' => $amountPaid,
             'balance_due' => $balanceDue,

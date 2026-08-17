@@ -28,6 +28,7 @@ class StoreSalesOrderRequest extends FormRequest
                 'integer',
                 Rule::exists('customers', 'id')->whereNull('deleted_at'),
             ],
+            'customer_name' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
@@ -97,18 +98,19 @@ class StoreSalesOrderRequest extends FormRequest
     }
 
     /**
-     * @return array{reference: ?string, customer_id: ?int, notes: ?string}
+     * @return array{reference: ?string, customer_id: ?int, customer_name: ?string, notes: ?string}
      */
     public function orderAttributes(): array
     {
         $validated = $this->validated();
         $customerId = $validated['customer_id'] ?? null;
+        $hasCustomer = $customerId !== null && $customerId !== '';
+        $guestName = trim((string) ($validated['customer_name'] ?? ''));
 
         return [
             'reference' => $validated['reference'] ?? null,
-            'customer_id' => $customerId !== null && $customerId !== ''
-                ? (int) $customerId
-                : null,
+            'customer_id' => $hasCustomer ? (int) $customerId : null,
+            'customer_name' => $hasCustomer || $guestName === '' ? null : $guestName,
             'notes' => $validated['notes'] ?? null,
         ];
     }

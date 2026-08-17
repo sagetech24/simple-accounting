@@ -22,6 +22,7 @@ class SalesOrderFactory extends Factory
         return [
             'reference' => (string) Str::uuid(),
             'customer_id' => null,
+            'customer_name' => null,
             'grand_total' => 0,
             'notes' => fake()->optional(0.3)->sentence(),
         ];
