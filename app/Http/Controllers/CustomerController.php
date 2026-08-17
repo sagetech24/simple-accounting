@@ -133,6 +133,10 @@ class CustomerController extends Controller
             'message' => 'Customer updated.',
         ]);
 
+        if ($request->input('return_to') === 'show') {
+            return redirect()->route('customers.show', $customer);
+        }
+
         return redirect()->route('customers.index');
     }
 
@@ -154,7 +158,7 @@ class CustomerController extends Controller
     /**
      * Restore a soft-deleted customer.
      */
-    public function restore(Customer $customer): RedirectResponse
+    public function restore(Request $request, Customer $customer): RedirectResponse
     {
         $customer->restore();
 
@@ -162,6 +166,10 @@ class CustomerController extends Controller
             'type' => 'success',
             'message' => 'Customer restored.',
         ]);
+
+        if ($request->input('return_to') === 'show') {
+            return redirect()->route('customers.show', $customer);
+        }
 
         return redirect()->route('customers.index');
     }

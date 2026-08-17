@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\CustomerStatus;
 use App\Models\Customer;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderPayment;
@@ -196,5 +197,73 @@ class CustomerProfileTest extends TestCase
                 ->where('payments.data.0.sales_order.id', $order->id)
                 ->where('payments.data.0.amount', '80.00')
             );
+    }
+
+    public function test_update_with_return_to_show_stays_on_profile(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->create(['name' => 'Old Name']);
+
+        $this->actingAs($admin)
+            ->put(route('customers.update', $customer), [
+                'name' => 'New Name',
+                'contact_name' => $customer->contact_name,
+                'email' => $customer->email,
+                'phone' => $customer->phone,
+                'address' => $customer->address,
+                'notes' => $customer->notes,
+                'status' => CustomerStatus::Active->value,
+                'return_to' => 'show',
+            ])
+            ->assertRedirect(route('customers.show', $customer));
+
+        $this->assertDatabaseHas('customers', [
+            'id' => $customer->id,
+            'name' => 'New Name',
+        ]);
+    }
+
+    public function test_update_without_return_to_still_goes_to_index(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->create(['name' => 'Old Name']);
+
+        $this->actingAs($admin)
+            ->put(route('customers.update', $customer), [
+                'name' => 'Index Name',
+                'contact_name' => $customer->contact_name,
+                'email' => $customer->email,
+                'phone' => $customer->phone,
+                'address' => $customer->address,
+                'notes' => $customer->notes,
+                'status' => CustomerStatus::Active->value,
+            ])
+            ->assertRedirect(route('customers.index'));
+    }
+
+    public function test_restore_with_return_to_show_stays_on_profile(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->create();
+        $customer->delete();
+
+        $this->actingAs($admin)
+            ->post(route('customers.restore', $customer), [
+                'return_to' => 'show',
+            ])
+            ->assertRedirect(route('customers.show', $customer));
+
+        $this->assertNotSoftDeleted($customer);
+    }
+
+    public function test_restore_without_return_to_still_goes_to_index(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->create();
+        $customer->delete();
+
+        $this->actingAs($admin)
+            ->post(route('customers.restore', $customer))
+            ->assertRedirect(route('customers.index'));
     }
 }
