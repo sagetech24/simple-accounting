@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\PurchasedOrder;
 use App\Models\RequestQuotation;
 use App\Models\SalesOrder;
+use App\Models\SalesOrderItem;
 use App\Models\StockMovement;
 use App\Services\DailySalesSeries;
 use Inertia\Inertia;
@@ -73,6 +74,7 @@ class DashboardController extends Controller
             'attention' => $this->attentionItems(),
             'productTrend' => $this->productTrend(),
             'dailySales' => $dailySales,
+            'topSold' => $this->topSold(),
         ]);
     }
 
@@ -150,6 +152,39 @@ class DashboardController extends Controller
                 'received_units' => array_sum($receivedUnits),
                 'adjustment_net' => array_sum($adjustmentNet),
             ],
+        ];
+    }
+
+    /**
+     * @return array{labels: list<string>, quantities: list<int>}
+     */
+    private function topSold(): array
+    {
+        $rows = SalesOrderItem::query()
+            ->selectRaw('sales_order_items.product_id, products.name, products.unit, SUM(sales_order_items.quantity) as quantity_sold')
+            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_items.sales_order_id')
+            ->join('products', 'products.id', '=', 'sales_order_items.product_id')
+            ->whereNull('sales_orders.deleted_at')
+            ->groupBy('sales_order_items.product_id', 'products.name', 'products.unit')
+            ->orderByDesc('quantity_sold')
+            ->orderBy('products.name')
+            ->limit(15)
+            ->get();
+
+        return [
+            'labels' => $rows
+                ->map(function ($row): string {
+                    $name = (string) $row->name;
+                    $unit = trim((string) $row->unit);
+
+                    return $unit === '' ? $name : $name.' ('.$unit.')';
+                })
+                ->values()
+                ->all(),
+            'quantities' => $rows
+                ->map(fn ($row): int => (int) $row->quantity_sold)
+                ->values()
+                ->all(),
         ];
     }
 

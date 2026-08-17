@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import ProductTrendChart from '@/components/product-trend-chart';
 import SalesDailySalesChart from '@/components/sales-daily-sales-chart';
+import TopSoldChart from '@/components/top-sold-chart';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
 import { index as accountsPayable } from '@/routes/accounts-payable';
@@ -14,8 +15,9 @@ const focusRing =
     'focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none';
 
 const chartTabs = [
-    { id: 'product-trend', label: 'Product Trend' },
     { id: 'sales-order', label: 'Sales Order' },
+    { id: 'top-sold', label: 'Top Sold' },
+    { id: 'product-trend', label: 'Product Trend' },
 ];
 
 const attentionTypes = {
@@ -43,7 +45,7 @@ const attentionTypes = {
 
 function MetricLegend({ colorClass, label, value }) {
     return (
-        <div className="rounded-md border border-line bg-soft px-3 py-2">
+        <div className="bg-soft rounded-md border border-line px-3 py-2">
             <p className="text-xs text-muted">{label}</p>
             <p className={`text-lg font-semibold tracking-tight ${colorClass}`}>
                 {value}
@@ -66,10 +68,16 @@ function KpiCard({ label, value, href }) {
     );
 }
 
-export default function Dashboard({ kpis, attention, productTrend, dailySales }) {
+export default function Dashboard({
+    kpis,
+    attention,
+    productTrend,
+    dailySales,
+    topSold,
+}) {
     const { settings } = usePage().props;
     const brand = settings?.brand_name || 'JMC Pundasyon';
-    const [chartTab, setChartTab] = useState('product-trend');
+    const [chartTab, setChartTab] = useState('sales-order');
     const salesCards = [
         {
             label: "Today's sales",
@@ -193,6 +201,45 @@ export default function Dashboard({ kpis, attention, productTrend, dailySales })
                         </div>
                     </div>
 
+                    {chartTab === 'sales-order' && (
+                        <div
+                            role="tabpanel"
+                            id="panel-sales-order"
+                            aria-labelledby="tab-sales-order"
+                        >
+                            <SalesDailySalesChart
+                                labels={dailySales?.labels ?? []}
+                                totals={dailySales?.totals ?? []}
+                                className="space-y-3 px-4 py-4"
+                                height={360}
+                            />
+                        </div>
+                    )}
+
+                    {chartTab === 'top-sold' && (
+                        <div
+                            role="tabpanel"
+                            id="panel-top-sold"
+                            aria-labelledby="tab-top-sold"
+                            className="space-y-4 p-4"
+                        >
+                            <div>
+                                <h3 className="text-lg font-semibold text-ink">
+                                    Top 15 most sold products
+                                </h3>
+                                <p className="text-xs text-muted">
+                                    Total quantity sold on active sales orders
+                                </p>
+                            </div>
+
+                            <TopSoldChart
+                                labels={topSold?.labels ?? []}
+                                quantities={topSold?.quantities ?? []}
+                                height={360}
+                            />
+                        </div>
+                    )}
+
                     {chartTab === 'product-trend' && (
                         <div
                             role="tabpanel"
@@ -237,21 +284,6 @@ export default function Dashboard({ kpis, attention, productTrend, dailySales })
                             </div>
                         </div>
                     )}
-
-                    {chartTab === 'sales-order' && (
-                        <div
-                            role="tabpanel"
-                            id="panel-sales-order"
-                            aria-labelledby="tab-sales-order"
-                        >
-                            <SalesDailySalesChart
-                                labels={dailySales?.labels ?? []}
-                                totals={dailySales?.totals ?? []}
-                                className="space-y-3 px-4 py-4"
-                                height={360}
-                            />
-                        </div>
-                    )}
                 </section>
 
                 <section
@@ -285,13 +317,13 @@ export default function Dashboard({ kpis, attention, productTrend, dailySales })
                                         className="grid min-h-16 cursor-pointer gap-2 px-4 py-3 transition duration-200 hover:bg-mist focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none focus-visible:ring-inset sm:grid-cols-[minmax(9rem,auto)_minmax(0,1fr)_minmax(8rem,auto)] sm:items-center sm:gap-4"
                                     >
                                         <span
-                                            className={`w-fit rounded-full border px-2.5 py-1 text-md font-bold ${type.className}`}
+                                            className={`text-md w-fit rounded-full border px-2.5 py-1 font-bold ${type.className}`}
                                         >
                                             {type.label}
                                         </span>
                                         <span className="min-w-0">
                                             {item.subtitle ? (
-                                                <span className="mt-0.5 block text-md font-medium wrap-break-word text-ink">
+                                                <span className="text-md mt-0.5 block font-medium wrap-break-word text-ink">
                                                     {item.subtitle}
                                                 </span>
                                             ) : null}

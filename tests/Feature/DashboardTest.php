@@ -10,6 +10,7 @@ use App\Models\PurchasedOrderPayment;
 use App\Models\RequestQuotation;
 use App\Models\RequestQuotationItem;
 use App\Models\SalesOrder;
+use App\Models\SalesOrderItem;
 use App\Models\SalesOrderPayment;
 use App\Models\Supplier;
 use App\Models\User;
@@ -45,6 +46,8 @@ class DashboardTest extends TestCase
                 ->where('kpis.sales_ar_balance_due', '0.00')
                 ->has('dailySales.labels', 90)
                 ->has('dailySales.totals', 90)
+                ->has('topSold.labels', 0)
+                ->has('topSold.quantities', 0)
                 ->where('attention', [])
             );
     }
@@ -294,6 +297,88 @@ class DashboardTest extends TestCase
                 ->where('attention.4.subtitle', '1 on hand · threshold 4')
                 ->where('attention.4.reason', 'Review stock')
                 ->where('attention.4.href', route('inventory.index', absolute: false))
+            );
+    }
+
+    public function test_dashboard_includes_top_15_sold_products_by_quantity(): void
+    {
+        $admin = User::factory()->create();
+
+        $top = Product::factory()->available()->create([
+            'name' => 'Best Seller',
+            'unit' => 'box',
+        ]);
+        $mid = Product::factory()->available()->create([
+            'name' => 'Mid Seller',
+            'unit' => null,
+        ]);
+        $voidedProduct = Product::factory()->available()->create([
+            'name' => 'Voided Seller',
+            'unit' => 'pcs',
+        ]);
+
+        $firstOrder = SalesOrder::factory()->create();
+        SalesOrderItem::factory()->create([
+            'sales_order_id' => $firstOrder->id,
+            'product_id' => $top->id,
+            'quantity' => 40,
+            'selling_price' => '10.00',
+            'subtotal' => '400.00',
+        ]);
+
+        $secondOrder = SalesOrder::factory()->create();
+        SalesOrderItem::factory()->create([
+            'sales_order_id' => $secondOrder->id,
+            'product_id' => $top->id,
+            'quantity' => 60,
+            'selling_price' => '10.00',
+            'subtotal' => '600.00',
+        ]);
+        SalesOrderItem::factory()->create([
+            'sales_order_id' => $secondOrder->id,
+            'product_id' => $mid->id,
+            'quantity' => 50,
+            'selling_price' => '8.00',
+            'subtotal' => '400.00',
+        ]);
+
+        $voidedOrder = SalesOrder::factory()->create();
+        SalesOrderItem::factory()->create([
+            'sales_order_id' => $voidedOrder->id,
+            'product_id' => $voidedProduct->id,
+            'quantity' => 999,
+            'selling_price' => '1.00',
+            'subtotal' => '999.00',
+        ]);
+        $voidedOrder->delete();
+
+        foreach (range(1, 16) as $index) {
+            $product = Product::factory()->available()->create([
+                'name' => sprintf('Filler %02d', $index),
+                'unit' => 'pcs',
+            ]);
+            $order = SalesOrder::factory()->create();
+            SalesOrderItem::factory()->create([
+                'sales_order_id' => $order->id,
+                'product_id' => $product->id,
+                'quantity' => $index,
+                'selling_price' => '1.00',
+                'subtotal' => number_format($index, 2, '.', ''),
+            ]);
+        }
+
+        $this->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('topSold.labels', 15)
+                ->has('topSold.quantities', 15)
+                ->where('topSold.labels.0', 'Best Seller (box)')
+                ->where('topSold.quantities.0', 100)
+                ->where('topSold.labels.1', 'Mid Seller')
+                ->where('topSold.quantities.1', 50)
+                ->where('topSold.labels.14', 'Filler 04 (pcs)')
+                ->where('topSold.quantities.14', 4)
             );
     }
 }
