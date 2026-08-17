@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 * @see app/Http/Controllers/SalesOrderController.php:153
 * @route '/sales-orders/{sales_order}/payments'
 */
-export const store = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const store = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(args, options),
     method: 'post',
 })
@@ -19,7 +19,7 @@ store.definition = {
 * @see app/Http/Controllers/SalesOrderController.php:153
 * @route '/sales-orders/{sales_order}/payments'
 */
-store.url = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+store.url = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { sales_order: args }
     }
@@ -52,7 +52,7 @@ store.url = (args: { sales_order: string | number | { id: string | number } } | 
 * @see app/Http/Controllers/SalesOrderController.php:153
 * @route '/sales-orders/{sales_order}/payments'
 */
-store.post = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+store.post = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(args, options),
     method: 'post',
 })
@@ -62,7 +62,7 @@ store.post = (args: { sales_order: string | number | { id: string | number } } |
 * @see app/Http/Controllers/SalesOrderController.php:153
 * @route '/sales-orders/{sales_order}/payments'
 */
-const storeForm = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const storeForm = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: store.url(args, options),
     method: 'post',
 })
@@ -72,7 +72,7 @@ const storeForm = (args: { sales_order: string | number | { id: string | number 
 * @see app/Http/Controllers/SalesOrderController.php:153
 * @route '/sales-orders/{sales_order}/payments'
 */
-storeForm.post = (args: { sales_order: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+storeForm.post = (args: { sales_order: number | { id: number } } | [sales_order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: store.url(args, options),
     method: 'post',
 })
@@ -84,7 +84,7 @@ store.form = storeForm
 * @see app/Http/Controllers/SalesOrderController.php:250
 * @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
 */
-export const destroy = (args: { sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { sales_order: number | { id: number }, sales_order_payment: number | { id: number } } | [sales_order: number | { id: number }, sales_order_payment: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -99,7 +99,7 @@ destroy.definition = {
 * @see app/Http/Controllers/SalesOrderController.php:250
 * @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
 */
-destroy.url = (args: { sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } ], options?: RouteQueryOptions) => {
+destroy.url = (args: { sales_order: number | { id: number }, sales_order_payment: number | { id: number } } | [sales_order: number | { id: number }, sales_order_payment: number | { id: number } ], options?: RouteQueryOptions) => {
     if (Array.isArray(args)) {
         args = {
             sales_order: args[0],
@@ -129,7 +129,7 @@ destroy.url = (args: { sales_order: string | number | { id: string | number }, s
 * @see app/Http/Controllers/SalesOrderController.php:250
 * @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
 */
-destroy.delete = (args: { sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { sales_order: number | { id: number }, sales_order_payment: number | { id: number } } | [sales_order: number | { id: number }, sales_order_payment: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -139,7 +139,7 @@ destroy.delete = (args: { sales_order: string | number | { id: string | number }
 * @see app/Http/Controllers/SalesOrderController.php:250
 * @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
 */
-const destroyForm = (args: { sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const destroyForm = (args: { sales_order: number | { id: number }, sales_order_payment: number | { id: number } } | [sales_order: number | { id: number }, sales_order_payment: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'DELETE',
@@ -154,7 +154,7 @@ const destroyForm = (args: { sales_order: string | number | { id: string | numbe
 * @see app/Http/Controllers/SalesOrderController.php:250
 * @route '/sales-orders/{sales_order}/payments/{sales_order_payment}'
 */
-destroyForm.delete = (args: { sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } } | [sales_order: string | number | { id: string | number }, sales_order_payment: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+destroyForm.delete = (args: { sales_order: number | { id: number }, sales_order_payment: number | { id: number } } | [sales_order: number | { id: number }, sales_order_payment: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'DELETE',
