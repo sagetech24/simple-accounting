@@ -6,7 +6,7 @@ import {
 } from '@/actions/App/Http/Controllers/CustomerController';
 import CustomerModal from '@/components/customer-modal';
 import AppLayout from '@/layouts/app-layout';
-import { index } from '@/routes/customers';
+import { index, show } from '@/routes/customers';
 
 const sortableColumns = [
     { key: 'name', label: 'Customer' },
@@ -41,7 +41,7 @@ function SortableHeader({ column, label, sort, direction, onSort }) {
     const nextDirection = active && direction === 'asc' ? 'desc' : 'asc';
 
     return (
-        <th className="py-3 pr-4 font-medium px-4">
+        <th className="px-4 py-3 pr-4 font-medium">
             <button
                 type="button"
                 onClick={() => onSort(column, nextDirection)}
@@ -68,6 +68,7 @@ function RowActionsMenu({
     open,
     onToggle,
     onClose,
+    onView,
     onEdit,
     onDelete,
     onRestore,
@@ -130,6 +131,17 @@ function RowActionsMenu({
                     role="menu"
                     className="absolute top-0 right-6 z-20 min-w-28 rounded-md border border-line bg-white py-1"
                 >
+                    <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                            onClose();
+                            onView(customer);
+                        }}
+                        className="block w-full px-3 py-2 text-left text-sm text-ink-soft transition hover:bg-mist hover:text-ink"
+                    >
+                        View
+                    </button>
                     {!isDeleted && (
                         <>
                             <button
@@ -179,7 +191,11 @@ export default function CustomersIndex({ customers, filters, statuses }) {
     const [q, setQ] = useState(filters.q ?? '');
     const [trashed, setTrashed] = useState(filters.trashed ?? '');
     const [openMenuId, setOpenMenuId] = useState(null);
-    const [modal, setModal] = useState({ open: false, mode: 'create', customer: null });
+    const [modal, setModal] = useState({
+        open: false,
+        mode: 'create',
+        customer: null,
+    });
     const sort = filters.sort ?? 'name';
     const direction = filters.direction ?? 'asc';
 
@@ -290,7 +306,7 @@ export default function CustomersIndex({ customers, filters, statuses }) {
 
             <form
                 onSubmit={submitSearch}
-                className="sm:mt-4 mt-12 flex flex-col gap-3 sm:flex-row sm:items-end p-4"
+                className="mt-12 flex flex-col gap-3 p-4 sm:mt-4 sm:flex-row sm:items-end"
             >
                 <div className="flex w-1/4">
                     <input
@@ -357,7 +373,7 @@ export default function CustomersIndex({ customers, filters, statuses }) {
                             <tr>
                                 <td
                                     colSpan={4}
-                                    className="py-10 text-muted text-center"
+                                    className="py-10 text-center text-muted"
                                 >
                                     No customers match these filters.
                                 </td>
@@ -371,33 +387,32 @@ export default function CustomersIndex({ customers, filters, statuses }) {
                                     key={customer.id}
                                     className="border-b border-line/80 align-top"
                                 >
-                                    <td className="py-4 pr-4 px-4">
-                                        <p
+                                    <td className="px-4 py-4 pr-4">
+                                        <Link
+                                            href={show.url(customer.id)}
                                             className={
                                                 isDeleted
-                                                    ? 'font-medium text-muted line-through'
-                                                    : 'font-medium text-ink'
+                                                    ? 'font-medium text-muted line-through underline-offset-2 hover:underline'
+                                                    : 'font-medium text-ink underline-offset-2 transition hover:text-teal-800 hover:underline'
                                             }
                                         >
                                             {customer.name}
-                                        </p>
+                                        </Link>
                                         {customer.email && (
                                             <p className="mt-1 text-xs text-muted">
                                                 {customer.email}
                                             </p>
                                         )}
                                     </td>
-                                    <td className="py-4 pr-4 text-ink-soft px-4">
-                                        <p>
-                                            {customer.contact_name || '—'}
-                                        </p>
+                                    <td className="px-4 py-4 pr-4 text-ink-soft">
+                                        <p>{customer.contact_name || '—'}</p>
                                         {customer.phone && (
                                             <p className="mt-1 text-xs text-muted">
                                                 {customer.phone}
                                             </p>
                                         )}
                                     </td>
-                                    <td className="py-4 pr-4 text-ink-soft px-4">
+                                    <td className="px-4 py-4 pr-4 text-ink-soft">
                                         <span
                                             className={`rounded-full border px-3 py-1 text-xs ${
                                                 customer.status === 'active'
@@ -420,6 +435,9 @@ export default function CustomersIndex({ customers, filters, statuses }) {
                                                 )
                                             }
                                             onClose={() => setOpenMenuId(null)}
+                                            onView={(row) =>
+                                                router.visit(show.url(row.id))
+                                            }
                                             onEdit={openEditModal}
                                             onDelete={deleteCustomer}
                                             onRestore={restoreCustomer}
@@ -433,7 +451,7 @@ export default function CustomersIndex({ customers, filters, statuses }) {
             </div>
 
             {customers.last_page > 1 && (
-                <div className="mt-8 px-4 mb-4 flex flex-wrap items-center gap-2 text-sm">
+                <div className="mt-8 mb-4 flex flex-wrap items-center gap-2 px-4 text-sm">
                     {customers.links.map((link, i) => {
                         if (!link.url) {
                             return (

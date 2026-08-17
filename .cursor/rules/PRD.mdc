@@ -103,11 +103,14 @@ Admin product management lives under `/admin/products` (also auth-gated). `/rece
 
 ### Customers UX
 
-- Single index page (`/customers`) — **no** dedicated create/edit routes or pages
-- Create / edit in a **slide-down modal** on the index
-- List: search (`q`), trash filter (`trashed=only|with`), sortable columns (`name`, `contact_name`, `status`)
-- Soft delete + restore; toast flash on mutations
-- Resource routes: `index`, `store`, `update`, `destroy` + `customers.restore` (withTrashed)
+- Index page (`/customers`) — create / edit in a **slide-down modal** on the list (no dedicated create/edit pages)
+- Profile (`/customers/{id}`) — contact details, KPI strip (order count, lifetime sales, outstanding, last order), tabs Orders | Payments
+- Orders tab: this customer’s `customer_id` sales only; trash filter for voided; read-only order detail modal (no add/void payment)
+- Payments tab: payments on those orders; click reference opens the same read-only detail
+- Walk-in and typed guest `customer_name` sales stay on Sales Orders — they never appear on a customer profile
+- List: search (`q`), trash filter (`trashed=only|with`), sortable columns (`name`, `contact_name`, `status`); name and View open the profile
+- Soft delete + restore; toast flash on mutations; edit/restore from the profile stay on show (`return_to=show`)
+- Resource routes: `index`, `show`, `store`, `update`, `destroy` + `customers.restore` (withTrashed)
 
 ---
 

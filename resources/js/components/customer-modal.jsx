@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { store, update } from '@/actions/App/Http/Controllers/CustomerController';
+import {
+    store,
+    update,
+} from '@/actions/App/Http/Controllers/CustomerController';
 import CustomerForm from '@/components/customer-form';
 
 export default function CustomerModal({
@@ -8,6 +11,7 @@ export default function CustomerModal({
     mode,
     customer,
     statuses,
+    returnTo,
     onClose,
 }) {
     useEffect(() => {
@@ -100,6 +104,12 @@ export default function CustomerModal({
                             };
 
                             if (isEdit) {
+                                if (returnTo) {
+                                    form.transform((data) => ({
+                                        ...data,
+                                        return_to: returnTo,
+                                    }));
+                                }
                                 form.put(update.url(customer.id), options);
                             } else {
                                 form.post(store.url(), options);
