@@ -6,8 +6,11 @@ use App\Enums\CustomerStatus;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Customer;
+use App\Models\SalesOrder;
+use App\Models\SalesOrderPayment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -49,6 +52,54 @@ class CustomerController extends Controller
                 'trashed' => $trashed ?? '',
                 'sort' => $sort,
                 'direction' => $direction,
+            ],
+        ]);
+    }
+
+    /**
+     * Customer profile: details, KPIs, sales orders, and payments.
+     */
+    public function show(Request $request, Customer $customer): Response
+    {
+        $filters = $request->validate([
+            'tab' => ['nullable', 'string', Rule::in(['orders', 'payments'])],
+            'trashed' => ['nullable', 'string', Rule::in(['only', 'with'])],
+        ]);
+
+        $tab = $filters['tab'] ?? 'orders';
+        $trashed = $filters['trashed'] ?? '';
+
+        $orders = $customer->salesOrders()
+            ->with(['customer', 'items.product', 'payments.bankCheck.bankAccount'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(8, ['*'], 'orders_page')
+            ->withQueryString()
+            ->through(fn (SalesOrder $order) => $order->toArrayPayload());
+
+        $payments = SalesOrderPayment::query()
+            ->whereHas('salesOrder', fn ($query) => $query->where('customer_id', $customer->id))
+            ->with([
+                'bankCheck.bankAccount',
+                'salesOrder.customer',
+                'salesOrder.items.product',
+                'salesOrder.payments.bankCheck.bankAccount',
+            ])
+            ->orderByDesc('paid_at')
+            ->orderByDesc('id')
+            ->paginate(8, ['*'], 'payments_page')
+            ->withQueryString()
+            ->through(fn (SalesOrderPayment $payment) => $this->paymentProfilePayload($payment));
+
+        return Inertia::render('customers/show', [
+            'customer' => $customer->toArrayPayload(),
+            'kpis' => $this->customerKpis($customer),
+            'orders' => $orders,
+            'payments' => $payments,
+            'statuses' => $this->statusOptions(),
+            'filters' => [
+                'tab' => $tab,
+                'trashed' => $trashed,
             ],
         ]);
     }
@@ -111,6 +162,44 @@ class CustomerController extends Controller
         ]);
 
         return redirect()->route('customers.index');
+    }
+
+    /**
+     * @return array{order_count: int, lifetime_sales: string, outstanding: string, last_order_at: ?string}
+     */
+    private function customerKpis(Customer $customer): array
+    {
+        $activeOrders = $customer->salesOrders();
+        $lifetime = (float) (clone $activeOrders)->sum('grand_total');
+        $paid = (float) SalesOrderPayment::query()
+            ->whereHas(
+                'salesOrder',
+                fn ($query) => $query->where('customer_id', $customer->id)->whereNull('deleted_at'),
+            )
+            ->sum('amount');
+        $lastOrderAt = (clone $activeOrders)->max('created_at');
+
+        return [
+            'order_count' => (clone $activeOrders)->count(),
+            'lifetime_sales' => number_format($lifetime, 2, '.', ''),
+            'outstanding' => number_format(max(0, $lifetime - $paid), 2, '.', ''),
+            'last_order_at' => $lastOrderAt
+                ? Carbon::parse($lastOrderAt)->toIso8601String()
+                : null,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function paymentProfilePayload(SalesOrderPayment $payment): array
+    {
+        $order = $payment->salesOrder;
+
+        return array_merge($payment->toArrayPayload(), [
+            'sales_order_reference' => $order?->reference,
+            'sales_order' => $order?->toArrayPayload(),
+        ]);
     }
 
     /**

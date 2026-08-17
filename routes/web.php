@@ -44,6 +44,9 @@ Route::middleware('auth')->group(function () {
     Route::post('customers/{customer}/restore', [CustomerController::class, 'restore'])
         ->withTrashed()
         ->name('customers.restore');
+    Route::get('customers/{customer}', [CustomerController::class, 'show'])
+        ->withTrashed()
+        ->name('customers.show');
     Route::resource('customers', CustomerController::class)->except(['show', 'create', 'edit']);
 
     Route::post('sales-orders/{sales_order}/restore', [SalesOrderController::class, 'restore'])
