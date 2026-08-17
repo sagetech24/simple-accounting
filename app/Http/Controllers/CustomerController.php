@@ -70,6 +70,8 @@ class CustomerController extends Controller
         $trashed = $filters['trashed'] ?? '';
 
         $orders = $customer->salesOrders()
+            ->when($trashed === 'only', fn ($builder) => $builder->onlyTrashed())
+            ->when($trashed === 'with', fn ($builder) => $builder->withTrashed())
             ->with(['customer', 'items.product', 'payments.bankCheck.bankAccount'])
             ->orderByDesc('created_at')
             ->orderByDesc('id')
