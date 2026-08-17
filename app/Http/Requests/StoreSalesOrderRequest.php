@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Enums\CustomerStatus;
+use App\Enums\SalesOrderDiscountType;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\SalesOrderItem;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -14,6 +16,17 @@ class StoreSalesOrderRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->input('discount_type') === '') {
+            $this->merge(['discount_type' => null]);
+        }
+
+        if ($this->input('discount_value') === '') {
+            $this->merge(['discount_value' => null]);
+        }
     }
 
     /**
@@ -29,6 +42,8 @@ class StoreSalesOrderRequest extends FormRequest
                 Rule::exists('customers', 'id')->whereNull('deleted_at'),
             ],
             'customer_name' => ['nullable', 'string', 'max:255'],
+            'discount_type' => ['nullable', Rule::enum(SalesOrderDiscountType::class)],
+            'discount_value' => ['nullable', 'numeric', 'min:0', 'decimal:0,2'],
             'notes' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
@@ -78,10 +93,16 @@ class StoreSalesOrderRequest extends FormRequest
                 ->get()
                 ->keyBy('id');
 
+            $subtotal = 0.0;
+
             foreach ($items as $index => $item) {
                 $productId = (int) $item['product_id'];
                 $quantity = (int) $item['quantity'];
                 $product = $products->get($productId);
+                $subtotal += (float) SalesOrderItem::calculateSubtotal(
+                    $item['selling_price'] ?? 0,
+                    $quantity,
+                );
 
                 if ($product === null) {
                     continue;
@@ -91,6 +112,37 @@ class StoreSalesOrderRequest extends FormRequest
                     $validator->errors()->add(
                         "items.{$index}.quantity",
                         "Only {$product->quantity} on hand for {$product->name}.",
+                    );
+                }
+            }
+
+            $discountType = SalesOrderDiscountType::tryFrom((string) $this->input('discount_type', ''))
+                ?? SalesOrderDiscountType::None;
+            $discountValue = is_numeric($this->input('discount_value'))
+                ? (float) $this->input('discount_value')
+                : 0.0;
+
+            if ($discountType === SalesOrderDiscountType::Percent && $discountValue > 100) {
+                $validator->errors()->add(
+                    'discount_value',
+                    'Percent discount cannot exceed 100.',
+                );
+            }
+
+            if ($discountType === SalesOrderDiscountType::Amount && $discountValue > $subtotal + 0.00001) {
+                $validator->errors()->add(
+                    'discount_value',
+                    'Discount cannot exceed the order subtotal.',
+                );
+            }
+
+            if ($discountType === SalesOrderDiscountType::Percent) {
+                $discountAmount = round($subtotal * ($discountValue / 100), 2);
+
+                if ($discountAmount > $subtotal + 0.00001) {
+                    $validator->errors()->add(
+                        'discount_value',
+                        'Discount cannot exceed the order subtotal.',
                     );
                 }
             }

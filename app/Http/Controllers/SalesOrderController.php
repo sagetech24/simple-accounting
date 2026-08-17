@@ -117,12 +117,17 @@ class SalesOrderController extends Controller
         $createdBy = $request->user()?->name ?? 'Unknown';
 
         try {
-            DB::transaction(function () use ($attributes, $items, $stock, $createdBy): void {
-                [$grandTotal, $lineRows] = $this->buildLineRows($items);
+            DB::transaction(function () use ($attributes, $items, $stock, $createdBy, $request): void {
+                [$subtotal, $lineRows] = $this->buildLineRows($items);
+                $totals = SalesOrder::calculateHeaderTotals(
+                    $subtotal,
+                    $request->validated('discount_type'),
+                    $request->validated('discount_value'),
+                );
 
                 $order = SalesOrder::query()->create([
                     ...$attributes,
-                    'grand_total' => $grandTotal,
+                    ...$totals,
                 ]);
 
                 $order->items()->createMany($lineRows);
@@ -329,25 +334,25 @@ class SalesOrderController extends Controller
      */
     private function buildLineRows(array $items): array
     {
-        $grandTotal = '0.00';
+        $subtotal = '0.00';
         $lineRows = [];
 
         foreach ($items as $item) {
-            $subtotal = SalesOrderItem::calculateSubtotal(
+            $lineSubtotal = SalesOrderItem::calculateSubtotal(
                 $item['selling_price'],
                 $item['quantity'],
             );
-            $grandTotal = number_format((float) $grandTotal + (float) $subtotal, 2, '.', '');
+            $subtotal = number_format((float) $subtotal + (float) $lineSubtotal, 2, '.', '');
 
             $lineRows[] = [
                 'product_id' => $item['product_id'],
                 'selling_price' => $item['selling_price'],
                 'quantity' => $item['quantity'],
-                'subtotal' => $subtotal,
+                'subtotal' => $lineSubtotal,
             ];
         }
 
-        return [$grandTotal, $lineRows];
+        return [$subtotal, $lineRows];
     }
 
     /**

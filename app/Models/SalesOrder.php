@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SalesOrderDiscountType;
 use Database\Factories\SalesOrderFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,10 @@ use Illuminate\Support\Str;
     'reference',
     'customer_id',
     'customer_name',
+    'subtotal',
+    'discount_type',
+    'discount_value',
+    'discount_amount',
     'grand_total',
     'notes',
 ])]
@@ -38,6 +43,10 @@ class SalesOrder extends Model
     protected function casts(): array
     {
         return [
+            'subtotal' => 'decimal:2',
+            'discount_type' => SalesOrderDiscountType::class,
+            'discount_value' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
             'grand_total' => 'decimal:2',
         ];
     }
@@ -124,6 +133,10 @@ class SalesOrder extends Model
             'reference' => $this->reference,
             'customer_id' => $this->customer_id,
             'customer_name' => $this->customer?->name ?? $this->customer_name,
+            'subtotal' => $this->subtotal,
+            'discount_type' => $this->discount_type->value,
+            'discount_value' => $this->discount_value,
+            'discount_amount' => $this->discount_amount,
             'grand_total' => $this->grand_total,
             'amount_paid' => $amountPaid,
             'balance_due' => $balanceDue,
@@ -143,6 +156,45 @@ class SalesOrder extends Model
             'can_restore' => $this->deleted_at !== null,
             'deleted_at' => $this->deleted_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
+        ];
+    }
+
+    /**
+     * @return array{
+     *     subtotal: string,
+     *     discount_type: SalesOrderDiscountType,
+     *     discount_value: string,
+     *     discount_amount: string,
+     *     grand_total: string
+     * }
+     */
+    public static function calculateHeaderTotals(
+        string $subtotal,
+        ?string $discountType,
+        mixed $discountValue,
+    ): array {
+        $type = SalesOrderDiscountType::tryFrom((string) $discountType)
+            ?? SalesOrderDiscountType::None;
+        $value = is_numeric($discountValue) ? (float) $discountValue : 0.0;
+
+        if ($value <= 0) {
+            $type = SalesOrderDiscountType::None;
+            $value = 0.0;
+        }
+
+        $subtotalAmount = (float) $subtotal;
+        $discountAmount = match ($type) {
+            SalesOrderDiscountType::None => 0.0,
+            SalesOrderDiscountType::Percent => round($subtotalAmount * ($value / 100), 2),
+            SalesOrderDiscountType::Amount => round($value, 2),
+        };
+
+        return [
+            'subtotal' => number_format($subtotalAmount, 2, '.', ''),
+            'discount_type' => $type,
+            'discount_value' => number_format($value, 2, '.', ''),
+            'discount_amount' => number_format($discountAmount, 2, '.', ''),
+            'grand_total' => number_format(max(0, $subtotalAmount - $discountAmount), 2, '.', ''),
         ];
     }
 }

@@ -165,7 +165,9 @@ Admin product management lives under `/admin/products` (also auth-gated). `/rece
 | `reference` | Unique UUID; auto-generated |
 | `customer_id` | Nullable; active customer when set |
 | `customer_name` | Nullable guest label when no `customer_id`; blank/empty displays as **Walk-in** |
-| `grand_total` | Decimal; **server-calculated** from line subtotals |
+| `subtotal` | Decimal; **server-calculated** sum of line subtotals |
+| `discount_type` / `discount_value` / `discount_amount` | Optional order-level discount (`none` \| `percent` \| `amount`); amount is server-calculated; cannot exceed subtotal |
+| `grand_total` | Decimal; **server-calculated** net after discount (`subtotal − discount_amount`) |
 | `notes` | Nullable text |
 | `amount_paid` / `balance_due` | Derived from `sales_order_payments`; not stored on the order |
 | `payment_status` | `unpaid` \| `partial` \| `paid` |
@@ -179,7 +181,7 @@ Admin product management lives under `/admin/products` (also auth-gated). `/rece
 - Single index page (`/sales-orders`) with **list** + **create** tabs (no edit after save)
 - List: Unpaid / Partial / Paid chip; 3-dot **Add Payment** then **Void** (Void only while unpaid); trash filter; detail modal
 - Detail: payment list + void payment; Add Payment while balance remains
-- Create: optional customer (dropdown pick, typed guest name, or blank Walk-in), product lines, live totals; save posts stock immediately
+- Create: optional customer (dropdown pick, typed guest name, or blank Walk-in), product lines, optional order discount (₱ or %), live totals; save posts stock immediately
 - Routes: `index`, `store`, `destroy`, `sales-orders.restore`, `sales-orders.payments.store`, `sales-orders.payments.destroy`
 
 ---

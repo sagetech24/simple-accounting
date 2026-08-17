@@ -2,7 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import { store } from '@/actions/App/Http/Controllers/SalesOrderController';
 import SearchableSelect from '@/components/searchable-select';
-import { formatDecimal, formatMoney } from '@/lib/format-money';
+import { currencyPrefix, formatDecimal, formatMoney } from '@/lib/format-money';
 import { formatProductLabel } from '@/lib/format-product-label';
 
 function lineSubtotal(sellingPrice, quantity) {
@@ -14,6 +14,20 @@ function lineSubtotal(sellingPrice, quantity) {
     }
 
     return price * qty;
+}
+
+function headerDiscountAmount(subtotal, type, value) {
+    const amount = Number(value);
+
+    if (Number.isNaN(amount) || amount <= 0) {
+        return 0;
+    }
+
+    if (type === 'percent') {
+        return Math.round(subtotal * amount) / 100;
+    }
+
+    return Math.round(amount * 100) / 100;
 }
 
 export default function SalesOrderForm({
@@ -30,6 +44,8 @@ export default function SalesOrderForm({
         reference,
         customer_id: '',
         customer_name: '',
+        discount_type: 'amount',
+        discount_value: '',
         notes: '',
         items: [],
     });
@@ -54,7 +70,7 @@ export default function SalesOrderForm({
         );
     }, [availableProducts, productQuery]);
 
-    const grandTotal = useMemo(
+    const subtotal = useMemo(
         () =>
             form.data.items.reduce(
                 (sum, item) =>
@@ -63,6 +79,18 @@ export default function SalesOrderForm({
             ),
         [form.data.items],
     );
+
+    const discountAmount = useMemo(
+        () =>
+            headerDiscountAmount(
+                subtotal,
+                form.data.discount_type,
+                form.data.discount_value,
+            ),
+        [subtotal, form.data.discount_type, form.data.discount_value],
+    );
+
+    const grandTotal = Math.max(0, subtotal - discountAmount);
 
     function selectCustomer(customer) {
         form.setData({
@@ -420,13 +448,105 @@ export default function SalesOrderForm({
                 )}
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-4">
-                <p className="text-sm text-ink-soft">
-                    Grand total{' '}
-                    <span className="text-lg font-semibold text-ink tabular-nums">
-                        {formatMoney(grandTotal)}
-                    </span>
-                </p>
+            <div className="flex flex-col gap-4 border-t border-line pt-4 lg:flex-row lg:items-end lg:justify-between">
+                <div className="w-full max-w-sm space-y-3">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                        <span className="text-ink-soft">Subtotal</span>
+                        <span className="text-ink tabular-nums">
+                            {formatMoney(subtotal)}
+                        </span>
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="discount_value"
+                            className="mb-1.5 block text-sm font-medium text-ink-soft"
+                        >
+                            Discount
+                        </label>
+                        <div className="flex items-stretch gap-2">
+                            <div className="inline-flex overflow-hidden rounded-md border border-line">
+                                <button
+                                    type="button"
+                                    disabled={form.processing}
+                                    onClick={() =>
+                                        form.setData('discount_type', 'amount')
+                                    }
+                                    className={`min-h-11 min-w-11 cursor-pointer px-3 text-sm font-medium transition ${
+                                        form.data.discount_type === 'amount'
+                                            ? 'bg-teal-700 text-paper'
+                                            : 'bg-white text-ink-soft hover:bg-mist'
+                                    } disabled:opacity-60`}
+                                >
+                                    {currencyPrefix()}
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={form.processing}
+                                    onClick={() =>
+                                        form.setData('discount_type', 'percent')
+                                    }
+                                    className={`min-h-11 min-w-11 cursor-pointer border-l border-line px-3 text-sm font-medium transition ${
+                                        form.data.discount_type === 'percent'
+                                            ? 'bg-teal-700 text-paper'
+                                            : 'bg-white text-ink-soft hover:bg-mist'
+                                    } disabled:opacity-60`}
+                                >
+                                    %
+                                </button>
+                            </div>
+                            <input
+                                id="discount_value"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                max={
+                                    form.data.discount_type === 'percent'
+                                        ? '100'
+                                        : undefined
+                                }
+                                value={form.data.discount_value}
+                                disabled={form.processing}
+                                placeholder="0"
+                                onChange={(event) =>
+                                    form.setData(
+                                        'discount_value',
+                                        event.target.value,
+                                    )
+                                }
+                                className="min-h-11 min-w-0 flex-1 border border-line bg-white px-3 text-ink outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-60"
+                            />
+                        </div>
+                        {form.errors.discount_type && (
+                            <p className="mt-1.5 text-sm text-warn">
+                                {form.errors.discount_type}
+                            </p>
+                        )}
+                        {form.errors.discount_value && (
+                            <p className="mt-1.5 text-sm text-warn">
+                                {form.errors.discount_value}
+                            </p>
+                        )}
+                    </div>
+
+                    {discountAmount > 0 ? (
+                        <div className="flex items-center justify-between gap-3 text-sm">
+                            <span className="text-ink-soft">Less discount</span>
+                            <span className="text-ink tabular-nums">
+                                −{formatMoney(discountAmount)}
+                            </span>
+                        </div>
+                    ) : null}
+
+                    <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm text-ink-soft">
+                            Grand total
+                        </span>
+                        <span className="text-lg font-semibold text-ink tabular-nums">
+                            {formatMoney(grandTotal)}
+                        </span>
+                    </div>
+                </div>
                 <div className="flex flex-wrap gap-2">
                     {onCancel ? (
                         <button

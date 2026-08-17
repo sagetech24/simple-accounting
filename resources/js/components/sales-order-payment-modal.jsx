@@ -203,6 +203,13 @@ export default function SalesOrderPaymentModal({
                             <p className="mt-1 text-sm font-medium text-ink">
                                 {formatMoney(order.grand_total)}
                             </p>
+                            {Number(order.discount_amount) > 0 ? (
+                                <p className="mt-0.5 text-xs text-muted">
+                                    Includes{' '}
+                                    {formatMoney(order.discount_amount)}{' '}
+                                    discount
+                                </p>
+                            ) : null}
                         </div>
                         <div>
                             <p className="text-xs tracking-wide text-muted uppercase">

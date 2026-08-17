@@ -536,11 +536,23 @@ export default function SalesOrdersIndex({
                                                     </span>
                                                 </div>
                                                 <div className="flex items-end justify-between gap-2">
-                                                    <p className="text-lg font-semibold text-ink tabular-nums">
-                                                        {formatMoney(
-                                                            order.grand_total,
-                                                        )}
-                                                    </p>
+                                                    <div>
+                                                        <p className="text-lg font-semibold text-ink tabular-nums">
+                                                            {formatMoney(
+                                                                order.grand_total,
+                                                            )}
+                                                        </p>
+                                                        {Number(
+                                                            order.discount_amount,
+                                                        ) > 0 ? (
+                                                            <p className="text-xs text-muted">
+                                                                Disc.{' '}
+                                                                {formatMoney(
+                                                                    order.discount_amount,
+                                                                )}
+                                                            </p>
+                                                        ) : null}
+                                                    </div>
                                                     <p className="text-xs text-muted">
                                                         {created.date}
                                                         {created.time
@@ -631,6 +643,16 @@ export default function SalesOrdersIndex({
                                                             {formatMoney(
                                                                 order.grand_total,
                                                             )}
+                                                            {Number(
+                                                                order.discount_amount,
+                                                            ) > 0 ? (
+                                                                <span className="mt-0.5 block text-xs font-normal text-muted">
+                                                                    Disc.{' '}
+                                                                    {formatMoney(
+                                                                        order.discount_amount,
+                                                                    )}
+                                                                </span>
+                                                            ) : null}
                                                         </td>
                                                         <td className="px-4 py-3">
                                                             {paymentStatusBadge(

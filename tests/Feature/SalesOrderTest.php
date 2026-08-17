@@ -347,6 +347,185 @@ class SalesOrderTest extends TestCase
         ]);
     }
 
+    public function test_store_applies_percent_discount_on_header_subtotal(): void
+    {
+        $admin = User::factory()->create();
+        $product = Product::factory()->available()->create(['quantity' => 10]);
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.store'), [
+                'discount_type' => 'percent',
+                'discount_value' => '10',
+                'discount_amount' => '999.00',
+                'grand_total' => '0.00',
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'selling_price' => '40.00',
+                        'quantity' => 2,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('sales-orders.index'));
+
+        $order = SalesOrder::query()->first();
+        $this->assertSame('80.00', $order->subtotal);
+        $this->assertSame('percent', $order->discount_type->value);
+        $this->assertSame('10.00', $order->discount_value);
+        $this->assertSame('8.00', $order->discount_amount);
+        $this->assertSame('72.00', $order->grand_total);
+
+        $this->actingAs($admin)
+            ->get(route('sales-orders.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('orders.data.0.subtotal', '80.00')
+                ->where('orders.data.0.discount_type', 'percent')
+                ->where('orders.data.0.discount_value', '10.00')
+                ->where('orders.data.0.discount_amount', '8.00')
+                ->where('orders.data.0.grand_total', '72.00')
+                ->where('orders.data.0.balance_due', '72.00')
+            );
+    }
+
+    public function test_store_applies_amount_discount_and_ignores_client_totals(): void
+    {
+        $admin = User::factory()->create();
+        $productA = Product::factory()->available()->create(['quantity' => 5]);
+        $productB = Product::factory()->available()->create(['quantity' => 5]);
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.store'), [
+                'discount_type' => 'amount',
+                'discount_value' => '15.50',
+                'items' => [
+                    [
+                        'product_id' => $productA->id,
+                        'selling_price' => '20.00',
+                        'quantity' => 1,
+                    ],
+                    [
+                        'product_id' => $productB->id,
+                        'selling_price' => '10.00',
+                        'quantity' => 3,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('sales-orders.index'));
+
+        $order = SalesOrder::query()->first();
+        $this->assertSame('50.00', $order->subtotal);
+        $this->assertSame('amount', $order->discount_type->value);
+        $this->assertSame('15.50', $order->discount_value);
+        $this->assertSame('15.50', $order->discount_amount);
+        $this->assertSame('34.50', $order->grand_total);
+    }
+
+    public function test_blank_discount_is_stored_as_none(): void
+    {
+        $admin = User::factory()->create();
+        $product = Product::factory()->available()->create(['quantity' => 5]);
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.store'), [
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'selling_price' => '10.00',
+                        'quantity' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('sales-orders.index'));
+
+        $order = SalesOrder::query()->first();
+        $this->assertSame('10.00', $order->subtotal);
+        $this->assertSame('none', $order->discount_type->value);
+        $this->assertSame('0.00', $order->discount_value);
+        $this->assertSame('0.00', $order->discount_amount);
+        $this->assertSame('10.00', $order->grand_total);
+    }
+
+    public function test_store_rejects_percent_discount_over_100(): void
+    {
+        $admin = User::factory()->create();
+        $product = Product::factory()->available()->create(['quantity' => 5]);
+
+        $this->actingAs($admin)
+            ->from(route('sales-orders.index'))
+            ->post(route('sales-orders.store'), [
+                'discount_type' => 'percent',
+                'discount_value' => '150',
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'selling_price' => '10.00',
+                        'quantity' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('sales-orders.index'))
+            ->assertSessionHasErrors('discount_value');
+
+        $this->assertSame(0, SalesOrder::query()->count());
+    }
+
+    public function test_store_rejects_amount_discount_greater_than_subtotal(): void
+    {
+        $admin = User::factory()->create();
+        $product = Product::factory()->available()->create(['quantity' => 5]);
+
+        $this->actingAs($admin)
+            ->from(route('sales-orders.index'))
+            ->post(route('sales-orders.store'), [
+                'discount_type' => 'amount',
+                'discount_value' => '50.00',
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'selling_price' => '10.00',
+                        'quantity' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('sales-orders.index'))
+            ->assertSessionHasErrors('discount_value');
+
+        $this->assertSame(0, SalesOrder::query()->count());
+    }
+
+    public function test_full_discount_marks_order_paid_without_payment(): void
+    {
+        $admin = User::factory()->create();
+        $product = Product::factory()->available()->create(['quantity' => 5]);
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.store'), [
+                'discount_type' => 'percent',
+                'discount_value' => '100',
+                'items' => [
+                    [
+                        'product_id' => $product->id,
+                        'selling_price' => '25.00',
+                        'quantity' => 2,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('sales-orders.index'));
+
+        $order = SalesOrder::query()->first();
+        $this->assertSame('0.00', $order->grand_total);
+
+        $this->actingAs($admin)
+            ->get(route('sales-orders.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('orders.data.0.payment_status', 'paid')
+                ->where('orders.data.0.can_add_payment', false)
+                ->where('orders.data.0.can_void', true)
+            );
+    }
+
     public function test_store_rejects_oversell(): void
     {
         $admin = User::factory()->create();

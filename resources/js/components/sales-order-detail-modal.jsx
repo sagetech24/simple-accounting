@@ -58,11 +58,11 @@ export default function SalesOrderDetailModal({
     const payments = order.payments ?? [];
     const paymentStatusLabel = isDeleted
         ? 'Voided'
-        : {
+        : ({
               unpaid: 'Unpaid',
               partial: 'Partial',
               paid: 'Paid',
-          }[order.payment_status] ?? 'Unpaid';
+          }[order.payment_status] ?? 'Unpaid');
 
     return createPortal(
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-4 py-10 sm:px-6">
@@ -127,9 +127,29 @@ export default function SalesOrderDetailModal({
                     </div>
                     <div>
                         <dt className="text-xs font-medium tracking-wide text-muted uppercase">
+                            Subtotal
+                        </dt>
+                        <dd className="mt-1 text-sm text-ink tabular-nums">
+                            {formatMoney(order.subtotal ?? order.grand_total)}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt className="text-xs font-medium tracking-wide text-muted uppercase">
+                            Discount
+                        </dt>
+                        <dd className="mt-1 text-sm text-ink tabular-nums">
+                            {Number(order.discount_amount) > 0
+                                ? order.discount_type === 'percent'
+                                    ? `−${formatMoney(order.discount_amount)} (${Number(order.discount_value)}%)`
+                                    : `−${formatMoney(order.discount_amount)}`
+                                : 'None'}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt className="text-xs font-medium tracking-wide text-muted uppercase">
                             Grand total
                         </dt>
-                        <dd className="mt-1 text-sm font-semibold tabular-nums text-ink">
+                        <dd className="mt-1 text-sm font-semibold text-ink tabular-nums">
                             {formatMoney(order.grand_total)}
                         </dd>
                     </div>
@@ -137,7 +157,7 @@ export default function SalesOrderDetailModal({
                         <dt className="text-xs font-medium tracking-wide text-muted uppercase">
                             Amount paid
                         </dt>
-                        <dd className="mt-1 text-sm tabular-nums text-ink">
+                        <dd className="mt-1 text-sm text-ink tabular-nums">
                             {formatMoney(order.amount_paid ?? 0)}
                         </dd>
                     </div>
@@ -145,7 +165,7 @@ export default function SalesOrderDetailModal({
                         <dt className="text-xs font-medium tracking-wide text-muted uppercase">
                             Balance due
                         </dt>
-                        <dd className="mt-1 text-sm font-semibold tabular-nums text-ink">
+                        <dd className="mt-1 text-sm font-semibold text-ink tabular-nums">
                             {formatMoney(
                                 order.balance_due ?? order.grand_total,
                             )}
@@ -158,7 +178,7 @@ export default function SalesOrderDetailModal({
                         <p className="text-xs font-medium tracking-wide text-muted uppercase">
                             Notes
                         </p>
-                        <p className="mt-1 whitespace-pre-wrap text-sm text-ink-soft">
+                        <p className="mt-1 text-sm whitespace-pre-wrap text-ink-soft">
                             {order.notes}
                         </p>
                     </div>
@@ -194,13 +214,13 @@ export default function SalesOrderDetailModal({
                                             item.product_unit,
                                         )}
                                     </td>
-                                    <td className="px-3 py-2.5 tabular-nums text-ink-soft">
+                                    <td className="px-3 py-2.5 text-ink-soft tabular-nums">
                                         {formatMoney(item.selling_price)}
                                     </td>
-                                    <td className="px-3 py-2.5 tabular-nums text-ink-soft">
+                                    <td className="px-3 py-2.5 text-ink-soft tabular-nums">
                                         {item.quantity}
                                     </td>
-                                    <td className="px-3 py-2.5 font-medium tabular-nums text-ink">
+                                    <td className="px-3 py-2.5 font-medium text-ink tabular-nums">
                                         {formatMoney(item.subtotal)}
                                     </td>
                                 </tr>
@@ -317,7 +337,7 @@ export default function SalesOrderDetailModal({
                                                         </span>
                                                     )}
                                                 </td>
-                                                <td className="px-3 py-3 font-medium tabular-nums text-ink">
+                                                <td className="px-3 py-3 font-medium text-ink tabular-nums">
                                                     {formatMoney(
                                                         payment.amount,
                                                     )}
@@ -337,8 +357,7 @@ export default function SalesOrderDetailModal({
                                                         </p>
                                                     ) : null}
                                                 </td>
-                                                {!isDeleted &&
-                                                onVoidPayment ? (
+                                                {!isDeleted && onVoidPayment ? (
                                                     <td className="px-3 py-3 text-right">
                                                         <button
                                                             type="button"
