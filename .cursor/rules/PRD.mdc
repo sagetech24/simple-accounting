@@ -37,7 +37,7 @@ Internal ops app for catalog pricing and early procurement workflow. Guests can 
 | Request Quotations | `/request-quotations` | Shipped — list + create/edit tabs, soft delete, draft → pending → approved |
 | Purchased Orders | `/purchased-orders` | Shipped — RFQ→PO, draft → ordered → received, prepayments, post to AP |
 | Inventory | `/inventory` | Shipped — on-hand stock + movement ledger; receive posts stock from PO; sales post `sale` movements |
-| Accounts | `/accounts-payable` | Shipped — settle posted POs by supplier |
+| Accounts | `/accounts` | Shipped — tabs Payable, Receivable, Bank Accounts; AP settle posted POs; AR collect saved-customer sales; bank list |
 
 Admin product management lives under `/admin/products` (also auth-gated). `/received-orders` redirects to `/inventory`.
 
@@ -189,13 +189,32 @@ Admin product management lives under `/admin/products` (also auth-gated). `/rece
 
 ---
 
+## Domain — Accounts Receivable
+
+Collections hub over existing `sales_order_payments`. No “post to AR” step and no new invoice tables. Walk-in and typed-name (`customer_name` only) sales stay on Sales Orders and never appear here.
+
+| Concept | Rules |
+|---------|-------|
+| Who appears | Saved `customer_id` sales only; fully paid customers stay on the rollup |
+| Payments | Same `sales_order_payments` rows as Sales Orders; add/void on both surfaces |
+| Nested URLs | `/accounts-receivable/{customer}`, `/accounts-receivable/{customer}/{sales_order}` (customer `withTrashed`; voided/walk-in/mismatch → 404) |
+| Customer profile | Orders/Payments remain read-only; collect from AR or Sales Orders |
+
+### Accounts Receivable UX
+
+- Hub tab **Receivable** (`/accounts?tab=accounts-receivable`): customer rollup (orders, open, total receivable, paid, balance due)
+- Customer page: All / Open / Settled chips; summary from all non-voided orders; reference opens settlement
+- Settlement: Unpaid / Partial / Paid chip; line items at selling price; Add Payment / Void payment; stay on AR via `return_to=accounts-receivable`
+- Void sale / restore stay on Sales Orders only
+
+---
+
 ## Out of scope (v1)
 
-Multi-user roles, public registration, public/guest catalog, multi-tenant, mobile API, warehouses/lots/serials, partial multi-receipt receiving, Accounts Receivable, COGS costing, draft/confirm sales workflow.
+Multi-user roles, public registration, public/guest catalog, multi-tenant, mobile API, warehouses/lots/serials, partial multi-receipt receiving, COGS costing, draft/confirm sales workflow.
 
 ## Recommended next (v1.x)
 
-- Accounts Receivable
 - Low-stock alerts and price history polish
 - Policies/gates even with one admin
 - Pagination/empty-state polish across modules
