@@ -5,10 +5,8 @@ import PurchasedOrderPrepaymentModal from '@/components/purchased-order-prepayme
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
 import { formatProductLabel } from '@/lib/format-product-label';
-import {
-    index as accountsPayableIndex,
-    supplier as supplierRoute,
-} from '@/routes/accounts-payable';
+import { index as accounts } from '@/routes/accounts';
+import { supplier as supplierRoute } from '@/routes/accounts-payable';
 
 function formatDate(value) {
     if (!value) {
@@ -75,10 +73,12 @@ export default function AccountsPayableShow({
             <div className="flex flex-col gap-4 p-4">
                 <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
                     <Link
-                        href={accountsPayableIndex.url()}
+                        href={accounts.url({
+                            query: { tab: 'accounts-payable' },
+                        })}
                         className="text-teal-800 underline-offset-2 transition hover:underline"
                     >
-                        Accounts Payable
+                        Accounts
                     </Link>
                     <span aria-hidden="true">/</span>
                     <Link

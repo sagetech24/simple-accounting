@@ -1,10 +1,10 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
-import RouteNavTabs from '@/components/route-nav-tabs';
+import AccountsHubHeader from '@/components/accounts-hub-header';
 import AppLayout from '@/layouts/app-layout';
-import { accountsDomainTabs } from '@/config/accounts-domain-tabs';
 import { formatMoney } from '@/lib/format-money';
-import { index, supplier as supplierRoute } from '@/routes/accounts-payable';
+import { index as accounts } from '@/routes/accounts';
+import { supplier as supplierRoute } from '@/routes/accounts-payable';
 import { index as purchasedOrdersIndex } from '@/routes/purchased-orders';
 
 const sortableColumns = [
@@ -215,11 +215,15 @@ export default function AccountsPayableIndex({ suppliers = [], filters }) {
     const fullySettled = rollup.suppliers > 0 && rollup.balanceDue <= 0;
 
     function visitIndex(params) {
-        router.get(index.url(), params, {
-            preserveState: true,
-            replace: true,
-            preserveScroll: true,
-        });
+        router.get(
+            accounts.url(),
+            { tab: 'accounts-payable', ...params },
+            {
+                preserveState: true,
+                replace: true,
+                preserveScroll: true,
+            },
+        );
     }
 
     function currentParams(overrides = {}) {
@@ -254,28 +258,19 @@ export default function AccountsPayableIndex({ suppliers = [], filters }) {
     }
 
     return (
-        <AppLayout title="Accounts Payable">
-            <div className="p-4 pb-0">
+        <AppLayout title="Accounts">
+            <AccountsHubHeader activeKey="accounts-payable" />
+
+            <div className="space-y-5 p-4">
                 <header>
-                    <h2 className="text-2xl font-semibold tracking-tight text-ink">
+                    <h3 className="text-lg font-semibold tracking-tight text-ink">
                         Accounts Payable
-                    </h2>
+                    </h3>
                     <p className="mt-1 text-sm text-muted">
                         Settle purchase orders posted from Purchased Orders by
                         supplier.
                     </p>
                 </header>
-            </div>
-
-            <div className="mt-4">
-                <RouteNavTabs
-                    tabs={accountsDomainTabs}
-                    activeKey="accounts-payable"
-                    ariaLabel="Accounts domain"
-                />
-            </div>
-
-            <div className="space-y-5 p-4">
                 <section
                     aria-label="Accounts payable rollup"
                     className="grid grid-cols-2 gap-3 lg:grid-cols-4"

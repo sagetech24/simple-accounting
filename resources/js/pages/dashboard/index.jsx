@@ -5,7 +5,7 @@ import SalesDailySalesChart from '@/components/sales-daily-sales-chart';
 import TopSoldChart from '@/components/top-sold-chart';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
-import { index as accountsPayable } from '@/routes/accounts-payable';
+import { index as accounts } from '@/routes/accounts';
 import { index as inventory } from '@/routes/inventory';
 import { index as purchasedOrders } from '@/routes/purchased-orders';
 import { index as requestQuotations } from '@/routes/request-quotations';
@@ -114,7 +114,7 @@ export default function Dashboard({
         {
             label: 'Accounts Payable Due',
             value: formatMoney(kpis.ap_balance_due),
-            href: accountsPayable.url(),
+            href: accounts.url({ query: { tab: 'accounts-payable' } }),
         },
         {
             label: 'Low stock',

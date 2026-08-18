@@ -13,7 +13,7 @@ import {
 import SiteHeader from '@/components/site-header';
 import { configureMoneyFormat } from '@/lib/format-money';
 import { dashboard, products } from '@/routes';
-import { index as accountsPayable } from '@/routes/accounts-payable';
+import { index as accounts } from '@/routes/accounts';
 import { index as customers } from '@/routes/customers';
 import { index as inventory } from '@/routes/inventory';
 import { index as purchasedOrders } from '@/routes/purchased-orders';
@@ -38,7 +38,7 @@ const navItems = [
         icon: PurchasedOrdersNavIcon,
     },
     { label: 'Inventory', route: inventory, icon: InventoryNavIcon },
-    { label: 'Accounts', route: accountsPayable, icon: AccountsNavIcon },
+    { label: 'Accounts', route: accounts, icon: AccountsNavIcon },
 ];
 
 function isActive(url, href) {
@@ -47,6 +47,14 @@ function isActive(url, href) {
 
     if (path === '/') {
         return current === '/';
+    }
+
+    if (path === '/accounts') {
+        return (
+            current === '/accounts' ||
+            current.startsWith('/accounts-payable') ||
+            current.startsWith('/bank-accounts')
+        );
     }
 
     return current === path || current.startsWith(`${path}/`);

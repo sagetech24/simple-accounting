@@ -4,11 +4,12 @@ import {
     destroy,
     restore,
 } from '@/actions/App/Http/Controllers/BankAccountController';
+import AccountsHubHeader from '@/components/accounts-hub-header';
 import BankAccountModal from '@/components/bank-account-modal';
-import RouteNavTabs from '@/components/route-nav-tabs';
 import AppLayout from '@/layouts/app-layout';
-import { accountsDomainTabs } from '@/config/accounts-domain-tabs';
-import { index, show } from '@/routes/bank-accounts';
+import { formatMoney } from '@/lib/format-money';
+import { index as accounts } from '@/routes/accounts';
+import { show } from '@/routes/bank-accounts';
 
 const sortableColumns = [
     { key: 'name', label: 'Bank' },
@@ -216,10 +217,14 @@ export default function BankAccountsIndex({ bankAccounts, filters, statuses }) {
     }
 
     function visitIndex(params) {
-        router.get(index.url(), params, {
-            preserveState: true,
-            replace: true,
-        });
+        router.get(
+            accounts.url(),
+            { tab: 'bank-accounts', ...params },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
     }
 
     function currentParams(overrides = {}) {
@@ -268,7 +273,9 @@ export default function BankAccountsIndex({ bankAccounts, filters, statuses }) {
     }
 
     return (
-        <AppLayout title="Bank Accounts">
+        <AppLayout title="Accounts">
+            <AccountsHubHeader activeKey="bank-accounts" />
+
             <div className="flex items-start justify-between gap-4 p-4">
                 <div className="flex flex-col gap-2">
                     <h2 className="text-2xl font-semibold tracking-tight text-ink">
@@ -307,12 +314,6 @@ export default function BankAccountsIndex({ bankAccounts, filters, statuses }) {
                     </svg>
                 </button>
             </div>
-
-            <RouteNavTabs
-                tabs={accountsDomainTabs}
-                activeKey="bank-accounts"
-                ariaLabel="Accounts domain"
-            />
 
             <form
                 onSubmit={submitSearch}

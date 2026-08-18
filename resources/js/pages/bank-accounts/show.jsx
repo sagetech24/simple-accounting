@@ -8,8 +8,9 @@ import BankCheckEditModal from '@/components/bank-check-edit-modal';
 import BankCheckStandaloneModal from '@/components/bank-check-standalone-modal';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
+import { index as accounts } from '@/routes/accounts';
 import { show as apShow } from '@/routes/accounts-payable';
-import { index as bankAccountsIndex, show } from '@/routes/bank-accounts';
+import { show } from '@/routes/bank-accounts';
 
 function formatDate(value, withTime = false) {
     if (!value) {
@@ -226,10 +227,12 @@ export default function BankAccountShow({
             <div className="flex flex-col gap-4 p-4">
                 <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
                     <Link
-                        href={bankAccountsIndex.url()}
+                        href={accounts.url({
+                            query: { tab: 'bank-accounts' },
+                        })}
                         className="cursor-pointer text-teal-800 underline-offset-2 transition hover:underline"
                     >
-                        Bank Accounts
+                        Accounts
                     </Link>
                     <span aria-hidden="true">/</span>
                     <span className="text-ink">{bankAccount.name}</span>

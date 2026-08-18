@@ -1,5 +1,4 @@
-import { index as accountsPayable } from '@/routes/accounts-payable';
-import { index as bankAccounts } from '@/routes/bank-accounts';
+import { index as accounts } from '@/routes/accounts';
 
 /**
  * Navigation tabs for the Accounts domain section.
@@ -9,11 +8,11 @@ export const accountsDomainTabs = [
     {
         key: 'accounts-payable',
         label: 'Accounts Payable',
-        href: () => accountsPayable.url(),
+        href: () => accounts.url({ query: { tab: 'accounts-payable' } }),
     },
     {
         key: 'bank-accounts',
         label: 'Bank Accounts',
-        href: () => bankAccounts.url(),
+        href: () => accounts.url({ query: { tab: 'bank-accounts' } }),
     },
 ];

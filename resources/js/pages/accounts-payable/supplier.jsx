@@ -1,8 +1,8 @@
 import { Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
+import { index as accounts } from '@/routes/accounts';
 import {
-    index as accountsPayableIndex,
     show as accountsPayableShow,
     supplier as supplierRoute,
 } from '@/routes/accounts-payable';
@@ -177,10 +177,12 @@ export default function AccountsPayableSupplier({
                         className="flex flex-wrap items-center gap-2 text-sm text-muted"
                     >
                         <Link
-                            href={accountsPayableIndex.url()}
+                            href={accounts.url({
+                                query: { tab: 'accounts-payable' },
+                            })}
                             className={`rounded-md text-teal-800 underline-offset-2 transition hover:underline ${focusRing}`}
                         >
-                            Accounts Payable
+                            Accounts
                         </Link>
                         <span aria-hidden="true">/</span>
                         <span aria-current="page" className="text-ink">
