@@ -165,7 +165,7 @@ class SalesOrderController extends Controller
                 'message' => 'Payments can only be added when there is a remaining balance.',
             ]);
 
-            return redirect()->route('sales-orders.index');
+            return $this->redirectAfterPayment($request, $salesOrder);
         }
 
         $userName = $request->user()?->name ?? 'Unknown';
@@ -216,7 +216,7 @@ class SalesOrderController extends Controller
             'message' => 'Payment recorded.',
         ]);
 
-        return redirect()->route('sales-orders.index');
+        return $this->redirectAfterPayment($request, $salesOrder);
     }
 
     /**
@@ -295,7 +295,7 @@ class SalesOrderController extends Controller
             'message' => 'Payment voided.',
         ]);
 
-        return redirect()->route('sales-orders.index');
+        return $this->redirectAfterPayment($request, $salesOrder);
     }
 
     /**
@@ -353,6 +353,20 @@ class SalesOrderController extends Controller
         }
 
         return [$subtotal, $lineRows];
+    }
+
+    private function redirectAfterPayment(Request $request, SalesOrder $salesOrder): RedirectResponse
+    {
+        if ($request->input('return_to') === 'accounts-receivable'
+            && $salesOrder->customer_id
+        ) {
+            return redirect()->route('accounts-receivable.show', [
+                $salesOrder->customer_id,
+                $salesOrder,
+            ]);
+        }
+
+        return redirect()->route('sales-orders.index');
     }
 
     /**

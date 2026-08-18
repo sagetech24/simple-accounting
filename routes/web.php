@@ -104,6 +104,9 @@ Route::middleware('auth')->group(function () {
     Route::get('accounts-receivable/{customer}', [AccountsReceivableController::class, 'customer'])
         ->withTrashed()
         ->name('accounts-receivable.customer');
+    Route::get('accounts-receivable/{customer}/{sales_order}', [AccountsReceivableController::class, 'show'])
+        ->withTrashed()
+        ->name('accounts-receivable.show');
 
     Route::post('bank-accounts/{bank_account}/restore', [BankAccountController::class, 'restore'])
         ->withTrashed()

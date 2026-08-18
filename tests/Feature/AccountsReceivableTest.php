@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\SalesOrderPaymentMethod;
 use App\Models\Customer;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
@@ -161,6 +162,120 @@ class AccountsReceivableTest extends TestCase
         $this->actingAs($admin)
             ->get('/accounts-receivable/999999')
             ->assertNotFound();
+    }
+
+    public function test_show_renders_customer_sales_order(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->active()->create();
+        $order = $this->customerSale($customer, '100.00');
+
+        $this->actingAs($admin)
+            ->get(route('accounts-receivable.show', [$customer, $order]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('accounts-receivable/show')
+                ->where('customer.id', $customer->id)
+                ->where('order.id', $order->id)
+                ->where('order.grand_total', '100.00')
+                ->has('paymentMethods')
+                ->has('bankAccounts')
+            );
+    }
+
+    public function test_show_rejects_walk_in_other_customer_and_voided_orders(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->active()->create();
+        $other = Customer::factory()->active()->create();
+        $foreign = $this->customerSale($other, '10.00');
+        $walkIn = SalesOrder::factory()->create([
+            'customer_id' => null,
+            'grand_total' => '10.00',
+        ]);
+        $voided = $this->customerSale($customer, '10.00');
+        $voided->delete();
+
+        $this->actingAs($admin)
+            ->get(route('accounts-receivable.show', [$customer, $foreign]))
+            ->assertNotFound();
+
+        $this->actingAs($admin)
+            ->get('/accounts-receivable/'.$customer->id.'/'.$walkIn->id)
+            ->assertNotFound();
+
+        $this->actingAs($admin)
+            ->get('/accounts-receivable/'.$customer->id.'/'.$voided->id)
+            ->assertNotFound();
+    }
+
+    public function test_add_payment_from_ar_returns_to_ar_show(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->active()->create();
+        $order = $this->customerSale($customer, '100.00');
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.payments.store', $order), [
+                'method' => SalesOrderPaymentMethod::Cash->value,
+                'amount' => '25.00',
+                'return_to' => 'accounts-receivable',
+            ])
+            ->assertRedirect(route('accounts-receivable.show', [$customer, $order]));
+
+        $this->assertDatabaseHas('sales_order_payments', [
+            'sales_order_id' => $order->id,
+            'amount' => '25.00',
+        ]);
+    }
+
+    public function test_void_payment_from_ar_returns_to_ar_show(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->active()->create();
+        $order = $this->customerSale($customer, '100.00');
+        $payment = SalesOrderPayment::factory()->cash()->create([
+            'sales_order_id' => $order->id,
+            'amount' => '10.00',
+        ]);
+
+        $this->actingAs($admin)
+            ->delete(route('sales-orders.payments.destroy', [$order, $payment]), [
+                'return_to' => 'accounts-receivable',
+            ])
+            ->assertRedirect(route('accounts-receivable.show', [$customer, $order]));
+
+        $this->assertDatabaseMissing('sales_order_payments', [
+            'id' => $payment->id,
+        ]);
+    }
+
+    public function test_add_payment_without_return_to_still_goes_to_sales_orders(): void
+    {
+        $admin = User::factory()->create();
+        $customer = Customer::factory()->active()->create();
+        $order = $this->customerSale($customer, '100.00');
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.payments.store', $order), [
+                'method' => SalesOrderPaymentMethod::Cash->value,
+                'amount' => '10.00',
+            ])
+            ->assertRedirect(route('sales-orders.index'));
+    }
+
+    public function test_walk_in_ignores_ar_return_to(): void
+    {
+        $admin = User::factory()->create();
+        $order = SalesOrder::factory()->create(['grand_total' => '50.00']);
+
+        $this->actingAs($admin)
+            ->post(route('sales-orders.payments.store', $order), [
+                'method' => SalesOrderPaymentMethod::Cash->value,
+                'amount' => '10.00',
+                'return_to' => 'accounts-receivable',
+            ])
+            ->assertRedirect(route('sales-orders.index'));
     }
 
     private function customerSale(Customer $customer, string $total): SalesOrder

@@ -2,7 +2,7 @@ import { Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
 import { index as accounts } from '@/routes/accounts';
-import { customer as customerRoute } from '@/routes/accounts-receivable';
+import { customer as customerRoute, show } from '@/routes/accounts-receivable';
 
 const settlementViews = [
     { value: '', label: 'All', countKey: 'order_count' },
@@ -56,8 +56,8 @@ function toNumber(value) {
     return Number.isNaN(amount) ? 0 : amount;
 }
 
-function orderHref(order) {
-    return `#${order.id}`;
+function orderHref(customer, order) {
+    return show.url([customer.id, order.id]);
 }
 
 function ChevronRightIcon({ className = 'size-4 shrink-0' }) {
@@ -389,7 +389,7 @@ export default function AccountsReceivableCustomer({
                                     return (
                                         <Link
                                             key={order.id}
-                                            href={orderHref(order)}
+                                            href={orderHref(customer, order)}
                                             className={`flex cursor-pointer flex-col gap-3 rounded-md border border-line bg-white p-4 transition duration-150 hover:border-teal-600 hover:bg-mist ${focusRing}`}
                                         >
                                             <div className="flex items-start justify-between gap-2">
@@ -522,6 +522,7 @@ export default function AccountsReceivableCustomer({
                                                     <td className="px-4 py-2">
                                                         <Link
                                                             href={orderHref(
+                                                                customer,
                                                                 order,
                                                             )}
                                                             aria-label={`Open settlement detail for ${order.reference}`}

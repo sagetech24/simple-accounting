@@ -64,6 +64,7 @@ class StoreSalesOrderPaymentRequest extends FormRequest
                 'date',
                 'after_or_equal:today',
             ],
+            'return_to' => ['nullable', 'string', Rule::in(['accounts-receivable'])],
         ];
     }
 

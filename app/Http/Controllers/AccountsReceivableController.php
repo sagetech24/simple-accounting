@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BankAccountStatus;
+use App\Enums\SalesOrderPaymentMethod;
+use App\Models\BankAccount;
 use App\Models\Customer;
 use App\Models\SalesOrder;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AccountsReceivableController extends Controller
 {
@@ -146,5 +150,59 @@ class AccountsReceivableController extends Controller
                 'settlement' => $settlement ?? '',
             ],
         ]);
+    }
+
+    /**
+     * Settlement detail for a customer's sales order.
+     */
+    public function show(Customer $customer, SalesOrder $salesOrder): Response
+    {
+        $this->ensureOrderBelongsToCustomer($customer, $salesOrder);
+
+        $salesOrder->load([
+            'customer' => fn ($query) => $query->withTrashed(),
+            'items.product',
+            'payments.bankCheck.bankAccount',
+        ]);
+
+        return Inertia::render('accounts-receivable/show', [
+            'customer' => $customer->toArrayPayload(),
+            'order' => $salesOrder->toArrayPayload(),
+            'paymentMethods' => $this->paymentMethodOptions(),
+            'bankAccounts' => BankAccount::query()
+                ->where('status', BankAccountStatus::Active)
+                ->orderBy('name')
+                ->get()
+                ->map(fn (BankAccount $bankAccount) => [
+                    'id' => $bankAccount->id,
+                    'name' => $bankAccount->name,
+                ])
+                ->values()
+                ->all(),
+        ]);
+    }
+
+    private function ensureOrderBelongsToCustomer(Customer $customer, SalesOrder $salesOrder): void
+    {
+        if ($salesOrder->trashed()
+            || $salesOrder->customer_id === null
+            || (int) $salesOrder->customer_id !== (int) $customer->id
+        ) {
+            throw new NotFoundHttpException;
+        }
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function paymentMethodOptions(): array
+    {
+        return array_map(
+            fn (SalesOrderPaymentMethod $method) => [
+                'value' => $method->value,
+                'label' => $method->label(),
+            ],
+            SalesOrderPaymentMethod::cases(),
+        );
     }
 }

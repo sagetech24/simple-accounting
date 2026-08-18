@@ -32,6 +32,7 @@ export default function SalesOrderPaymentModal({
     order,
     paymentMethods = [],
     bankAccounts = [],
+    returnTo = null,
     onClose,
 }) {
     const { auth } = usePage().props;
@@ -111,6 +112,10 @@ export default function SalesOrderPaymentModal({
                     : null;
                 payload.check_number = data.check_number;
                 payload.due_date = data.due_date;
+            }
+
+            if (returnTo) {
+                payload.return_to = returnTo;
             }
 
             return payload;
