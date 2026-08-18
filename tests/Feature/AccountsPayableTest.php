@@ -55,7 +55,7 @@ class AccountsPayableTest extends TestCase
             ]);
 
         $this->actingAs($admin)
-            ->get(route('accounts-payable.index'))
+            ->get(route('accounts.index', ['tab' => 'accounts-payable']))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('accounts-payable/index')

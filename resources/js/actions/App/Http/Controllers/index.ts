@@ -8,6 +8,7 @@ import CustomerController from './CustomerController'
 import SalesOrderController from './SalesOrderController'
 import RequestQuotationController from './RequestQuotationController'
 import PurchasedOrderController from './PurchasedOrderController'
+import AccountsController from './AccountsController'
 import AccountsPayableController from './AccountsPayableController'
 import BankAccountController from './BankAccountController'
 import BankCheckController from './BankCheckController'
@@ -25,6 +26,7 @@ const Controllers = {
     SalesOrderController: Object.assign(SalesOrderController, SalesOrderController),
     RequestQuotationController: Object.assign(RequestQuotationController, RequestQuotationController),
     PurchasedOrderController: Object.assign(PurchasedOrderController, PurchasedOrderController),
+    AccountsController: Object.assign(AccountsController, AccountsController),
     AccountsPayableController: Object.assign(AccountsPayableController, AccountsPayableController),
     BankAccountController: Object.assign(BankAccountController, BankAccountController),
     BankCheckController: Object.assign(BankCheckController, BankCheckController),

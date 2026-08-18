@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountsController;
 use App\Http\Controllers\AccountsPayableController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -85,8 +86,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('purchased-orders', PurchasedOrderController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
-    Route::get('accounts-payable', [AccountsPayableController::class, 'index'])
-        ->name('accounts-payable.index');
+    Route::get('accounts', [AccountsController::class, 'index'])
+        ->name('accounts.index');
+    Route::get('accounts-payable', function () {
+        return redirect()->route('accounts.index', ['tab' => 'accounts-payable']);
+    })->name('accounts-payable.index');
     Route::get('accounts-payable/{supplier}', [AccountsPayableController::class, 'supplier'])
         ->withTrashed()
         ->name('accounts-payable.supplier');
