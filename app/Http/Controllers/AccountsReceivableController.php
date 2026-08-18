@@ -93,4 +93,58 @@ class AccountsReceivableController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Non-voided sales orders for a single customer.
+     */
+    public function customer(Request $request, Customer $customer): Response
+    {
+        $filters = $request->validate([
+            'settlement' => ['nullable', 'string', Rule::in(['open', 'settled'])],
+        ]);
+
+        $settlement = $filters['settlement'] ?? null;
+
+        $salesOrders = SalesOrder::query()
+            ->where('customer_id', $customer->id)
+            ->with(['items.product', 'payments.bankCheck.bankAccount'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (SalesOrder $order) => $order->toArrayPayload());
+
+        $openOrders = $salesOrders->filter(
+            fn (array $order) => (float) $order['balance_due'] > 0,
+        );
+        $settledOrders = $salesOrders->reject(
+            fn (array $order) => (float) $order['balance_due'] > 0,
+        );
+
+        $orders = match ($settlement) {
+            'open' => $openOrders->values()->all(),
+            'settled' => $settledOrders->values()->all(),
+            default => $salesOrders->values()->all(),
+        };
+
+        $totalReceivable = $salesOrders->sum(fn (array $order) => (float) $order['grand_total']);
+        $totalPaid = $salesOrders->sum(fn (array $order) => (float) $order['amount_paid']);
+        $balanceDue = $salesOrders->sum(fn (array $order) => (float) $order['balance_due']);
+
+        return Inertia::render('accounts-receivable/customer', [
+            'customer' => $customer->toArrayPayload(),
+            'orders' => $orders,
+            'summary' => [
+                'order_count' => $salesOrders->count(),
+                'open_order_count' => $openOrders->count(),
+                'settled_order_count' => $settledOrders->count(),
+                'visible_order_count' => count($orders),
+                'total_receivable' => number_format($totalReceivable, 2, '.', ''),
+                'total_paid' => number_format($totalPaid, 2, '.', ''),
+                'balance_due' => number_format($balanceDue, 2, '.', ''),
+            ],
+            'filters' => [
+                'settlement' => $settlement ?? '',
+            ],
+        ]);
+    }
 }

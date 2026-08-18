@@ -4,6 +4,7 @@ import AccountsHubHeader from '@/components/accounts-hub-header';
 import AppLayout from '@/layouts/app-layout';
 import { formatMoney } from '@/lib/format-money';
 import { index as accounts } from '@/routes/accounts';
+import { customer as customerRoute } from '@/routes/accounts-receivable';
 import { index as salesOrdersIndex } from '@/routes/sales-orders';
 
 const sortableColumns = [
@@ -25,7 +26,7 @@ function toNumber(value) {
 }
 
 function customerHref(id) {
-    return `#${id}`;
+    return customerRoute.url(id);
 }
 
 function ChevronRightIcon({ className = 'size-4 shrink-0' }) {

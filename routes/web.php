@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountsController;
 use App\Http\Controllers\AccountsPayableController;
+use App\Http\Controllers\AccountsReceivableController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BankAccountController;
@@ -100,6 +101,9 @@ Route::middleware('auth')->group(function () {
     Route::post('accounts-payable/{supplier}/{purchased_order:reference}/payments', [AccountsPayableController::class, 'storePayment'])
         ->withTrashed()
         ->name('accounts-payable.payments.store');
+    Route::get('accounts-receivable/{customer}', [AccountsReceivableController::class, 'customer'])
+        ->withTrashed()
+        ->name('accounts-receivable.customer');
 
     Route::post('bank-accounts/{bank_account}/restore', [BankAccountController::class, 'restore'])
         ->withTrashed()
