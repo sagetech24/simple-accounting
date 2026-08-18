@@ -11,6 +11,11 @@ export const accountsDomainTabs = [
         href: () => accounts.url({ query: { tab: 'accounts-payable' } }),
     },
     {
+        key: 'accounts-receivable',
+        label: 'Accounts Receivable',
+        href: () => accounts.url({ query: { tab: 'accounts-receivable' } }),
+    },
+    {
         key: 'bank-accounts',
         label: 'Bank Accounts',
         href: () => accounts.url({ query: { tab: 'bank-accounts' } }),

@@ -53,6 +53,7 @@ function isActive(url, href) {
         return (
             current === '/accounts' ||
             current.startsWith('/accounts-payable') ||
+            current.startsWith('/accounts-receivable') ||
             current.startsWith('/bank-accounts')
         );
     }
