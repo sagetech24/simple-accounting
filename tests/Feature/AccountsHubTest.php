@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\BankAccount;
 use App\Models\PurchasedOrder;
 use App\Models\PurchasedOrderItem;
 use App\Models\Supplier;
@@ -45,6 +46,29 @@ class AccountsHubTest extends TestCase
                 ->component('accounts-payable/index')
                 ->has('suppliers', 1)
                 ->where('suppliers.0.name', 'Posted Co')
+            );
+    }
+
+    public function test_bank_accounts_index_redirects_to_hub(): void
+    {
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)
+            ->get('/bank-accounts')
+            ->assertRedirect(route('accounts.index', ['tab' => 'bank-accounts']));
+    }
+
+    public function test_accounts_hub_bank_tab_renders_bank_index(): void
+    {
+        $admin = User::factory()->create();
+        BankAccount::factory()->create(['name' => 'BDO']);
+
+        $this->actingAs($admin)
+            ->get(route('accounts.index', ['tab' => 'bank-accounts']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('bank-accounts/index')
+                ->where('bankAccounts.data.0.name', 'BDO')
             );
     }
 

@@ -26,7 +26,7 @@ class BankAccountTest extends TestCase
         BankAccount::factory()->create(['name' => 'BDO']);
 
         $this->actingAs($admin)
-            ->get(route('bank-accounts.index'))
+            ->get(route('accounts.index', ['tab' => 'bank-accounts']))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('bank-accounts/index')
@@ -48,7 +48,7 @@ class BankAccountTest extends TestCase
                 'notes' => 'Primary PDC bank.',
                 'status' => BankAccountStatus::Active->value,
             ])
-            ->assertRedirect(route('bank-accounts.index'));
+            ->assertRedirect(route('accounts.index', ['tab' => 'bank-accounts']));
 
         $this->assertDatabaseHas('bank_accounts', [
             'name' => 'Land Bank',
@@ -70,7 +70,7 @@ class BankAccountTest extends TestCase
                 'notes' => $bankAccount->notes,
                 'status' => BankAccountStatus::Inactive->value,
             ])
-            ->assertRedirect(route('bank-accounts.index'));
+            ->assertRedirect(route('accounts.index', ['tab' => 'bank-accounts']));
 
         $this->assertDatabaseHas('bank_accounts', [
             'id' => $bankAccount->id,
@@ -110,13 +110,13 @@ class BankAccountTest extends TestCase
 
         $this->actingAs($admin)
             ->delete(route('bank-accounts.destroy', $bankAccount))
-            ->assertRedirect(route('bank-accounts.index'));
+            ->assertRedirect(route('accounts.index', ['tab' => 'bank-accounts']));
 
         $this->assertSoftDeleted($bankAccount);
 
         $this->actingAs($admin)
             ->post(route('bank-accounts.restore', $bankAccount))
-            ->assertRedirect(route('bank-accounts.index'));
+            ->assertRedirect(route('accounts.index', ['tab' => 'bank-accounts']));
 
         $this->assertNotSoftDeleted($bankAccount);
     }
@@ -128,7 +128,8 @@ class BankAccountTest extends TestCase
         BankAccount::factory()->create(['name' => 'Zulu Bank']);
 
         $this->actingAs($admin)
-            ->get(route('bank-accounts.index', [
+            ->get(route('accounts.index', [
+                'tab' => 'bank-accounts',
                 'sort' => 'name',
                 'direction' => 'desc',
             ]))

@@ -113,7 +113,11 @@ Route::middleware('auth')->group(function () {
         ->name('bank-accounts.checks.update');
     Route::post('bank-accounts/{bank_account}/checks/{bank_check}/void', [BankCheckController::class, 'voidCheck'])
         ->name('bank-accounts.checks.void');
-    Route::resource('bank-accounts', BankAccountController::class)->except(['show', 'create', 'edit']);
+    Route::get('bank-accounts', function () {
+        return redirect()->route('accounts.index', ['tab' => 'bank-accounts']);
+    })->name('bank-accounts.index');
+    Route::resource('bank-accounts', BankAccountController::class)
+        ->except(['show', 'create', 'edit', 'index']);
 
     Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
 

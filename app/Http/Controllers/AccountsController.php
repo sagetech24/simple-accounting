@@ -10,10 +10,15 @@ class AccountsController extends Controller
 {
     public function index(Request $request): Response
     {
-        $request->validate([
-            'tab' => ['nullable', 'string', Rule::in(['accounts-payable'])],
+        $filters = $request->validate([
+            'tab' => ['nullable', 'string', Rule::in(['accounts-payable', 'bank-accounts'])],
         ]);
 
-        return app(AccountsPayableController::class)->index($request);
+        $tab = $filters['tab'] ?? 'accounts-payable';
+
+        return match ($tab) {
+            'bank-accounts' => app(BankAccountController::class)->index($request),
+            default => app(AccountsPayableController::class)->index($request),
+        };
     }
 }

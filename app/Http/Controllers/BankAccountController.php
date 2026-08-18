@@ -218,7 +218,7 @@ class BankAccountController extends Controller
             'message' => 'Bank account created.',
         ]);
 
-        return redirect()->route('bank-accounts.index');
+        return $this->redirectToHub();
     }
 
     /**
@@ -275,7 +275,7 @@ class BankAccountController extends Controller
             return redirect()->route('bank-accounts.show', $bankAccount);
         }
 
-        return redirect()->route('bank-accounts.index');
+        return $this->redirectToHub();
     }
 
     /**
@@ -290,7 +290,7 @@ class BankAccountController extends Controller
             'message' => 'Bank account deleted.',
         ]);
 
-        return redirect()->route('bank-accounts.index');
+        return $this->redirectToHub();
     }
 
     /**
@@ -305,7 +305,12 @@ class BankAccountController extends Controller
             'message' => 'Bank account restored.',
         ]);
 
-        return redirect()->route('bank-accounts.index');
+        return $this->redirectToHub();
+    }
+
+    private function redirectToHub(): RedirectResponse
+    {
+        return redirect()->route('accounts.index', ['tab' => 'bank-accounts']);
     }
 
     /**
