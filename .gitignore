@@ -13,6 +13,7 @@
 !/.cursor/rules/
 !/.cursor/rules/**
 /.idea
+/docs/*
 /.nova
 /.phpunit.cache
 /.vscode
