@@ -264,7 +264,7 @@ export default function AccountsReceivableIndex({ customers = [], filters }) {
             <div className="space-y-5 p-4">
                 <header>
                     <h3 className="text-lg font-semibold tracking-tight text-ink">
-                        Accounts Receivable
+                        Accounts Receivables
                     </h3>
                     <p className="mt-1 text-sm text-muted">
                         Collect sales orders by customer.
@@ -296,7 +296,7 @@ export default function AccountsReceivableIndex({ customers = [], filters }) {
                         tone={rollup.openOrders > 0 ? 'text-warn' : 'text-ink'}
                     />
                     <SummaryCard
-                        label="Total receivable"
+                        label="Total receivables"
                         value={formatMoney(rollup.totalReceivable)}
                         hint={
                             rollup.totalReceivable > 0
@@ -305,7 +305,7 @@ export default function AccountsReceivableIndex({ customers = [], filters }) {
                         }
                     />
                     <SummaryCard
-                        label="Balance due"
+                        label="Collection  Dues"
                         value={formatMoney(rollup.balanceDue)}
                         tone={
                             rollup.customers === 0
