@@ -85,7 +85,7 @@ function UserMenu({ userName, onSystemPreference }) {
                 <div
                     id={menuId}
                     role="menu"
-                    className="absolute top-full right-0 z-30 mt-1 min-w-44 rounded-md border border-line bg-white py-1"
+                    className="absolute top-full right-0 z-30 min-w-44 rounded-md border border-line bg-white py-1"
                 >
                     {menuItems.map((item) => (
                         <button
